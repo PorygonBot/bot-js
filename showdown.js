@@ -43,7 +43,7 @@ class Showdown {
             records.forEach(function(record) {
                 if (record.get("Channel Name") === this.message.channel.name) {
                     let playersIds = record.get("Players");
-                    for (playerId of playersIds) {
+                    for (let playerId of playersIds) {
                         base("Players").find(playerId, function(err, record) {
                             if (err) {
                                 console.error(err);
@@ -53,14 +53,18 @@ class Showdown {
                                 recordJson.players[player1] = {
                                     "ps": player1,
                                     "discord": record.get("Discord Tag"),
-                                    "sheet_tab": record.get("Sheet Tab Name")
+                                    "sheet_tab": record.get("Sheet Tab Name"),
+                                    "kills": killJson1,
+                                    "deaths": deathJson1
                                 }
                             }
                             else if (record.get("Showdown Name") === player1) {
                                 recordJson.players[player2] = {
                                     "ps": player2,
                                     "discord": record.get("Discord Tag"),
-                                    "sheet_tab": record.get("Sheet Tab Name")
+                                    "sheet_tab": record.get("Sheet Tab Name"),
+                                    "kills": killJson2,
+                                    "deaths": deathJson2
                                 }
                             }
                         });
@@ -89,6 +93,9 @@ class Showdown {
                 break;
             default:
                 let dmer = DiscordDMStats();
+                await dmer.update(recordJson.players.one.discord, killJson1, deathJson1, 
+                                  recordJson.players.two.discord, killJson2, deathJson2, 
+                                  replay);
                 break;
         }
     }
@@ -216,22 +223,6 @@ class Showdown {
             "players": {
                 "p1": "",
                 "p2": ""
-            },
-            "kills": {
-                "p1": {
-
-                },
-                "p2": {
-
-                }
-            },
-            "deaths": {
-                "p1": {
-
-                },
-                "p2": {
-
-                }
             },
             "code": "1"
         }
