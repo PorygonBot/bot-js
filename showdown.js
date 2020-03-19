@@ -2,28 +2,95 @@
 const json = require("json");
 const ws = require("ws");
 
+const { username, password, airtable_key, base_id, google_key } = require("./config.json");
+const Airtable = require("airtable");
+const base = new Airtable({
+    apiKey: airtable_key
+}).base(base_id);
+var viewname = "Grid view";
+
 class Showdown {
     #username;
     #password;
     #websocket;
-    constructor(battle, server, loginUser, loginPass) {
+    constructor(battle, server, message) {
         this.battle = battle.split("/")[3];
 
-        if (server == "Standard") this.server = "wss://sim.smogon.com/showdown/this.#websocket";
-        else if (server == "Sports") this.server = "ws://34.222.148.43:8000/showdown/this.#websocket";
+        if (server == "Standard") 
+            this.server = "wss://sim.smogon.com/showdown/websocket";
+        else if (server == "Sports") 
+            this.server = "ws://34.222.148.43:8000/showdown/websocket";
         this.#websocket = new ws(this.server);
 
-        this.#username = loginUser;
-        this.#password = loginPass;
+        this.#username = username;
+        this.#password = password;
+        this.message = message;
     }
 
-    async winscript() {
-        let dmer = DiscordDMStats();
-        let masser = GoogleSheetsMassStats();
-        let liner = GoogleSheetsLineStats();
-
-
+    async winscript(player1, killJson1, deathJson1, player2, killJson2, deathJson2) {
         //TODO finish winscript
+
+        //Getting players info from Airtable
+        let recordJson = {
+            "system": "",
+            "players": {}
+        };
+
+        base("Leagues").select({
+            maxRecords: 50,
+            view: viewname
+        }).eachPage(function page(records, fetchNextPage) {
+            records.forEach(function(record) {
+                if (record.get("Channel Name") === this.message.channel.name) {
+                    let playersIds = record.get("Players");
+                    for (playerId of playersIds) {
+                        base("Players").find(playerId, function(err, record) {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            if (record.get("Showdown Name") === player1) {
+                                recordJson.players[player1] = {
+                                    "ps": player1,
+                                    "discord": record.get("Discord Tag"),
+                                    "sheet_tab": record.get("Sheet Tab Name")
+                                }
+                            }
+                            else if (record.get("Showdown Name") === player1) {
+                                recordJson.players[player2] = {
+                                    "ps": player2,
+                                    "discord": record.get("Discord Tag"),
+                                    "sheet_tab": record.get("Sheet Tab Name")
+                                }
+                            }
+                        });
+                    }
+
+                    recordJson.system = record.get("Stats Storage System");
+                }
+            });
+
+            fetchNextPage();
+        },
+        function done(err) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        });
+
+        //Updating stats based on given method
+        switch (recordJson.system) {
+            case "Google Sheets Line":
+                let liner = GoogleSheetsLineStats();
+                break;
+            case "Google Sheets Mass":
+                let masser = GoogleSheetsMassStats();
+                break;
+            default:
+                let dmer = DiscordDMStats();
+                break;
+        }
     }
 
     async track() {
@@ -129,9 +196,47 @@ class Showdown {
                     //TODO write this
                     let winner = parts[1];
                     winner = ((winner === players[0]) ? `${winner}p1` : `${winner}p2`);
+                    let loser = ((winner === `${players[0]}p1`) ? `${players[1]}p2` : `${players[0]}p1`);
+
+                    if (winner.endsWith("p1") && loser.endsWith("p2")) {
+                        await winscript(winner, killJsonp1, deathJsonp1, loser, killJsonp2, deathJsonp2);
+                    }
+                    else if (winner.endsWith("p2") && loser.endsWith("p1")) {
+                        await winscript(winner, killJsonp2, deathJsonp2, loser, killJsonp1, deathJsonp1);
+                    }
+                    else {
+                        return {"code": "-1"};
+                    }
                 }
             }
         });
+
+        let returndata = {
+            "replay": "",
+            "players": {
+                "p1": "",
+                "p2": ""
+            },
+            "kills": {
+                "p1": {
+
+                },
+                "p2": {
+
+                }
+            },
+            "deaths": {
+                "p1": {
+
+                },
+                "p2": {
+
+                }
+            },
+            "code": "1"
+        }
+
+        return returndata;
     }
 
     async login(nonce) {
