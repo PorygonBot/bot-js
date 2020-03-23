@@ -87,18 +87,19 @@ class Showdown {
                 let liner = GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
                 await liner.update(player1, Object.keys(killJson1), killJson1, deathJson1,
                                    player2, Object.keys(killJson2), killJson2, deathJson2, 
-                                   info)
+                                   info);
                 break;
             case "Google Sheets Mass":
-                let masser = GoogleSheetsMassStats(recordJson.sheetId, recordJson.players[player1].sheet_tab, recordJson.players[player2].sheet_tab);
-                await masser.update();
+                let masser = GoogleSheetsMassStats(recordJson.sheetId, 
+                                                   `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
+                                                   `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
+                await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
                 break;
             default:
                 let dmer = DiscordDMStats(this.message);
                 await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
                                   recordJson.players[player2].discord, killJson2, deathJson2, 
                                   info);
-                break;
         }
     }
 
@@ -130,6 +131,8 @@ class Showdown {
                 let assertion = await login(nonce);
                 //logs in
                 this.#websocket.send(`|/trn ${psUsername},0,${assertion}|`);
+                //Joins the battle
+                await this.join();
             }
 
             else if (data.startsWith("|queryresponse|")) {
@@ -243,10 +246,10 @@ class Showdown {
         });
 
         let returndata = {
-            "replay": "",
+            "replay": replay,
             "players": {
-                "p1": "",
-                "p2": ""
+                "winner": winner,
+                "loser": loser
             },
             "code": "1"
         }
@@ -267,5 +270,10 @@ class Showdown {
         let json = JSON.parse(response.data.substring(1));
         console.log("Logged in to PS.");
         return json.assertion;
+    }
+
+    async join() {
+        this.#websocket.send(`|/join ${this.battle}`);
+        this.message.channel.send("Battle joined! Keeping track of stats now.");
     }
 }
