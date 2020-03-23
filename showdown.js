@@ -60,14 +60,15 @@ class Showdown {
                                 "ps": player,
                                 "discord": record.get("Discord Tag"),
                                 "sheet_tab": record.get("Sheet Tab Name"),
-                                "kills": killJson2,
-                                "deaths": deathJson2
+                                "kills": (player === player1 ? killJson1 : killJson2),
+                                "deaths": (player === player1 ? deathJson1 : deathJson2)
                            }
                         });
                     }
 
                     recordJson.system = record.get("Stats Storage System");
                     recordJson.sheetId = record.get("Sheet ID");
+                    recordJson.range = record.get("Stats Range");
                 }
             });
 
@@ -83,19 +84,19 @@ class Showdown {
         //Updating stats based on given method
         switch (recordJson.system) {
             case "Google Sheets Line":
-                let liner = GoogleSheetsLineStats(recordJson.sheetId, Object.values(recordJson.players)[0].sheet_tab);
+                let liner = GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
                 await liner.update(player1, Object.keys(killJson1), killJson1, deathJson1,
                                    player2, Object.keys(killJson2), killJson2, deathJson2, 
                                    info)
                 break;
             case "Google Sheets Mass":
-                let masser = GoogleSheetsMassStats();
-                
+                let masser = GoogleSheetsMassStats(recordJson.sheetId, recordJson.players[player1].sheet_tab, recordJson.players[player2].sheet_tab);
+                await masser.update();
                 break;
             default:
                 let dmer = DiscordDMStats(this.message);
-                await dmer.update(recordJson.players.one.discord, killJson1, deathJson1, 
-                                  recordJson.players.two.discord, killJson2, deathJson2, 
+                await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
+                                  recordJson.players[player2].discord, killJson2, deathJson2, 
                                   info);
                 break;
         }
