@@ -8,7 +8,7 @@ class DiscordDMStats {
         this.server = this.message.guild;
     }
 
-    async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, replay) {
+    async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
         let message1 = "";
         let message2 = "";
 
@@ -16,11 +16,11 @@ class DiscordDMStats {
         for (let pokemon of Object.keys(killJson1)) {
             message1 += `${pokemon} has ${killJson1[pokemon]} kills and ${deathJson1[pokemon]} deaths. \n`;
         }
-        message1 += `\n Replay: ${replay}`;
+        message1 += `\n Replay: ${info.replay}`;
         for (let pokemon of Object.keys(killJson2)) {
             message2 += `${pokemon} has ${killJson2[pokemon]} kills and ${deathJson2[pokemon]} deaths. \n`;
         }
-        message2 += `\n Replay: ${replay}`;
+        message2 += `\n Replay: ${info.replay}`;
 
         //getting User objects from Discord given their username
         let user1 = getUser(player1);
