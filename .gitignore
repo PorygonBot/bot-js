@@ -1,3 +1,4 @@
-*.json
+config.json
+client_secret.json
 node_modules/
 frenchscript.txt
