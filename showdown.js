@@ -1,6 +1,7 @@
 //This is the code for connecting to and keeping track of a showdown match
 const json = require("json");
 const ws = require("ws");
+const axios = require("axios");
 
 const DiscordDMStats = require("./updaters/discorddm");
 const GoogleSheetsLineStats = require("./updaters/googleline");
@@ -14,9 +15,6 @@ const base = new Airtable({
 var viewname = "Grid view";
 
 class Showdown {
-    #username;
-    #password;
-    #websocket;
     constructor(battle, server, message) {
         this.battle = battle.split("/")[3];
 
@@ -24,10 +22,9 @@ class Showdown {
             this.server = "wss://sim.smogon.com/showdown/websocket";
         else if (server == "Sports") 
             this.server = "ws://34.222.148.43:8000/showdown/websocket";
-        this.#websocket = new ws(this.server);
-
-        this.#username = username;
-        this.#password = password;
+        this.websocket = new ws(this.server);
+        this.username = username;
+        this.password = password;
         this.message = message;
     }
 
@@ -81,26 +78,49 @@ class Showdown {
             }
         });
 
+        console.log(recordJson);
+
         //Updating stats based on given method
         switch (recordJson.system) {
             case "Google Sheets Line":
-                let liner = GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
+                let liner = new GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
                 await liner.update(player1, Object.keys(killJson1), killJson1, deathJson1,
                                    player2, Object.keys(killJson2), killJson2, deathJson2, 
                                    info);
                 break;
             case "Google Sheets Mass":
-                let masser = GoogleSheetsMassStats(recordJson.sheetId, 
+                let masser = new GoogleSheetsMassStats(recordJson.sheetId, 
                                                    `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
                                                    `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
                 await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
                 break;
             default:
-                let dmer = DiscordDMStats(this.message);
+                let dmer = new DiscordDMStats(this.message);
                 await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
                                   recordJson.players[player2].discord, killJson2, deathJson2, 
                                   info);
         }
+    }
+
+    async login(nonce) {
+        console.log("LOGGING IN");
+        let psUrl = "https://play.pokemonshowdown.com/action.php";
+        let data = {
+            act: "login",
+            name: this.username,
+            pass: this.password,
+            challstr: nonce
+        };
+    
+        let response = await axios.post(psUrl, data);
+        let json = JSON.parse(response.data.substring(1));
+        console.log("Logged in to PS.");
+        return json.assertion;
+    }
+
+    async join() {
+        this.websocket.send(`|/join ${this.battle}`);
+        this.message.channel.send("Battle joined! Keeping track of stats now.");
     }
 
     async track() {
@@ -121,16 +141,16 @@ class Showdown {
         let winner = "";
         let loser = "";
 
-        //when the this.#websocket sends a message
-        this.#websocket.on("message", async function incoming(data) {
+        //when the this.websocket sends a message
+        this.websocket.on("message", async (data) => {
             let realdata = data.split("\n");
         
             //stuff to do after server connects
             if (data.startsWith("|challstr|")) {
                 let nonce = data.substring(10);
-                let assertion = await login(nonce);
+                let assertion = await this.login(nonce);
                 //logs in
-                this.#websocket.send(`|/trn ${psUsername},0,${assertion}|`);
+                this.websocket.send(`|/trn ${username},0,${assertion}|`);
                 //Joins the battle
                 await this.join();
             }
@@ -138,7 +158,7 @@ class Showdown {
             else if (data.startsWith("|queryresponse|")) {
                 if (data.startsWith("|queryresponse|savereplay")) {
                     //https://replay.pokemonshowdown.com/sports-gen8nationaldexdraft-44205
-                    let replayJson = JSON.parse(data.split("|")[3]);
+                    let replayJson = JSON.parse(data.substring(26,));
                     replay = `https://replay.pokemonshowdown.com/${replayJson.id}`;
 
                     let info = {
@@ -149,16 +169,16 @@ class Showdown {
                     };
 
                     if (winner.endsWith("p1") && loser.endsWith("p2")) {
-                        await endscript(winner, killJsonp1, deathJsonp1, loser, killJsonp2, deathJsonp2, info);
+                        await this.endscript(winner, killJsonp1, deathJsonp1, loser, killJsonp2, deathJsonp2, info);
                     }
                     else if (winner.endsWith("p2") && loser.endsWith("p1")) {
-                        await endscript(winner, killJsonp2, deathJsonp2, loser, killJsonp1, deathJsonp1, info);
+                        await this.endscript(winner, killJsonp2, deathJsonp2, loser, killJsonp1, deathJsonp1, info);
                     }
                     else {
                         return {"code": "-1"};
                     }
 
-                    this.#websocket.close();
+                    this.websocket.close();
                 }
             }
         
@@ -240,7 +260,7 @@ class Showdown {
                     winner = parts[1];
                     winner = ((winner === players[0]) ? `${winner}p1` : `${winner}p2`);
                     loser = ((winner === `${players[0]}p1`) ? `${players[1]}p2` : `${players[0]}p1`);
-                    this.#websocket.send(`${this.battle}|/savereplay`);
+                    this.websocket.send(`${this.battle}|/savereplay`);
                 }
             }
         });
@@ -256,24 +276,6 @@ class Showdown {
 
         return returndata;
     }
-
-    async login(nonce) {
-        let psUrl = "https://play.pokemonshowdown.com/action.php";
-        let data = {
-            act: "login",
-            name: this.#username,
-            pass: this.#password,
-            challstr: nonce
-        };
-    
-        let response = await axios.post(psUrl, data);
-        let json = JSON.parse(response.data.substring(1));
-        console.log("Logged in to PS.");
-        return json.assertion;
-    }
-
-    async join() {
-        this.#websocket.send(`|/join ${this.battle}`);
-        this.message.channel.send("Battle joined! Keeping track of stats now.");
-    }
 }
+
+module.exports = Showdown

@@ -1,15 +1,15 @@
 //actual bot goes here
-const Discord = require("discord");
+const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
-const psClient = require("./showdown");
+const Showdown = require("./showdown");
 
 //Getting config info
-const { username, password, airtable_key, base_id, google_key } = require("./config.json");
+const { username, password, token, airtable_key, base_id, google_key } = require("./config.json");
 //Creating the bot
 const bot = new Discord.Client({ disableEveryone: true });
 
-//When the bot goes online
+//When the bot is connected and logged in to Discord
 bot.on("ready", async() => {
     console.log(`${bot.user.username} is online!`);
     bot.user.setActivity(`PS battles`, { type: "watching" });
@@ -53,8 +53,8 @@ bot.on("message", async (message) => {
     if (channel.type === "dm") return;
     else if (channels.includes(channel.id)) {
         //Extracting battlelink from the message
-        let urls = Array.from(getUrls(msgStr));
-        let battlelink = urls[0];
+        let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
+        let battlelink = urls.next().value;
         let psServer = "";
         //Checking what server the battlelink is from
         if (battlelink.includes("play.pokemonshowdown.com")) {
@@ -66,9 +66,12 @@ bot.on("message", async (message) => {
 
         channel.send("Joining the battle...");
         //Instantiating the Showdown client
-        const showdown = new psClient.Showdown(battlelink, psServer, message);
+        const psclient = new Showdown(battlelink, psServer, message);
         //Tracking the battle
-        let battleInfo = await showdown.track();
-        channel.send(`Battle is complete! Here's the replay: ${battleInfo.replay}`);
+            let battleInfo = psclient.track().then(
+                channel.send(`Battle is complete! Here's the replay: ${battleInfo.replay}`)
+            );
     }
-})
+});
+
+bot.login(token);

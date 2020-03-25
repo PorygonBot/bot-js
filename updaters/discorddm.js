@@ -24,7 +24,7 @@ class DiscordDMStats {
 
         //getting User objects from Discord given their username
         let user1 = getUser(player1);
-        let user1 = getUser(player2);
+        let user2 = getUser(player2);
 
         //finally sending players the info
         user1.send(message1);
@@ -35,3 +35,5 @@ class DiscordDMStats {
         return this.server.members.cache.get(m => m.username === username);
     }
 }
+
+module.exports = DiscordDMStats
