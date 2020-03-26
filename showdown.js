@@ -19,7 +19,7 @@ class Showdown {
         this.battle = battle.split("/")[3];
 
         if (server == "Standard") 
-            this.server = "wss://sim.smogon.com/showdown/websocket";
+            this.server = "ws://sim.smogon.com:8000/showdown/websocket";
         else if (server == "Sports") 
             this.server = "ws://34.222.148.43:8000/showdown/websocket";
         this.websocket = new ws(this.server);
@@ -29,8 +29,8 @@ class Showdown {
     }
 
     async endscript(playerp1, killJson1, deathJson1, playerp2, killJson2, deathJson2, info) {
-        let player1 = playerp1.substring(0, playerp1.length - 2);
-        let player2 = playerp2.substring(0, playerp2.length - 2);
+        let player1 = playerp1.substring(0, playerp1.length - 2).toLowerCase();
+        let player2 = playerp2.substring(0, playerp2.length - 2).toLowerCase();
 
         //Getting players info from Airtable
         let recordJson = {
@@ -44,6 +44,7 @@ class Showdown {
                 maxRecords: 50,
                 view: viewname
             }).eachPage((records, fetchNextPage) => {
+                console.log("hi");
                 records.forEach(async (record) => { 
                     if (record.get("Channel ID") === this.message.channel.id) { 
                         let playersIds = record.get("Players");
@@ -59,12 +60,10 @@ class Showdown {
                                 });
                             })
                             
-                            let recordPSName = record.get("Showdown Name");
+                            let recordPSName = record.get("Showdown Name").toLowerCase();
                             let recordDiscord = record.get("Discord Tag");
                             let recordTab = record.get("Sheet Tab Name");
-                            console.log("recordPsname: " + recordPSName);
-                            console.log("player1: " + player1); 
-                            console.log("player2: " + player2 + "\n");
+
                             if (recordPSName === player1 || recordPSName === player2) {
                                 let player = recordPSName === player1 ? player1 : player2
                                 recordJson.players[player] = {
@@ -81,11 +80,9 @@ class Showdown {
                         recordJson.sheetId = record.get("Sheet ID");
                         recordJson.range = record.get("Stats Range");
 
-                        console.log(recordJson);
+                        console.log("recordJson inside: " + JSON.stringify(recordJson));
                     }
                 });
-
-                fetchNextPage(); 
             }, 
             function done(err) {
                 if (err) {
@@ -95,8 +92,8 @@ class Showdown {
             });
         });
 
-        console.log("recordJson: " + recordJson);
-        /*
+        console.log("recordJson outside: " +JSON.stringify(recordJson));
+        
         //Updating stats based on given method
         switch (recordJson.system) {
             case "Google Sheets Line":
@@ -111,13 +108,14 @@ class Showdown {
                                                    `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
                 await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
                 break;
-            default:
+                case "Discord DM":
                 let dmer = new DiscordDMStats(this.message);
                 await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
                                   recordJson.players[player2].discord, killJson2, deathJson2, 
                                   info);
+                break;
         }
-        */
+        
     }
 
     async login(nonce) {

@@ -6,18 +6,14 @@ const destroyer = require('server-destroy');
 const fs = require('fs');
 const path = require('path');
 
-const keypath = path.join(__dirname, `client_secret.json`);
-let keys = JSON.parse(fs.readFileSync(keypath));
+const keyfile = path.join(__dirname, "client_secret.json");
+const keys = JSON.parse(fs.readFileSync(keyfile)).web;
 
 class GoogleClient {
     constructor(options) {
-        this._options = options || {scopes = [
-            'https://www.googleapis.com/auth/drive',
-            'https://www.googleapis.com/auth/drive.file',
-            'https://www.googleapis.com/auth/spreadsheets',
-          ]}
+        this._options = options || {scopes: ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']}
 
-        const redirectUri = keys.redirect_uris[keys.redirect_uris.length - 1];
+        const redirectUri = keys.redirect_uris[0];
     
         //Create an OAuth client to authorize the API call
         this.oAuth2Client = new google.auth.OAuth2(

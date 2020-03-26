@@ -57,6 +57,7 @@ bot.on("message", async (message) => {
         let battlelink = urls.next().value;
         let psServer = "";
         //Checking what server the battlelink is from
+        console.log(battlelink);
         if (battlelink.includes("play.pokemonshowdown.com")) {
             psServer = "Standard";
         }
@@ -69,7 +70,7 @@ bot.on("message", async (message) => {
         const psclient = new Showdown(battlelink, psServer, message);
         //Tracking the battle
         let battleInfo = psclient.track().then(
-            channel.send(`Battle is complete! Here's the replay: ${battleInfo.replay}`)
+            channel.send(`Battle is complete! Here's the replay:`)
         );
     }
 });
