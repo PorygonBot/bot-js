@@ -68,9 +68,9 @@ bot.on("message", async (message) => {
         //Instantiating the Showdown client
         const psclient = new Showdown(battlelink, psServer, message);
         //Tracking the battle
-            let battleInfo = psclient.track().then(
-                channel.send(`Battle is complete! Here's the replay: ${battleInfo.replay}`)
-            );
+        let battleInfo = psclient.track().then(
+            channel.send(`Battle is complete! Here's the replay: ${battleInfo.replay}`)
+        );
     }
 });
 
