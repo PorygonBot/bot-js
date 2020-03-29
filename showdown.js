@@ -39,60 +39,55 @@ class Showdown {
             "sheetId": ""
         };
 
-        let airtableResponse = await new Promise((resolve, reject) => {
+        let airtablePromise = await new Promise((resolve, reject) => {
             base("Leagues").select({
-                maxRecords: 50,
+                maxRecords: 10,
                 view: viewname
             }).eachPage((records, fetchNextPage) => {
-                console.log("hi");
-                records.forEach(async (record) => { 
-                    if (record.get("Channel ID") === this.message.channel.id) { 
-                        let playersIds = record.get("Players");
+                records.forEach((leagueRecord) => { 
+                    if (leagueRecord.get("Channel ID") === this.message.channel.id) { 
+                        let playersIds = leagueRecord.get("Players");
                         for (let playerId of playersIds) {
                             console.log(playerId);
-                            record = await new Promise((res,rej) => {
-                                base("Players").find(playerId, async (err, record) => { 
-                                    if (err) {  
-                                        rej(err) 
-                                        return;
-                                    }
-                                    res(record)
-                                });
-                            })
-                            
-                            let recordPSName = record.get("Showdown Name").toLowerCase();
-                            let recordDiscord = record.get("Discord Tag");
-                            let recordTab = record.get("Sheet Tab Name");
-
-                            if (recordPSName === player1 || recordPSName === player2) {
-                                let player = recordPSName === player1 ? player1 : player2
-                                recordJson.players[player] = {
-                                    "ps": player,
-                                    "discord": recordDiscord,
-                                    "sheet_tab": recordTab,
-                                    "kills": (player === player1 ? killJson1 : killJson2),
-                                    "deaths": (player === player1 ? deathJson1 : deathJson2)
-                                }   
-                            }
+                            base("Players").find(playerId, (err, record) => { 
+                                if (err) {  
+                                    console.error(err) 
+                                    return;
+                                }
+    
+                                let recordPSName = record.get("Showdown Name"); 
+                                recordPSName.toLowerCase();
+                                let recordDiscord = record.get("Discord Tag");
+                                let recordTab = record.get("Sheet Tab Name");
+    
+                                if (recordPSName === player1 || recordPSName === player2) {
+                                    let player = recordPSName === player1 ? player1 : player2;
+                                    recordJson.players[player] = {
+                                        "ps": player,
+                                        "discord": recordDiscord,
+                                        "sheet_tab": recordTab,
+                                        "kills": (player === player1 ? killJson1 : killJson2),
+                                        "deaths": (player === player1 ? deathJson1 : deathJson2)
+                                    }; 
+                                }
+                            });
                         } 
                         
-                        recordJson.system = record.get("Stats Storage System");
-                        recordJson.sheetId = record.get("Sheet ID");
-                        recordJson.range = record.get("Stats Range");
-
-                        console.log("recordJson inside: " + JSON.stringify(recordJson));
+                        setTimeout(function() {
+                            recordJson.system = leagueRecord.get("Stats Storage System");
+                            recordJson.sheetId = leagueRecord.get("Sheet ID");
+                            recordJson.range = leagueRecord.get("Stats Range");
+        
+                            console.log("recordJson inside: " + JSON.stringify(recordJson));
+                        }, (500));
                     }
                 });
-            }, 
-            function done(err) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
+    
+                fetchNextPage();
             });
         });
 
-        console.log("recordJson outside: " +JSON.stringify(recordJson));
+        console.log("recordJson outside: " + JSON.stringify(recordJson));
         
         //Updating stats based on given method
         switch (recordJson.system) {
