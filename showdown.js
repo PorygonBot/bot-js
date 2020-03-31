@@ -12,7 +12,7 @@ const Airtable = require("airtable");
 const base = new Airtable({
     apiKey: airtable_key
 }).base(base_id);
-var viewname = "Grid view";
+const VIEW_NAME = "Grid view";
 
 class Showdown {
     constructor(battle, server, message) {
@@ -53,14 +53,12 @@ class Showdown {
                     for (let playerId of playersIds) {
                         funcArr.push(new Promise((resolve, reject) => {
                             base("Players").find(playerId, async (error, record) => {
-                                console.log(record.id);
                                 if (error) {
                                     reject(error);
                                 }
    
                                 let recordPSName = await record.get('Showdown Name');
                                 recordPSName = recordPSName.toLowerCase();
-                                console.log(`${recordPSName} is supposed to be ${player1} or ${player2}`);
                                 let recordDiscord = await record.get('Discord Tag');
                                 let recordTab = await record.get('Sheet Tab Name');
    
@@ -73,33 +71,24 @@ class Showdown {
                                         kills: player === player1 ? killJson1 : killJson2,
                                         deaths: player === player1 ? deathJson1 : deathJson2
                                     };
-   
-                                    console.log("recordJson very inside: " + JSON.stringify(recordJson));
                                 }
-   
-                                console.log("this finished!");
+
                                 resolve();
                             });
                         }));
                     }
  
                     await Promise.all(funcArr).then(() => {
-                        console.log("recordJson somewhat inside: " + JSON.stringify(recordJson));
+                        console.log("Players found! Updating now...");
                     });
                    
  
                     recordJson.system = await leagueRecord.get('Stats Storage System');
                     recordJson.sheetId = await leagueRecord.get('Sheet ID');
                     recordJson.range = await leagueRecord.get('Stats Range');
- 
-                    console.log("recordJson inside: " + JSON.stringify(recordJson));
                 }
             }
- 
-            console.log('recordJson outside: ' + JSON.stringify(recordJson));
-        }).then(() => {
-            console.log('EXTREMELY VERY OUTSIDE');
-        
+        }).then(async () => {        
             //Updating stats based on given method
             switch (recordJson.system) {
                 case "Google Sheets Line":
@@ -114,13 +103,15 @@ class Showdown {
                                                        `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
                     await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
                     break;
-                    case "Discord DM":
+                case "Discord DM":
                     let dmer = new DiscordDMStats(this.message);
                     await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
                                       recordJson.players[player2].discord, killJson2, deathJson2, 
                                       info);
                     break;
             }
+
+            console.log("Updating done!");
         })        
     }
 
@@ -201,6 +192,17 @@ class Showdown {
                     }
 
                     this.websocket.close();
+
+                    let returndata = {
+                        "replay": replay,
+                        "players": {
+                            "winner": winner,
+                            "loser": loser
+                        },
+                        "code": "1"
+                    }
+            
+                    return returndata;
                 }
             }
         
@@ -287,16 +289,7 @@ class Showdown {
             }
         });
 
-        let returndata = {
-            "replay": replay,
-            "players": {
-                "winner": winner,
-                "loser": loser
-            },
-            "code": "1"
-        }
-
-        return returndata;
+        console.log("websocket closed!");
     }
 }
 
