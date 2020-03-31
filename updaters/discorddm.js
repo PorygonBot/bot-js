@@ -8,6 +8,10 @@ class DiscordDMStats {
         this.server = this.message.guild;
     }
 
+    getUser(username) {
+        return this.server.members.cache.get(m => m.username === username);
+    }
+
     async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
         let message1 = "";
         let message2 = "";
@@ -29,10 +33,6 @@ class DiscordDMStats {
         //finally sending players the info
         user1.send(message1);
         user2.send(message2);
-    }
-
-    async getUser(username) {
-        return this.server.members.cache.get(m => m.username === username);
     }
 }
 

@@ -39,78 +39,89 @@ class Showdown {
             "sheetId": ""
         };
 
-        let airtablePromise = await new Promise((resolve, reject) => {
-            base("Leagues").select({
-                maxRecords: 10,
-                view: viewname
-            }).eachPage((records, fetchNextPage) => {
-                records.forEach((leagueRecord) => { 
-                    if (leagueRecord.get("Channel ID") === this.message.channel.id) { 
-                        let playersIds = leagueRecord.get("Players");
-                        for (let playerId of playersIds) {
-                            console.log(playerId);
-                            base("Players").find(playerId, (err, record) => { 
-                                if (err) {  
-                                    console.error(err) 
-                                    return;
+        console.log(`DEBUG: Pre-promise message!`);
+        base("Leagues").select({
+            maxRecords: 10,
+            view: VIEW_NAME
+        }).all().then(async (records) => {
+            for (let leagueRecord of records) {
+                let channelId = await leagueRecord.get('Channel ID');
+                if (channelId === this.message.channel.id) {
+                    let playersIds = await leagueRecord.get("Players");
+ 
+                    let funcArr = [];
+                    for (let playerId of playersIds) {
+                        funcArr.push(new Promise((resolve, reject) => {
+                            base("Players").find(playerId, async (error, record) => {
+                                console.log(record.id);
+                                if (error) {
+                                    reject(error);
                                 }
-    
-                                let recordPSName = record.get("Showdown Name"); 
-                                recordPSName.toLowerCase();
-                                let recordDiscord = record.get("Discord Tag");
-                                let recordTab = record.get("Sheet Tab Name");
-    
+   
+                                let recordPSName = await record.get('Showdown Name');
+                                recordPSName = recordPSName.toLowerCase();
+                                console.log(`${recordPSName} is supposed to be ${player1} or ${player2}`);
+                                let recordDiscord = await record.get('Discord Tag');
+                                let recordTab = await record.get('Sheet Tab Name');
+   
                                 if (recordPSName === player1 || recordPSName === player2) {
                                     let player = recordPSName === player1 ? player1 : player2;
                                     recordJson.players[player] = {
-                                        "ps": player,
-                                        "discord": recordDiscord,
-                                        "sheet_tab": recordTab,
-                                        "kills": (player === player1 ? killJson1 : killJson2),
-                                        "deaths": (player === player1 ? deathJson1 : deathJson2)
-                                    }; 
+                                        ps: player,
+                                        discord: recordDiscord,
+                                        sheet_tab: recordTab,
+                                        kills: player === player1 ? killJson1 : killJson2,
+                                        deaths: player === player1 ? deathJson1 : deathJson2
+                                    };
+   
+                                    console.log("recordJson very inside: " + JSON.stringify(recordJson));
                                 }
+   
+                                console.log("this finished!");
+                                resolve();
                             });
-                        } 
-                        
-                        setTimeout(function() {
-                            recordJson.system = leagueRecord.get("Stats Storage System");
-                            recordJson.sheetId = leagueRecord.get("Sheet ID");
-                            recordJson.range = leagueRecord.get("Stats Range");
-        
-                            console.log("recordJson inside: " + JSON.stringify(recordJson));
-                        }, (500));
+                        }));
                     }
-                });
-    
-                fetchNextPage();
-            });
-        });
-
-        console.log("recordJson outside: " + JSON.stringify(recordJson));
+ 
+                    await Promise.all(funcArr).then(() => {
+                        console.log("recordJson somewhat inside: " + JSON.stringify(recordJson));
+                    });
+                   
+ 
+                    recordJson.system = await leagueRecord.get('Stats Storage System');
+                    recordJson.sheetId = await leagueRecord.get('Sheet ID');
+                    recordJson.range = await leagueRecord.get('Stats Range');
+ 
+                    console.log("recordJson inside: " + JSON.stringify(recordJson));
+                }
+            }
+ 
+            console.log('recordJson outside: ' + JSON.stringify(recordJson));
+        }).then(() => {
+            console.log('EXTREMELY VERY OUTSIDE');
         
-        //Updating stats based on given method
-        switch (recordJson.system) {
-            case "Google Sheets Line":
-                let liner = new GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
-                await liner.update(player1, Object.keys(killJson1), killJson1, deathJson1,
-                                   player2, Object.keys(killJson2), killJson2, deathJson2, 
-                                   info);
-                break;
-            case "Google Sheets Mass":
-                let masser = new GoogleSheetsMassStats(recordJson.sheetId, 
-                                                   `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
-                                                   `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
-                await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
-                break;
-                case "Discord DM":
-                let dmer = new DiscordDMStats(this.message);
-                await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
-                                  recordJson.players[player2].discord, killJson2, deathJson2, 
-                                  info);
-                break;
-        }
-        
+            //Updating stats based on given method
+            switch (recordJson.system) {
+                case "Google Sheets Line":
+                    let liner = new GoogleSheetsLineStats(recordJson.sheetId, recordJson.players[player1].sheet_tab);
+                    await liner.update(player1, Object.keys(killJson1), killJson1, deathJson1,
+                                       player2, Object.keys(killJson2), killJson2, deathJson2, 
+                                       info);
+                    break;
+                case "Google Sheets Mass":
+                    let masser = new GoogleSheetsMassStats(recordJson.sheetId, 
+                                                       `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
+                                                       `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
+                    await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
+                    break;
+                    case "Discord DM":
+                    let dmer = new DiscordDMStats(this.message);
+                    await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
+                                      recordJson.players[player2].discord, killJson2, deathJson2, 
+                                      info);
+                    break;
+            }
+        })        
     }
 
     async login(nonce) {
