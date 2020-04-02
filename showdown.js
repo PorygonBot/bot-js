@@ -42,7 +42,7 @@ class Showdown {
 
         console.log(`DEBUG: Pre-promise message!`);
         base("Leagues").select({
-            maxRecords: 10,
+            maxRecords: 500,
             view: VIEW_NAME
         }).all().then(async (records) => {
             for (let leagueRecord of records) {
@@ -50,7 +50,8 @@ class Showdown {
                 if (channelId === this.message.channel.id) {
                     let playersIds = await leagueRecord.get("Players");
                     let modsIds = await leagueRecord.get("Mods");
- 
+		    console.log(modsIds);
+
                     let funcArr = [];
                     for (let playerId of playersIds) {
                         funcArr.push(new Promise((resolve, reject) => {
@@ -58,11 +59,16 @@ class Showdown {
                                 if (error) {
                                     reject(error);
                                 }
-   
+
                                 let recordPSName = await record.get('Showdown Name');
-                                recordPSName = recordPSName.toLowerCase();
-                                let recordDiscord = await record.get('Discord Tag');
-                                let recordTab = await record.get('Sheet Tab Name');
+				recordPSName = recordPSName.toLowerCase();
+				let recordDiscord = await record.get('Discord Tag');
+				let recordTab = await record.get('Sheet Tab Name');
+
+				console.log(recordDiscord);
+				if (modsIds.contains(playerId)) {
+				    recordJson.mods.push(recordDiscord)
+				}
    
                                 if (recordPSName === player1 || recordPSName === player2) {
                                     let player = recordPSName === player1 ? player1 : player2;
@@ -73,9 +79,6 @@ class Showdown {
                                         kills: player === player1 ? killJson1 : killJson2,
                                         deaths: player === player1 ? deathJson1 : deathJson2
                                     };
-                                }
-                                if (modsIds.contains(record.id)) {
-                                    recordJson.mods.push(recordDiscord);
                                 }
 
                                 resolve();

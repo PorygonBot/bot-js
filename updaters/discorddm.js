@@ -14,6 +14,7 @@ class DiscordDMStats {
         let username = usernameWithDisc.substring(0, usernameWithDisc.length - 5);
         let userObj = this.server.members.find(m => m.user.username === username).user;
 
+	//console.log(userObj.username);
         //just double checking to make sure the user is correct
         if (`${userObj.username}#${userObj.discriminator}` === usernameWithDisc) {
             return userObj;
@@ -50,24 +51,29 @@ class DiscordDMStats {
         message2 += `\nReplay: ${info.replay}`;
 
         //getting User objects from Discord given their username
-        let user1 = this.getUser(player1);
-        let user2 = this.getUser(player2);
         let modsUsers = [];
 	if (dmMods) {
             for (let mod of mods) {
                 modsUsers.push(this.getUser(mod));
+		console.log("Mod: " + mod);
             }
+	}
+	else {
+	    let user1 = this.getUser(player1);
+	    let user2 = this.getUser(player2);
 	}
 
         //finally sending players the info
-        user1.send(message1);
-        user2.send(message2);
 	if (dmMods) {
             for (let mod of modsUsers) {
                 mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
             }
 	}
-        this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
+	else {
+	    user1.send(message1);
+	    user2.send(message2);
+	}
+        this.channel.send(`Battle between ${player1} and ${player2} is complete! Replay: ${info.replay}`);
     }
 }
 

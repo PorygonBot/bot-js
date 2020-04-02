@@ -23,7 +23,7 @@ const base = new Airtable({
 var viewname = "Grid view";
 base('Leagues').select({
     // Selecting the first 3 records in Grid view:
-    maxRecords: 3,
+    maxRecords: 50,
     view: "Grid view"
 }).eachPage(function page(records, fetchNextPage) {
     // This function (`page`) will get called for each page of records.
