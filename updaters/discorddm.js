@@ -23,7 +23,18 @@ class DiscordDMStats {
         }
     }
 
-    async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
+    //async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
+    async update(matchJson) {
+        //retrieving info from the json object
+        let player1 = matchJson.players[Object.keys(matchJson.players)[0]].discord;
+        let player2 = matchJson.players[Object.keys(matchJson.players)[1]].discord;
+        let killJson1 = matchJson.players[Object.keys(matchJson.players)[0]].kills;
+        let deathJson1 = matchJson.players[Object.keys(matchJson.players)[0]].deaths;
+        let killJson2 = matchJson.players[Object.keys(matchJson.players)[1]].kills;
+        let deathJson2 = matchJson.players[Object.keys(matchJson.players)[1]].deaths;
+        let info = matchJson.info;
+        let mods = matchJson.mods;
+
         let message1 = "";
         let message2 = "";
 
@@ -40,10 +51,17 @@ class DiscordDMStats {
         //getting User objects from Discord given their username
         let user1 = this.getUser(player1);
         let user2 = this.getUser(player2);
+        let modsUsers = [];
+        for (let mod of mods) {
+            modsUsers.push(this.getUser(mod));
+        }
 
         //finally sending players the info
         user1.send(message1);
         user2.send(message2);
+        for (let mod of modsUsers) {
+            mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
+        }
         this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
     }
 }

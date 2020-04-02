@@ -36,7 +36,8 @@ class Showdown {
         let recordJson = {
             "system": "",
             "players": {},
-            "sheetId": ""
+            "sheetId": "",
+            "mods": []
         };
 
         console.log(`DEBUG: Pre-promise message!`);
@@ -48,6 +49,8 @@ class Showdown {
                 let channelId = await leagueRecord.get('Channel ID');
                 if (channelId === this.message.channel.id) {
                     let playersIds = await leagueRecord.get("Players");
+                    let modsIds = await leagueRecord.get("Mods");
+                    console.log("Mods: " + modsIds);
  
                     let funcArr = [];
                     for (let playerId of playersIds) {
@@ -72,6 +75,9 @@ class Showdown {
                                         deaths: player === player1 ? deathJson1 : deathJson2
                                     };
                                 }
+                                if (modsIds.contains(record.id)) {
+                                    recordJson.mods.push(recordDiscord);
+                                }
 
                                 resolve();
                             });
@@ -86,9 +92,14 @@ class Showdown {
                     recordJson.system = await leagueRecord.get('Stats Storage System');
                     recordJson.sheetId = await leagueRecord.get('Sheet ID');
                     recordJson.range = await leagueRecord.get('Stats Range');
+                    recordJson.info = info;
+                    //recordJson.dmMods = await leagueRecord.get("DM Mods?");
+                    console.log("DM Mods? " + await leagueRecord.get("DM Mods?"));
                 }
             }
         }).then(async () => {        
+            console.log(JSON.stringify(recordJson));
+
             //Updating stats based on given method
             switch (recordJson.system) {
                 case "Google Sheets Line":
@@ -105,9 +116,10 @@ class Showdown {
                     break;
                 case "Discord DM":
                     let dmer = new DiscordDMStats(this.message);
-                    await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
-                                      recordJson.players[player2].discord, killJson2, deathJson2, 
-                                      info);
+                    // await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
+                    //                   recordJson.players[player2].discord, killJson2, deathJson2, 
+                    //                   info);
+                    await dmer.update(recordJson);
                     break;
             }
 
