@@ -44,7 +44,7 @@ class DiscordDMStats {
         //finally sending players the info
         user1.send(message1);
         user2.send(message2);
-        this.channel.send("Battle complete! Replay: " + info.replay);
+        this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
     }
 }
 

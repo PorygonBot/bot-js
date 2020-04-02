@@ -75,6 +75,21 @@ bot.on("message", async (message) => {
             console.log("Tracking done!");
         })
     }
+
+    if (msgStr.toLowerCase() === `${prefix} help`) {
+        let bicon = bot.user.displayAvatarURL;
+        let helpEmbed = new Discord.RichEmbed()
+        .setTitle("Porygon Help")
+        .setThumbnail(bicon)
+        .setColor(0xffc0cb)
+        .addField("Prefix", "porygon, use ___")
+        .addField("What does Porygon do? ", "It joins a Pokemon Showdown battle when the live battle link is sent to a dedicated channel and keeps track of the deaths/kills in the battle.")
+        .addField("How do I use Porygon?", `Make a dedicated live-battle-links channel, invite the bot, fill out the online dashboard (coming soon!), and start battling!!`)
+        .addField("Source", "https://github.com/PorygonBot/bot")
+        .setFooter("Made by @harbar20#9389", `https://pm1.narvii.com/6568/c5817e2a693de0f2f3df4d47b0395be12c45edce_hq.jpg`);
+
+        return channel.send(helpEmbed);
+    }
 });
 
 bot.login(token);
