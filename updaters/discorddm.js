@@ -34,6 +34,7 @@ class DiscordDMStats {
         let deathJson2 = matchJson.players[Object.keys(matchJson.players)[1]].deaths;
         let info = matchJson.info;
         let mods = matchJson.mods;
+	let dmMods = matchJson.dmMods;
 
         let message1 = "";
         let message2 = "";
@@ -52,16 +53,20 @@ class DiscordDMStats {
         let user1 = this.getUser(player1);
         let user2 = this.getUser(player2);
         let modsUsers = [];
-        for (let mod of mods) {
-            modsUsers.push(this.getUser(mod));
-        }
+	if (dmMods) {
+            for (let mod of mods) {
+                modsUsers.push(this.getUser(mod));
+            }
+	}
 
         //finally sending players the info
         user1.send(message1);
         user2.send(message2);
-        for (let mod of modsUsers) {
-            mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
-        }
+	if (dmMods) {
+            for (let mod of modsUsers) {
+                mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
+            }
+	}
         this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
     }
 }

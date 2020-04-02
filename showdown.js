@@ -50,7 +50,6 @@ class Showdown {
                 if (channelId === this.message.channel.id) {
                     let playersIds = await leagueRecord.get("Players");
                     let modsIds = await leagueRecord.get("Mods");
-                    console.log("Mods: " + modsIds);
  
                     let funcArr = [];
                     for (let playerId of playersIds) {
@@ -93,13 +92,10 @@ class Showdown {
                     recordJson.sheetId = await leagueRecord.get('Sheet ID');
                     recordJson.range = await leagueRecord.get('Stats Range');
                     recordJson.info = info;
-                    //recordJson.dmMods = await leagueRecord.get("DM Mods?");
-                    console.log("DM Mods? " + await leagueRecord.get("DM Mods?"));
+                    recordJson.dmMods = await leagueRecord.get("DM Mods?");
                 }
             }
         }).then(async () => {        
-            console.log(JSON.stringify(recordJson));
-
             //Updating stats based on given method
             switch (recordJson.system) {
                 case "Google Sheets Line":
