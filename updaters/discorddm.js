@@ -60,13 +60,15 @@ class DiscordDMStats {
 	}
 
         //finally sending players the info
-        user1.send(message1);
-        user2.send(message2);
-	if (dmMods) {
+	    if (dmMods) {
             for (let mod of modsUsers) {
                 mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
             }
-	}
+        }
+        else {
+            user1.send(message1);
+            user2.send(message2);
+        }
         this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
     }
 }
