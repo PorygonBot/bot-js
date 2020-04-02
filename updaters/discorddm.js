@@ -27,6 +27,8 @@ class DiscordDMStats {
     //async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
     async update(matchJson) {
         //retrieving info from the json object
+        let psPlayer1 = Object.keys(matchJson.players)[0];
+        let psPlayer2 = Object.keys(matchJson.players)[1];
         let player1 = matchJson.players[Object.keys(matchJson.players)[0]].discord;
         let player2 = matchJson.players[Object.keys(matchJson.players)[1]].discord;
         let killJson1 = matchJson.players[Object.keys(matchJson.players)[0]].kills;
@@ -35,7 +37,7 @@ class DiscordDMStats {
         let deathJson2 = matchJson.players[Object.keys(matchJson.players)[1]].deaths;
         let info = matchJson.info;
         let mods = matchJson.mods;
-	let dmMods = matchJson.dmMods;
+	    let dmMods = matchJson.dmMods;
 
         let message1 = "";
         let message2 = "";
@@ -52,29 +54,30 @@ class DiscordDMStats {
 
         //getting User objects from Discord given their username
         let modsUsers = [];
-	if (dmMods) {
-            for (let mod of mods) {
-                modsUsers.push(this.getUser(mod));
-		console.log("Mod: " + mod);
-            }
-	}
-	else {
-	    let user1 = this.getUser(player1);
-	    let user2 = this.getUser(player2);
-	}
+        let user1;
+        let user2;
+        if (dmMods) {
+                for (let mod of mods) {
+                    modsUsers.push(this.getUser(mod));
+                    console.log("Mod: " + mod);
+                }
+        }
+        else {
+            user1 = this.getUser(player1);
+            user2 = this.getUser(player2);
+        }
 
         //finally sending players the info
         if (dmMods) {
             for (let mod of modsUsers) {
-                mod.send(`**${player1}**: \n${message1} \n\n**${player2}**: \n${message2}`);
+                mod.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`);
             }
         }
         else {
             user1.send(message1);
             user2.send(message2);
         }
-        this.channel.send(`Battle between ${user1} and ${user2} is complete! Replay: ${info.replay}`);
->>>>>>> 70f60ac970c1a991418fd0b06fd811d987719dd3
+        this.channel.send(`Battle between ${psPlayer1} and ${psPlayer2} is complete! Replay: ${info.replay}`);
     }
 }
 

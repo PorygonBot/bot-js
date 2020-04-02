@@ -18,6 +18,7 @@ class Showdown {
     constructor(battle, server, message) {
         this.battle = battle.split("/")[3];
 
+        this.serverType = server;
         if (server == "Standard") 
             this.server = "ws://sim.smogon.com:8000/showdown/websocket";
         else if (server == "Sports") 
@@ -50,7 +51,8 @@ class Showdown {
                 if (channelId === this.message.channel.id) {
                     let playersIds = await leagueRecord.get("Players");
                     let modsIds = await leagueRecord.get("Mods");
-		    console.log(modsIds);
+                    console.log(playersIds);
+		            console.log(modsIds);
 
                     let funcArr = [];
                     for (let playerId of playersIds) {
@@ -61,14 +63,9 @@ class Showdown {
                                 }
 
                                 let recordPSName = await record.get('Showdown Name');
-				recordPSName = recordPSName.toLowerCase();
-				let recordDiscord = await record.get('Discord Tag');
-				let recordTab = await record.get('Sheet Tab Name');
-
-				console.log(recordDiscord);
-				if (modsIds.contains(playerId)) {
-				    recordJson.mods.push(recordDiscord)
-				}
+                                recordPSName = recordPSName.toLowerCase();
+                                let recordDiscord = await record.get('Discord Tag');
+                                let recordTab = await record.get('Sheet Tab Name');
    
                                 if (recordPSName === player1 || recordPSName === player2) {
                                     let player = recordPSName === player1 ? player1 : player2;
@@ -85,10 +82,27 @@ class Showdown {
                             });
                         }));
                     }
+
+                    let modFuncArr = [];
+                    for (let modId of modsIds) {
+                        modFuncArr.push(new Promise((resolve, reject) => {
+                            base("Players").find(modId, async (err, record) => {
+                                if (err) reject(err);
+
+                                let recordDiscord = await record.get('Discord Tag');
+                                recordJson.mods.push(recordDiscord);
+
+                                resolve();
+                            });
+                        }));
+                    }
  
                     await Promise.all(funcArr).then(() => {
                         console.log("Players found! Updating now...");
                     });
+                    await Promise.all(modFuncArr).then(() => {
+                        console.log("Mods found!");
+                    })
                    
  
                     recordJson.system = await leagueRecord.get('Stats Storage System');
@@ -99,6 +113,8 @@ class Showdown {
                 }
             }
         }).then(async () => {        
+            console.log("Mods: " + recordJson.mods);
+
             //Updating stats based on given method
             switch (recordJson.system) {
                 case "Google Sheets Line":
@@ -183,7 +199,13 @@ class Showdown {
                 if (data.startsWith("|queryresponse|savereplay")) {
                     //https://replay.pokemonshowdown.com/sports-gen8nationaldexdraft-44205
                     let replayJson = JSON.parse(data.substring(26,));
-                    replay = `https://replay.pokemonshowdown.com/${replayJson.id}`;
+                    //replay = `https://replay.pokemonshowdown.com/${replayJson.id}`;
+                    if (this.serverType === "Standard") {
+                        replay = `https://replay.pokemonshowdown.com/${replayJson.id}`
+                    }
+                    else if (this.serverType === "Sports") {
+                        replay = `https://replay.pokemonshowdown.com/sports-${replayJson.id}`
+                    }
 
                     let info = {
                         "replay": replay,
