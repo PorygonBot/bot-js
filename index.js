@@ -58,11 +58,14 @@ bot.on("message", async (message) => {
         let psServer = "";
         //Checking what server the battlelink is from
         console.log(battlelink);
-        if (battlelink.includes("play.pokemonshowdown.com")) {
-            psServer = "Standard";
-        }
-        else if (battlelink.includes("sports.psim.us")) {
+        if (battlelink.includes("sports.psim.us")) {
             psServer = "Sports";
+        }
+	else if (battlelink.includes("automatthic.psim.us")) {
+	    psServer = "Automatthic";
+	}
+	else {
+            psServer = "Standard";
         }
 
         channel.send("Joining the battle...");

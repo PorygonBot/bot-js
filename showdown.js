@@ -23,6 +23,8 @@ class Showdown {
             this.server = "ws://sim.smogon.com:8000/showdown/websocket";
         else if (server == "Sports") 
             this.server = "ws://34.222.148.43:8000/showdown/websocket";
+	else if (server === "Automatthic") 
+	    this.server = "ws://185.224.89.75:8000/showdown/websocket";
         this.websocket = new ws(this.server);
         this.username = username;
         this.password = password;
@@ -203,8 +205,8 @@ class Showdown {
                     if (this.serverType === "Standard") {
                         replay = `https://replay.pokemonshowdown.com/${replayJson.id}`
                     }
-                    else if (this.serverType === "Sports") {
-                        replay = `https://replay.pokemonshowdown.com/sports-${replayJson.id}`
+		    else {
+                        replay = `https://replay.pokemonshowdown.com/${this.serverType.toLowerCase()}-${replayJson.id}`
                     }
 
                     let info = {
