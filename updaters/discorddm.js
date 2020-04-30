@@ -29,8 +29,8 @@ class DiscordDMStats {
         //retrieving info from the json object
         let psPlayer1 = Object.keys(matchJson.players)[0];
         let psPlayer2 = Object.keys(matchJson.players)[1];
-        //let player1 = matchJson.players[Object.keys(matchJson.players)[0]].discord;
-        //let player2 = matchJson.players[Object.keys(matchJson.players)[1]].discord;
+        let player1 = matchJson.players[Object.keys(matchJson.players)[0]].discord;
+        let player2 = matchJson.players[Object.keys(matchJson.players)[1]].discord;
         let killJson1 = matchJson.players[Object.keys(matchJson.players)[0]].kills;
         let deathJson1 = matchJson.players[Object.keys(matchJson.players)[0]].deaths;
         let killJson2 = matchJson.players[Object.keys(matchJson.players)[1]].kills;
