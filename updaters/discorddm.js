@@ -9,12 +9,9 @@ class DiscordDMStats {
     }
 
     getUser(usernameWithDisc) {
-        //console.log(this.server.members.find(m => m.user.username === "harbar20").user)
-        //return this.server.members.cache.get(m => m.username === username);
         let username = usernameWithDisc.substring(0, usernameWithDisc.length - 5);
         let userObj = this.server.members.find(m => m.user.username === username).user;
 
-	//console.log(userObj.username);
         //just double checking to make sure the user is correct
         if (`${userObj.username}#${userObj.discriminator}` === usernameWithDisc) {
             return userObj;
@@ -22,6 +19,10 @@ class DiscordDMStats {
         else {
             return "Invalid user";
         }
+    }
+
+    getChannel(channelID) {
+        return this.server.channels.get(channelID);
     }
 
     //async update(player1, killJson1, deathJson1, player2, killJson2, deathJson2, info) {
@@ -37,7 +38,8 @@ class DiscordDMStats {
         let deathJson2 = matchJson.players[Object.keys(matchJson.players)[1]].deaths;
         let info = matchJson.info;
         let mods = matchJson.mods;
-	    let dmMods = matchJson.dmMods;
+        let dmMods = matchJson.dmMods;
+        let streamChannelId = matchJson.streamChannel;
 
         let message1 = "";
         let message2 = "";
@@ -46,7 +48,8 @@ class DiscordDMStats {
         for (let pokemon of Object.keys(killJson1)) {
             message1 += `${pokemon} has ${killJson1[pokemon]} kills and ${deathJson1[pokemon]} deaths. \n`;
         }
-        message1 += `\nReplay: ${info.replay}`;
+        message1 += !dmMods ? `\nReplay: ${info.replay}` : "";
+
         for (let pokemon of Object.keys(killJson2)) {
             message2 += `${pokemon} has ${killJson2[pokemon]} kills and ${deathJson2[pokemon]} deaths. \n`;
         }
@@ -57,10 +60,10 @@ class DiscordDMStats {
         let user1;
         let user2;
         if (dmMods) {
-                for (let mod of mods) {
-                    modsUsers.push(this.getUser(mod));
-                    console.log("Mod: " + mod);
-                }
+            for (let mod of mods) {
+                modsUsers.push(this.getUser(mod));
+                console.log("Mod: " + mod);
+            }
         }
         else {
             user1 = this.getUser(player1);
@@ -72,6 +75,11 @@ class DiscordDMStats {
             for (let mod of modsUsers) {
                 mod.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`);
             }
+        }
+        else if (streamChannelId) {
+            //TODO change streamChannelid into a discord Channel object
+            let streamChannelObj = this.getChannel(streamChannelId);
+            streamChannelObj.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`);
         }
         else {
             user1.send(message1);

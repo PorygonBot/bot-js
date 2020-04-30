@@ -59,7 +59,7 @@ class Showdown {
                         funcArr.push(new Promise((resolve, reject) => {
                             base("Players").find(playerId, async (error, record) => {
                                 if (error) {
-				    console.error(error);
+				                    console.error(error);
                                     reject(error);
                                 }
 
@@ -68,11 +68,12 @@ class Showdown {
                                 let recordDiscord = await record.get('Discord Tag');
                                 let recordTab = await record.get('Sheet Tab Name');
    				
-				console.log(playerId + "    " + recordPSName + "player");
+				                console.log(playerId + "    " + recordPSName + "player");
 
                                 if (recordPSName === player1 || recordPSName === player2) {
                                     let player = recordPSName === player1 ? player1 : player2;
-				    console.log("Player inside if statement: " + player);
+                                    console.log("Player inside if statement: " + player);
+                                    
                                     recordJson.players[player] = {
                                         ps: player,
                                         discord: recordDiscord,
@@ -114,6 +115,7 @@ class Showdown {
                     recordJson.range = await leagueRecord.get('Stats Range');
                     recordJson.info = info;
                     recordJson.dmMods = await leagueRecord.get("DM Mods?");
+                    recordJson.streamChannel = await leagueRecord.get("Stream Channel ID");
                 }
             }
         }).then(async () => {        
