@@ -161,6 +161,7 @@ class Showdown {
     }
 
     async join() {
+        console.log(this.battle);
         this.websocket.send(`|/join ${this.battle}`);
         this.message.channel.send("Battle joined! Keeping track of stats now.");
     }
@@ -205,7 +206,7 @@ class Showdown {
                     if (this.serverType === "Standard") {
                         replay = `https://replay.pokemonshowdown.com/${replayJson.id}`
                     }
-		    else {
+		            else {
                         replay = `https://replay.pokemonshowdown.com/${this.serverType.toLowerCase()}-${replayJson.id}`
                     }
 
@@ -226,7 +227,8 @@ class Showdown {
                         return {"code": "-1"};
                     }
 
-                    this.websocket.close();
+                    this.websocket.send(`|/leave ${this.battle}`);
+                    //this.websocket.close();
 
                     let returndata = {
                         "replay": replay,
