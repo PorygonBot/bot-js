@@ -43,7 +43,7 @@ class Showdown {
             "mods": []
         };
 
-        console.log(`DEBUG: Pre-promise message!`);
+        console.log("Players: " + player1 + " and " + player2);
         base("Leagues").select({
             maxRecords: 500,
             view: VIEW_NAME
@@ -53,14 +53,13 @@ class Showdown {
                 if (channelId === this.message.channel.id) {
                     let playersIds = await leagueRecord.get("Players");
                     let modsIds = await leagueRecord.get("Mods");
-                    console.log(playersIds);
-		            console.log(modsIds);
 
                     let funcArr = [];
                     for (let playerId of playersIds) {
                         funcArr.push(new Promise((resolve, reject) => {
                             base("Players").find(playerId, async (error, record) => {
                                 if (error) {
+				    console.error(error);
                                     reject(error);
                                 }
 
@@ -68,9 +67,12 @@ class Showdown {
                                 recordPSName = recordPSName.toLowerCase();
                                 let recordDiscord = await record.get('Discord Tag');
                                 let recordTab = await record.get('Sheet Tab Name');
-   
+   				
+				console.log(playerId + "    " + recordPSName + "player");
+
                                 if (recordPSName === player1 || recordPSName === player2) {
                                     let player = recordPSName === player1 ? player1 : player2;
+				    console.log("Player inside if statement: " + player);
                                     recordJson.players[player] = {
                                         ps: player,
                                         discord: recordDiscord,
@@ -116,6 +118,7 @@ class Showdown {
             }
         }).then(async () => {        
             console.log("Mods: " + recordJson.mods);
+	    console.log("yay: " + JSON.stringify(recordJson));
 
             //Updating stats based on given method
             switch (recordJson.system) {
