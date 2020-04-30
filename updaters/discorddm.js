@@ -48,7 +48,7 @@ class DiscordDMStats {
         for (let pokemon of Object.keys(killJson1)) {
             message1 += `${pokemon} has ${killJson1[pokemon]} kills and ${deathJson1[pokemon]} deaths. \n`;
         }
-        message1 += !dmMods ? `\nReplay: ${info.replay}` : "";
+        message1 += !(dmMods || streamChannelId) ? `\nReplay: ${info.replay}` : "";
 
         for (let pokemon of Object.keys(killJson2)) {
             message2 += `${pokemon} has ${killJson2[pokemon]} kills and ${deathJson2[pokemon]} deaths. \n`;
