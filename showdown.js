@@ -32,8 +32,8 @@ class Showdown {
     }
 
     async endscript(playerp1, killJson1, deathJson1, playerp2, killJson2, deathJson2, info) {
-        let player1 = playerp1.substring(0, playerp1.length - 2).toLowerCase();
-        let player2 = playerp2.substring(0, playerp2.length - 2).toLowerCase();
+        let player1 = playerp1.substring(0, playerp1.length - 2).toLowerCase().trim();
+        let player2 = playerp2.substring(0, playerp2.length - 2).toLowerCase().trim();
 
         //Getting players info from Airtable
         let recordJson = {
@@ -64,7 +64,7 @@ class Showdown {
                                 }
 
                                 let recordPSName = await record.get('Showdown Name');
-                                recordPSName = recordPSName.toLowerCase();
+                                recordPSName = recordPSName.toLowerCase().trim();
                                 let recordDiscord = await record.get('Discord Tag');
                                 let recordTab = await record.get('Sheet Tab Name');
    				
@@ -89,18 +89,20 @@ class Showdown {
                     }
 
                     let modFuncArr = [];
-                    for (let modId of modsIds) {
-                        modFuncArr.push(new Promise((resolve, reject) => {
-                            base("Players").find(modId, async (err, record) => {
-                                if (err) reject(err);
+		    if (modsIds) {
+                    	for (let modId of modsIds) {
+                            modFuncArr.push(new Promise((resolve, reject) => {
+                                base("Players").find(modId, async (err, record) => {
+                                    if (err) reject(err);
 
-                                let recordDiscord = await record.get('Discord Tag');
-                                recordJson.mods.push(recordDiscord);
+                                    let recordDiscord = await record.get('Discord Tag');
+                                    recordJson.mods.push(recordDiscord);
 
-                                resolve();
-                            });
-                        }));
-                    }
+                                    resolve();
+                                });
+                            }));
+                        }
+		    }
  
                     await Promise.all(funcArr).then(() => {
                         console.log("Players found! Updating now...");

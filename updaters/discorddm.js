@@ -65,6 +65,9 @@ class DiscordDMStats {
                 console.log("Mod: " + mod);
             }
         }
+	else if (streamChannelId) {
+	    console.log();
+	}
         else {
             user1 = this.getUser(player1);
             user2 = this.getUser(player2);
