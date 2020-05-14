@@ -2,6 +2,7 @@
 const json = require("json");
 const ws = require("ws");
 const axios = require("axios");
+const querystring = require("querystring");
 
 const DiscordDMStats = require("./updaters/discorddm");
 const GoogleSheetsLineStats = require("./updaters/googleline");
@@ -18,13 +19,14 @@ class Showdown {
     constructor(battle, server, message) {
         this.battle = battle.split("/")[3];
 
-        this.serverType = server;
-        if (server == "Standard") 
+        this.serverType = server.toLowerCase();
+        if (server == "Showdown") 
             this.server = "ws://sim.smogon.com:8000/showdown/websocket";
         else if (server == "Sports") 
             this.server = "ws://34.222.148.43:8000/showdown/websocket";
-	else if (server === "Automatthic") 
-	    this.server = "ws://185.224.89.75:8000/showdown/websocket";
+	    else if (server === "Automatthic") 
+            this.server = "ws://185.224.89.75:8000/showdown/websocket";
+            
         this.websocket = new ws(this.server);
         this.username = username;
         this.password = password;
@@ -171,6 +173,25 @@ class Showdown {
         this.message.channel.send("Battle joined! Keeping track of stats now.");
     }
 
+    async requestReplay(data) {
+       let url = `https://play.pokemonshowdown.com/~~${this.serverType}/action.php`;
+       data.id = `${this.serverType === "showdown" ? "" : `${this.serverType}-`}${data.id}`;
+       let newData = querystring.stringify({
+           act: "uploadreplay",
+           log: data.log,
+           id: data.id
+       });
+       console.log("newData: " + JSON.stringify(newData) + "\n");
+
+       let response = await axios.post(url, newData);
+
+       console.log("Replay posted!");
+       let replay = `https://replay.pokemonshowdown.com/${data.id}`;
+       console.log(`Response to replay: ${response.data}`);
+
+       return replay;
+    }
+
     async track() {
         let dataArr = [];
         let p1a = "";
@@ -205,15 +226,10 @@ class Showdown {
 
             else if (data.startsWith("|queryresponse|")) {
                 if (data.startsWith("|queryresponse|savereplay")) {
-                    //https://replay.pokemonshowdown.com/sports-gen8nationaldexdraft-44205
-                    let replayJson = JSON.parse(data.substring(26,));
+                    let replayData = JSON.parse(data.substring(26,));
                     //replay = `https://replay.pokemonshowdown.com/${replayJson.id}`;
-                    if (this.serverType === "Standard") {
-                        replay = `https://replay.pokemonshowdown.com/${replayJson.id}`
-                    }
-		            else {
-                        replay = `https://replay.pokemonshowdown.com/${this.serverType.toLowerCase()}-${replayJson.id}`
-                    }
+                    replay = await this.requestReplay(replayData);
+                    console.log("Replay inside the track function: " + replay);
 
                     let info = {
                         "replay": replay,
@@ -326,7 +342,7 @@ class Showdown {
                     winner = parts[1];
                     winner = ((winner === players[0]) ? `${winner}p1` : `${winner}p2`);
                     loser = ((winner === `${players[0]}p1`) ? `${players[1]}p2` : `${players[0]}p1`);
-                    this.websocket.send(`${this.battle}|/savereplay`);
+                    this.websocket.send(`${this.battle}|/uploadreplay`);
                 }
             }
         });

@@ -61,11 +61,11 @@ bot.on("message", async (message) => {
         if (battlelink.includes("sports.psim.us")) {
             psServer = "Sports";
         }
-	else if (battlelink.includes("automatthic.psim.us")) {
-	    psServer = "Automatthic";
-	}
-	else {
-            psServer = "Standard";
+	    else if (battlelink.includes("automatthic.psim.us")) {
+	        psServer = "Automatthic";
+	    }
+	    else {
+            psServer = "Showdown";
         }
 
         channel.send("Joining the battle...");
