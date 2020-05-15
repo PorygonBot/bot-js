@@ -66,7 +66,8 @@ class DiscordDMStats {
             }
         }
 	else if (streamChannelId) {
-	    console.log();
+	    message1 = `||${message1}||`;
+	    message2 = `||${message2}||`;
 	}
         else {
             user1 = this.getUser(player1);
