@@ -119,6 +119,7 @@ class Showdown {
                     recordJson.info = info;
                     recordJson.dmMods = await leagueRecord.get("DM Mods?");
                     recordJson.streamChannel = await leagueRecord.get("Stream Channel ID");
+                    recordJson.battleId = this.battle;
                 }
             }
         }).then(async () => {        
@@ -130,7 +131,7 @@ class Showdown {
             
             //Checking if the player was found in the database
             if (!recordJson.players[player1] || !recordJson.players[player2]) {
-                this.message.channel.send(`Player \`${!recordJson.players[player1] ? player1 : player2}\` is not in the database. Contact ${dmer.getUser("harbar20#9389")} for support and more information.`)
+                this.message.channel.send(`Player \`${!recordJson.players[player1] ? player1 : player2}\` was not found in the database for match \`${this.battle}\`. Contact ${dmer.getUser("harbar20#9389")} for support and more information.`)
                 return;
             }
 
