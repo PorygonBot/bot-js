@@ -48,12 +48,10 @@ class DiscordDMStats {
         for (let pokemon of Object.keys(killJson1)) {
             message1 += `${pokemon} has ${killJson1[pokemon]} kills and ${deathJson1[pokemon]} deaths. \n`;
         }
-        message1 += !(dmMods || streamChannelId) ? `\nReplay: ${info.replay}` : "";
 
         for (let pokemon of Object.keys(killJson2)) {
             message2 += `${pokemon} has ${killJson2[pokemon]} kills and ${deathJson2[pokemon]} deaths. \n`;
         }
-        message2 += `\nReplay: ${info.replay}`;
 
         //getting User objects from Discord given their username
         let modsUsers = [];
@@ -77,17 +75,16 @@ class DiscordDMStats {
         //finally sending players the info
         if (dmMods) {
             for (let mod of modsUsers) {
-                mod.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`);
+                mod.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`);
             }
         }
         else if (streamChannelId) {
-            //TODO change streamChannelid into a discord Channel object
             let streamChannelObj = this.getChannel(streamChannelId);
-            streamChannelObj.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`);
+            streamChannelObj.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`);
         }
         else {
-            user1.send(message1);
-            user2.send(message2);
+            user1.send(`${message1} \n\n**Replay: **${info.replay}`);
+            user2.send(`${message2} \n\n**Replay: **${info.replay}`);
         }
         this.channel.send(`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`);// Replay: ${info.replay}`);
     }
