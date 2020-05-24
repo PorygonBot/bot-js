@@ -88,7 +88,10 @@ class GoogleSheetsMassStats {
             });
         });
 
-        return [res1, res2];
+        return {
+            "res1": res1,
+            "res2": res2
+        };
     }
 
     async getValues(range) {

@@ -24,7 +24,7 @@ class GoogleClient {
     }
 
     async authenticate(scopes) {
-        return new Promis((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.authorizeUrl = this.oAuth2Client.generateAuthUrl({
                 access_type: "offline",
                 scope: scopes.join(" ")

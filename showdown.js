@@ -112,7 +112,6 @@ class Showdown {
                     await Promise.all(modFuncArr).then(() => {
                         console.log("Mods found!");
                     })
-                   
  
                     recordJson.system = await leagueRecord.get('Stats Storage System');
                     recordJson.sheetId = await leagueRecord.get('Sheet ID');
@@ -124,7 +123,16 @@ class Showdown {
             }
         }).then(async () => {        
             console.log("Mods: " + recordJson.mods);
-	    console.log("yay: " + JSON.stringify(recordJson));
+            console.log("yay: " + JSON.stringify(recordJson));
+
+            //Instantiating updater objects
+            let dmer = new DiscordDMStats(this.message);
+            
+            //Checking if the player was found in the database
+            if (!recordJson.players[player1] || !recordJson.players[player2]) {
+                this.message.channel.send(`Player \`${!recordJson.players[player1] ? player1 : player2}\` is not in the database. Contact ${dmer.getUser("harbar20#9389")} for support and more information.`)
+                return;
+            }
 
             //Updating stats based on given method
             switch (recordJson.system) {
@@ -141,21 +149,18 @@ class Showdown {
                     await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
                     break;
                 case "Discord DM":
-                    let dmer = new DiscordDMStats(this.message);
-                    // await dmer.update(recordJson.players[player1].discord, killJson1, deathJson1, 
-                    //                   recordJson.players[player2].discord, killJson2, deathJson2, 
-                    //                   info);
                     await dmer.update(recordJson);
                     break;
             }
 
             console.log("Updating done!");
-        })        
+        });       
     }
 
     async login(nonce) {
         console.log("LOGGING IN");
-        let psUrl = "https://play.pokemonshowdown.com/action.php";
+        //let psUrl = `https://play.pokemonshowdown.com/~~${this.serverType}/action.php`;
+        let psUrl = `https://play.pokemonshowdown.com/action.php`;
         let data = {
             act: "login",
             name: this.username,
@@ -164,9 +169,11 @@ class Showdown {
         };
     
         let response = await axios.post(psUrl, data);
+        console.log(response);
         let json = JSON.parse(response.data.substring(1));
         console.log("Logged in to PS.");
         return json.assertion;
+        //TODO add error message here
     }
 
     async join() {
@@ -348,8 +355,6 @@ class Showdown {
                 }
             }
         });
-
-        console.log("websocket closed!");
     }
 }
 
