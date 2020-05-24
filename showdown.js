@@ -20,9 +20,9 @@ class Showdown {
         this.battle = battle.split("/")[3];
 
         this.serverType = server.toLowerCase();
-        if (server == "Showdown") 
+        if (server === "Showdown") 
             this.server = "ws://sim.smogon.com:8000/showdown/websocket";
-        else if (server == "Sports") 
+        else if (server === "Sports") 
             this.server = "ws://34.222.148.43:8000/showdown/websocket";
 	    else if (server === "Automatthic") 
             this.server = "ws://185.224.89.75:8000/showdown/websocket";
@@ -92,18 +92,18 @@ class Showdown {
 
                     let modFuncArr = [];
 		    if (modsIds) {
-                    	for (let modId of modsIds) {
-                            modFuncArr.push(new Promise((resolve, reject) => {
-                                base("Players").find(modId, async (err, record) => {
-                                    if (err) reject(err);
+                for (let modId of modsIds) {
+                    modFuncArr.push(new Promise((resolve, reject) => {
+                        base("Players").find(modId, async (err, record) => {
+                            if (err) reject(err);
 
-                                    let recordDiscord = await record.get('Discord Tag');
-                                    recordJson.mods.push(recordDiscord);
+                            let recordDiscord = await record.get('Discord Tag');
+                            recordJson.mods.push(recordDiscord);
 
-                                    resolve();
-                                });
-                            }));
-                        }
+                            resolve();
+                        });
+                    }));
+                }
 		    }
  
                     await Promise.all(funcArr).then(() => {
@@ -160,21 +160,30 @@ class Showdown {
 
     async login(nonce) {
         console.log("LOGGING IN");
-        //let psUrl = `https://play.pokemonshowdown.com/~~${this.serverType}/action.php`;
-        let psUrl = `https://play.pokemonshowdown.com/action.php`;
-        let data = {
+        let psUrl = `https://play.pokemonshowdown.com/~~${this.serverType}/action.php`;
+        //let psUrl = `https://play.pokemonshowdown.com/action.php`;
+        let data = querystring.stringify({
             act: "login",
             name: this.username,
             pass: this.password,
             challstr: nonce
-        };
+        });
     
         let response = await axios.post(psUrl, data);
-        console.log(response);
-        let json = JSON.parse(response.data.substring(1));
+        let json;
+        try {
+            json = JSON.parse(response.data.substring(1));
+            console.log("Login is a success!");
+        }
+        catch (e) {
+            console.log("Response to login request: " + response);
+            this.message.channel.send(`Error: \`${this.username}\` failed to login to Showdown. Contact Porygon support.`);
+            console.error(e);
+            return;
+        }
         console.log("Logged in to PS.");
+        console.log("Assertion: " + json.assertion);
         return json.assertion;
-        //TODO add error message here
     }
 
     async join() {
@@ -229,9 +238,14 @@ class Showdown {
                 let nonce = data.substring(10);
                 let assertion = await this.login(nonce);
                 //logs in
-                this.websocket.send(`|/trn ${username},0,${assertion}|`);
-                //Joins the battle
-                await this.join();
+                if (assertion) {
+                    this.websocket.send(`|/trn ${username},0,${assertion}|`);
+                    //Joins the battle
+                    await this.join();   
+                }
+                else {
+                    return;
+                }
             }
 
             else if (data.startsWith("|queryresponse|")) {
