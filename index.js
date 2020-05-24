@@ -55,28 +55,34 @@ bot.on("message", async (message) => {
         //Extracting battlelink from the message
         let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
         let battlelink = urls.next().value;
-        let psServer = "";
-        //Checking what server the battlelink is from
-        console.log(battlelink);
-        if (battlelink.includes("sports.psim.us")) {
-            psServer = "Sports";
+        if (battlelink) {
+            let psServer = "";
+            //Checking what server the battlelink is from
+            console.log(battlelink);
+            if (battlelink.includes("sports.psim.us")) {
+                psServer = "Sports";
+            }
+            else if (battlelink.includes("automatthic.psim.us")) {
+                psServer = "Automatthic";
+            }
+            else if (battlelink.includes("play.pokemonshowdown.com")) {
+                psServer = "Showdown";
+            }
+            else {
+                channel.send("This link is not a valid Pokemon Showdown battle url.");
+                return;
+            }
+    
+            channel.send("Joining the battle...");
+            //Instantiating the Showdown client
+            const psclient = new Showdown(battlelink, psServer, message);
+            //Tracking the battle
+            let battleInfo = await new Promise(async (resolve, reject) => {
+                resolve(await psclient.track());
+            }).then(() => {
+                console.log("Tracking done!");
+            });
         }
-	    else if (battlelink.includes("automatthic.psim.us")) {
-	        psServer = "Automatthic";
-	    }
-	    else {
-            psServer = "Showdown";
-        }
-
-        channel.send("Joining the battle...");
-        //Instantiating the Showdown client
-        const psclient = new Showdown(battlelink, psServer, message);
-        //Tracking the battle
-        let battleInfo = await new Promise(async (resolve, reject) => {
-            resolve(await psclient.track());
-        }).then(() => {
-            console.log("Tracking done!");
-        })
     }
 
     if (msgStr.toLowerCase() === `${prefix} help`) {
