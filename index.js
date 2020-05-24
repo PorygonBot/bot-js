@@ -41,6 +41,57 @@ base('Leagues').select({
     if (err) { console.error(err); return; }
 });
 
+let findLeagueId = async (checkChannelId) => {
+    let leagueId;
+    let leagueName;
+    await base("Leagues").select({
+        maxRecords: 500,
+        view: "Grid view"
+    }).all().then(async (records) => {
+        for (let leagueRecord of records) {
+            let channelId = await leagueRecord.get('Channel ID');
+            if (channelId === checkChannelId) {
+                leagueId = leagueRecord.id;
+                leagueName = await leagueRecord.get("Name");
+            }
+        }
+    });
+
+    let leagueJson = {
+        id: leagueId,
+        name: leagueName
+    };
+    return leagueJson;
+};
+
+let getPlayersIds = async (leagueId) => {
+    let recordsIds = await new Promise((resolve, reject) => {
+        base("Leagues").find(leagueId, (err, record) => {
+            recordIds = record.get("Players");
+            resolve(recordIds);
+        });
+    });
+
+    return recordsIds;
+};
+
+let getPlayerRecordId = async (playerName) => {
+    let playerId;
+    
+    await base("Players").select({
+        maxRecords: 1000,
+        view: "Grid view"
+    }).all().then(async (playerRecords) => {
+        for (let playerRecord of playerRecords) {
+            let recordId = playerRecord.id;
+            let showdownName = playerRecord.get("Showdown Name");
+            if (showdownName === playerName) playerId = recordId;
+        }
+    });
+
+    return playerId;
+};
+
 //When a message is sent
 bot.on("message", async (message) => {
     let channel = message.channel;
@@ -48,6 +99,7 @@ bot.on("message", async (message) => {
     if (message.author.bot) return;
 
     let msgStr = message.content;
+    let msgParams = msgStr.split(" ").slice(3); //["porygon,", "use", "command", ...params]
     let prefix = "porygon, use";
 
     if (channel.type === "dm") return;
@@ -58,7 +110,6 @@ bot.on("message", async (message) => {
         if (battlelink) {
             let psServer = "";
             //Checking what server the battlelink is from
-            console.log(battlelink);
             if (battlelink.includes("sports.psim.us")) {
                 psServer = "Sports";
             }
@@ -98,6 +149,33 @@ bot.on("message", async (message) => {
         .setFooter("Made by @harbar20#9389", `https://pm1.narvii.com/6568/c5817e2a693de0f2f3df4d47b0395be12c45edce_hq.jpg`);
 
         return channel.send(helpEmbed);
+    }
+    else if (msgStr.toLowerCase().contains(`${prefix} add`)) { //Command name might be changed
+        //Finding the league that the player is going to get added to
+        let player = msgParams[0];
+        let leagueJson = await findLeagueId(channel.id);
+        let leagueRecordId = leagueJson.id;
+        let leagueName = leagueJson.name;
+        let playersIds = await getPlayersIds(leagueRecordId);
+        let newId = await getPlayerRecordId(player);
+        if (playersIds.includes(newId)) {
+            return channel.send("This player is already in this league's database.");
+        }
+        //Adding new player to the array
+        playersIds.push(newId);
+
+        //Adding players to this league
+        await base("Leagues").update([
+            {
+                "id": leagueRecordId,
+                "fields": {
+                    "Players": playersIds
+                }
+            }
+        ]);
+
+        console.log(`${player} has been added to ${leagueName}!`);
+        return channel.send(`\`${player}\` has been added to \`${leagueName}\`!`);
     }
 });
 

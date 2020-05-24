@@ -91,20 +91,20 @@ class Showdown {
                     }
 
                     let modFuncArr = [];
-		    if (modsIds) {
-                for (let modId of modsIds) {
-                    modFuncArr.push(new Promise((resolve, reject) => {
-                        base("Players").find(modId, async (err, record) => {
-                            if (err) reject(err);
+                    if (modsIds) {
+                        for (let modId of modsIds) {
+                            modFuncArr.push(new Promise((resolve, reject) => {
+                                base("Players").find(modId, async (err, record) => {
+                                    if (err) reject(err);
 
-                            let recordDiscord = await record.get('Discord Tag');
-                            recordJson.mods.push(recordDiscord);
+                                    let recordDiscord = await record.get('Discord Tag');
+                                    recordJson.mods.push(recordDiscord);
 
-                            resolve();
-                        });
-                    }));
-                }
-		    }
+                                    resolve();
+                                });
+                            }));
+                        }
+                    }
  
                     await Promise.all(funcArr).then(() => {
                         console.log("Players found! Updating now...");
