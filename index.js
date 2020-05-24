@@ -151,6 +151,10 @@ bot.on("message", async (message) => {
         return channel.send(helpEmbed);
     }
     else if (msgStr.toLowerCase().contains(`${prefix} add`)) { //Command name might be changed
+        if (!message.author.hasPermissions("MANAGE_ROLES") || !channels.includes(channel.id)) {
+            return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
+        }
+
         //Finding the league that the player is going to get added to
         let player = msgParams[0];
         let leagueJson = await findLeagueId(channel.id);
