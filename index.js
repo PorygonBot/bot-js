@@ -88,7 +88,8 @@ let getPlayerRecordId = async (playerName) => {
             if (showdownName === playerName) playerId = recordId;
         }
     });
-
+    
+    if (!playerId) playerId = false;
     return playerId;
 };
 
