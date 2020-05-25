@@ -151,7 +151,7 @@ bot.on("message", async (message) => {
         return channel.send(helpEmbed);
     }
     else if (msgStr.toLowerCase().contains(`${prefix} add`)) { //Command name might be changed
-        if (!message.author.hasPermissions("MANAGE_ROLES") || !channels.includes(channel.id)) {
+        if (!message.member.hasPermission("MANAGE_ROLES") || !channels.includes(channel.id)) {
             return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
         }
 
@@ -180,6 +180,34 @@ bot.on("message", async (message) => {
 
         console.log(`${player} has been added to ${leagueName}!`);
         return channel.send(`\`${player}\` has been added to \`${leagueName}\`!`);
+    }
+    else if (msgStr.toLowerCase().contains(`${prefix} remove`)) {
+        if (!message.member.hasPermission("MANAGE_ROLES") || !channels.includes(channel.id)) {
+            return channel.send(":x: You're not a moderator. Ask a moderator to remove this person for you.");
+        }
+
+        let player = msgParams.join();
+        let leagueJson = await findLeagueId(channel.id);
+        let leagueRecordId = leagueJson.id;
+        let leagueName = leagueJson.name;
+        let playersIds = await getPlayersIds(leagueRecordId);
+        let newId = await getPlayerRecordId(player);
+        if (!playersIds.includes(newId)) {
+            return channel.send("This player is not in this league's database.");
+        }
+        playersIds.splice(playersIds.indexOf(newId), 1);
+
+        base("Leagues").update([
+            {
+                id: leagueRecordId,
+                fields: {
+                    "Players": playersIds
+                }
+            }
+        ]);
+
+        console.log(`\`${player}\` has been removed from \`${leagueName}\`.`);
+        return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
     }
 });
 
