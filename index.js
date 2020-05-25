@@ -166,33 +166,18 @@ bot.on("message", async (message) => {
         if (playersIds.includes(newId)) {
             return channel.send("This player is already in this league's database.");
         }
-        if (!newId) { //Checks if the player is not already in the database for another league
-            //Adding new player to the array
-            playersIds.push(newId);
 
-            //Adding players to this league
-            await base("Leagues").update([
-                {
-                    "id": leagueRecordId,
-                    "fields": {
-                        "Players": playersIds
-                    }
+        //Creates a new record for the player
+        await base("Players").create([
+            {
+                "fields": {
+                    "Showdown Name": player,
+                    "Leagues": [
+                        leagueRecordId
+                    ]
                 }
-            ]);
-        }
-        else {
-            //Creates a new record for the player
-            await base("Players").create([
-                {
-                    "fields": {
-                        "Showdown Name": player,
-                        "Leagues": [
-                            leagueRecordId
-                        ]
-                    }
-                }
-            ]);
-        }
+            }
+        ]);
 
         console.log(`${player} has been added to ${leagueName}!`);
         return channel.send(`\`${player}\` has been added to \`${leagueName}\`!`);
