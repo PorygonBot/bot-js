@@ -22,19 +22,13 @@ const base = new Airtable({
 }).base(base_id);
 var viewname = "Grid view";
 base('Leagues').select({
-    // Selecting the first 3 records in Grid view:
     maxRecords: 50,
     view: "Grid view"
 }).eachPage(function page(records, fetchNextPage) {
-    // This function (`page`) will get called for each page of records.
-
     records.forEach(function(record) {
         channels.push(record.get("Channel ID"));
     });
 
-    // To fetch the next page of records, call `fetchNextPage`.
-    // If there are more records, `page` will get called again.
-    // If there are no more records, `done` will get called.
     fetchNextPage();
 
 }, function done(err) {
@@ -67,6 +61,8 @@ let findLeagueId = async (checkChannelId) => {
 let getPlayersIds = async (leagueId) => {
     let recordsIds = await new Promise((resolve, reject) => {
         base("Leagues").find(leagueId, (err, record) => {
+            if (err) reject(err);
+            
             recordIds = record.get("Players");
             resolve(recordIds);
         });
@@ -209,6 +205,34 @@ bot.on("message", async (message) => {
 
         console.log(`\`${player}\` has been removed from \`${leagueName}\`.`);
         return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
+    }
+    else if (msgStr.toLowerCase().contains(`${prefix} list`)) {
+        let leagueJson = await findLeagueId(channel.id);
+        let playersIds = await getPlayersIds(leagueJson.id);
+
+        let players = [];
+        let funcarr = [];
+        for (let playerId of playersIds) {
+            funcarr.push(new Promise(async (resolve, reject) => {
+                await base("Players").find(playerId, async (err, record) => {
+                    if (err) reject(err);
+
+                    let name = await record.get("Showdown Name");
+                    players.push(`\n${name}`);
+                    resolve();
+                });
+            }));
+        }
+        await Promise.all(funcarr);
+        playersStr = players.join();
+
+        //const serverImage = message.guild.iconURL();
+        console.log(serverImage);
+        const listEmbed = new Discord.RichEmbed()
+        .setTitle(leagueJson.name)
+        .addField('Players', playersStr);
+
+        return channel.send(listEmbed);
     }
 });
 

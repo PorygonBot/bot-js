@@ -20,12 +20,20 @@ class Showdown {
         this.battle = battle.split("/")[3];
 
         this.serverType = server.toLowerCase();
-        if (server === "Showdown") 
-            this.server = "ws://sim.smogon.com:8000/showdown/websocket";
-        else if (server === "Sports") 
-            this.server = "ws://34.222.148.43:8000/showdown/websocket";
-	    else if (server === "Automatthic") 
-            this.server = "ws://185.224.89.75:8000/showdown/websocket";
+
+        let ip;
+        switch(server) {
+            case "Showdown":
+                ip = "sim.smogon.com";
+                break;
+            case "Sports":
+                ip = "34.222.148.43";
+                break;
+            case "Automatthic":
+                ip = "185.224.89.75";
+                break;
+        }
+        this.server = `ws://${ip}:8000/showdown/websocket`;
             
         this.websocket = new ws(this.server);
         this.username = username;
