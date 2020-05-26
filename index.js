@@ -62,7 +62,7 @@ let getPlayersIds = async (leagueId) => {
     let recordsIds = await new Promise((resolve, reject) => {
         base("Leagues").find(leagueId, (err, record) => {
             if (err) reject(err);
-            
+
             recordIds = record.get("Players");
             resolve(recordIds);
         });
@@ -207,6 +207,9 @@ bot.on("message", async (message) => {
         return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
     }
     else if (msgStr.toLowerCase().contains(`${prefix} list`)) {
+        if (!channels.includes(channel.id)) {
+            return channel.send(":x: This is not a valid live-links channel. Try this command again in the proper channel.");
+        }
         let leagueJson = await findLeagueId(channel.id);
         let playersIds = await getPlayersIds(leagueJson.id);
 
