@@ -295,6 +295,11 @@ class Showdown {
         //when the this.websocket sends a message
         this.websocket.on("message", async (data) => {
             let realdata = data.split("\n");
+
+            //Checks first and foremost if the battle even exists
+            if (data.contains(`|noinit|nonexistent|`)) {
+                return this.message.channel.send(":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle.");
+            }
         
             //stuff to do after server connects
             if (data.startsWith("|challstr|")) {
