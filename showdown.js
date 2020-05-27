@@ -15,6 +15,62 @@ const base = new Airtable({
 }).base(base_id);
 const VIEW_NAME = "Grid view";
 
+let findLeagueId = async (checkChannelId) => {
+    let leagueId;
+    let leagueName;
+    await base("Leagues").select({
+        maxRecords: 500,
+        view: "Grid view"
+    }).all().then(async (records) => {
+        for (let leagueRecord of records) {
+            let channelId = await leagueRecord.get('Channel ID');
+            if (channelId === checkChannelId) {
+                leagueId = leagueRecord.id;
+                leagueName = await leagueRecord.get("Name");
+            }
+        }
+    });
+
+    let leagueJson = {
+        id: leagueId,
+        name: leagueName
+    };
+    console.log("End of first function");
+    return leagueJson;
+};
+
+let getPlayersIds = async (leagueId) => {
+    console.log("Inside the second function");
+    let recordsIds = await new Promise((resolve, reject) => {
+        base("Leagues").find(leagueId, (err, record) => {
+            if (err) reject(err);
+
+            recordIds = record.get("Players");
+            resolve(recordIds);
+        });
+    });
+
+    return recordsIds;
+};
+
+let getPlayerRecordId = async (playerName) => {
+    let playerId;
+    
+    await base("Players").select({
+        maxRecords: 1000,
+        view: "Grid view"
+    }).all().then(async (playerRecords) => {
+        for (let playerRecord of playerRecords) {
+            let recordId = playerRecord.id;
+            let showdownName = playerRecord.get("Showdown Name");
+            if (showdownName === playerName) playerId = recordId;
+        }
+    });
+    
+    if (!playerId) playerId = false;
+    return playerId;
+};
+
 class Showdown {
     constructor(battle, server, message) {
         this.battle = battle.split("/")[3];
@@ -190,7 +246,6 @@ class Showdown {
             return;
         }
         console.log("Logged in to PS.");
-        console.log("Assertion: " + json.assertion);
         return json.assertion;
     }
 
@@ -321,6 +376,15 @@ class Showdown {
                 else if (linenew.startsWith(`player`)) {
                     players.push(parts[2]);
                     console.log("Players: " + players);
+
+                    //Checking if either player isn't in the database
+                    let leagueJson = await findLeagueId(this.message.channel.id);
+                    console.log("got league id for checking during battle ");
+                    let playersIds = await getPlayersIds(leagueJson.id);
+                    let playerId = await getPlayerRecordId(parts[2]);
+                    if (!playersIds.includes(playerId)) {
+                        this.message.channel.send(`:exclamation: \`${parts[2]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    }
                 }
         
                 //|poke|p1|Hatterene, F|
