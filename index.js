@@ -133,8 +133,21 @@ bot.on("message", async (message) => {
         }
     }
 
-    if (msgStr.toLowerCase() === `${prefix} help`) {
+    if (msgStr.toLowerCase().contains( `${prefix} help`)) {
         let bicon = bot.user.displayAvatarURL;
+        if (msgStr.endsWith("commands")) {
+            let helpEmbed = new Discord.RichEmbed()
+            .setTitle("Porygon Commands")
+            .setDescription(`Prefix: ${prefix} _______`)
+            .setThumbnail(bicon)
+            .setColor(0xffc0cb)
+            .addField("help [optional: \"commands\"]", "How to use the bot, and lists the commands it has.")
+            .addField("add [Showdown name]", "Adds a player to the database of the league whose live links channel the command is sent in.")
+            .addField("remove [Showdown name]", "Removes a player from the database of the league whose live links channel the command is sent in.")
+            .addField("list", "Lists the players of the league whose live links channel the command is sent in.");
+
+            return channel.send(helpEmbed);
+        }
         let helpEmbed = new Discord.RichEmbed()
         .setTitle("Porygon Help")
         .setThumbnail(bicon)
