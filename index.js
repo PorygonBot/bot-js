@@ -183,14 +183,14 @@ bot.on("message", async (message) => {
             return channel.send(":x: You're not a moderator. Ask a moderator to remove this person for you.");
         }
 
-        let player = msgParams.join();
+        let player = msgParams.join(" ");
         let leagueJson = await findLeagueId(channel.id);
         let leagueRecordId = leagueJson.id;
         let leagueName = leagueJson.name;
         let playersIds = await getPlayersIds(leagueRecordId);
         let newId = await getPlayerRecordId(player);
         if (!playersIds.includes(newId)) {
-            return channel.send("This player is not in this league's database.");
+            return channel.send(`${player} is not in this league's database.`);
         }
         playersIds.splice(playersIds.indexOf(newId), 1);
 
@@ -230,7 +230,7 @@ bot.on("message", async (message) => {
         playersStr = players.join();
 
         //const serverImage = message.guild.iconURL();
-        console.log(serverImage);
+        //console.log(serverImage);
         const listEmbed = new Discord.RichEmbed()
         .setTitle(leagueJson.name)
         .addField('Players', playersStr);
