@@ -81,7 +81,7 @@ let getPlayerRecordId = async (playerName) => {
         for (let playerRecord of playerRecords) {
             let recordId = playerRecord.id;
             let showdownName = playerRecord.get("Showdown Name");
-            if (showdownName === playerName) playerId = recordId;
+            if (showdownName.toLowerCase() === playerName.toLowerCase()) playerId = recordId;
         }
     });
     
