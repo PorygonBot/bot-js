@@ -440,7 +440,38 @@ class Showdown {
                     //Gets the @ of the division mods
                     let mods = await getMods(leagueJson.id, this.message.guild);
 
-                    this.message.channel.send(`:exclamation: Player(s) \`${!playersIds.includes(player1Id) ? players[0] : ""}\` \`${!playersIds.includes(player2Id) ? players[1] : ""}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")}add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    //this.message.channel.send(`:exclamation: Player(s) \`${!playersIds.includes(player1Id) ? players[0] : ""}\` \`${!playersIds.includes(player2Id) ? players[1] : ""}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")}add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    this.message.channel.send(`:exclamation: Player(s) 
+                                                \`${!playersIds.includes(player1Id) ? players[0] : ""}\` 
+                                                \`${!playersIds.includes(player2Id) ? players[1] : ""}\` 
+                                                isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} 
+                                                add them before the match ends! Don't worry, I'll still track the battle just 
+                                                fine if you do that.`);
+                    if (!playersIds.includes(player1Id) && !playersIds.includes(player2Id)) { //Both players aren't in the database
+                        this.message.channel.send(`:exclamation: Players 
+                            \`${players[0]}\` and 
+                            \`${players[1]}\` 
+                            isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} 
+                            add them before the match ends! Don't worry, I'll still track the battle just 
+                            fine if you do that.`
+                        );
+                    }
+                    else if (!playersIds.includes(player1Id)) { //Just player 1 isn't in the database
+                        this.message.channel.send(`:exclamation: Player 
+                            \`${players[0]}\` 
+                            isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} 
+                            add them before the match ends! Don't worry, I'll still track the battle just 
+                            fine if you do that.`
+                        );
+                    }
+                    else if (!playersIds.includes(player2Id)) { //Just player 1 isn't in the database
+                        this.message.channel.send(`:exclamation: Player 
+                            \`${players[1]}\` 
+                            isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} 
+                            add them before the match ends! Don't worry, I'll still track the battle just 
+                            fine if you do that.`
+                        );
+                    }
                 }
         
                 //|poke|p1|Hatterene, F|
