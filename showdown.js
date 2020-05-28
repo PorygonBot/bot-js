@@ -112,7 +112,9 @@ let getMods = async (leagueId, server) => {
     console.log(modsUsernames);
     if (modsUsernames === []) return [];
     for (let modUser of modsUsernames) {
-        mods.push(getDiscordUser(modUser, server));
+        if (modUser) {
+            mods.push(getDiscordUser(modUser, server));
+        }
     }
 
     return mods;
@@ -438,7 +440,7 @@ class Showdown {
                     //Gets the @ of the division mods
                     let mods = await getMods(leagueJson.id, this.message.guild);
 
-                    this.message.channel.send(`:exclamation: \`${!playersIds.includes(player1Id) ? players[0] : players[1]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")}add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    this.message.channel.send(`:exclamation: Player(s) \`${!playersIds.includes(player1Id) ? players[0] : ""}\` \`${!playersIds.includes(player2Id) ? players[1] : ""}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")}add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                 }
         
                 //|poke|p1|Hatterene, F|
