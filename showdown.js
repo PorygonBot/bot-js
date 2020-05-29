@@ -439,8 +439,8 @@ class Showdown {
                     //Checking if either player isn't in the database
                     let leagueJson = await findLeagueId(this.message.channel.id);
                     let playersIds = await getPlayersIds(leagueJson.id);
-                    let player1Id = await getPlayerRecordId(players[0]);
-                    let player2Id = await getPlayerRecordId(players[1]);
+                    let player1Id = await getPlayerRecordId(players[0].toLowerCase());
+                    let player2Id = await getPlayerRecordId(players[1].toLowerCase());
 
                     //Gets the @ of the division mods
                     let mods = await getMods(leagueJson.id, this.message.guild);
@@ -448,10 +448,12 @@ class Showdown {
                     if (!playersIds.includes(player1Id) && !playersIds.includes(player2Id)) { //Both players aren't in the database
                         this.message.channel.send(`:exclamation: Players \`${players[0]}\` and \`${players[1]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
-                    else if (!playersIds.includes(player1Id)) { //Just player 1 isn't in the database
+		    else if (!playersIds.includes(player1Id)) { //Just player 1 isn't in the database
+			console.log(`${players[0]}: ${player1Id}`);
                         this.message.channel.send(`:exclamation: Player \`${players[0]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
                     else if (!playersIds.includes(player2Id)) { //Just player 1 isn't in the database
+			console.log(`${players[1]}: ${player2Id}`);
                         this.message.channel.send(`:exclamation: Player \`${players[1]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
                 }
