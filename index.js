@@ -15,12 +15,13 @@ bot.on("ready", async() => {
     bot.user.setActivity(`PS battles`, { type: "watching" });
 });
 
+const base = new Airtable({
+    apiKey: airtable_key
+}).base(base_id);
+
 //Getting the list of available channels
 const getChannels = async () => {
     let channels = [];
-    const base = new Airtable({
-        apiKey: airtable_key
-    }).base(base_id);
     base('Leagues').select({
         maxRecords: 50,
         view: "Grid view"
@@ -146,6 +147,7 @@ bot.on("message", async (message) => {
             .setThumbnail(bicon)
             .setColor(0xffc0cb)
             .addField("help [optional: \"commands\"]", "How to use the bot, and lists the commands it has.")
+            .addField("setup", "The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up") //TODO fix the league setup command and this help field
             .addField("add [Showdown name]", "Adds a player to the database of the league whose live links channel the command is sent in.")
             .addField("remove [Showdown name]", "Removes a player from the database of the league whose live links channel the command is sent in.")
             .addField("list", "Lists the players of the league whose live links channel the command is sent in.");
@@ -156,7 +158,7 @@ bot.on("message", async (message) => {
         .setTitle("Porygon Help")
         .setThumbnail(bicon)
         .setColor(0xffc0cb)
-        .addField("Prefix", "porygon, use ___")
+        .addField("Prefix", `${prefix} _____`)
         .addField("What does Porygon do? ", "It joins a Pokemon Showdown battle when the live battle link is sent to a dedicated channel and keeps track of the deaths/kills in the battle.")
         .addField("How do I use Porygon?", `Make a dedicated live-battle-links channel, invite the bot, fill out the online dashboard (coming soon!), and start battling!!`)
         .addField("Source", "https://github.com/PorygonBot/bot")
@@ -259,6 +261,82 @@ bot.on("message", async (message) => {
         .addField('Players', playersStr);
 
         return channel.send(listEmbed);
+    }
+    else if (msgStr.toLowerCase().contains(`${prefix} setup`)) {
+        if (!message.member.hasPermission("MANAGE_ROLES")) {
+            return channel.send(":x: You're not a moderator. Ask a moderator to set up the bot for this server.");
+        }
+        const filter = (m) => m.author.id === message.author.id;
+        const collector = message.channel.createMessageCollector(filter);
+
+        //Creating a record in the Servers table for this new server
+        let serverRecord = await new Promise((resolve, reject) => {
+            base("Servers").create([
+                {
+                    "fields": {
+                        "Name": message.guild.name
+                    }
+                }
+            ], (err, records) => {
+                if (err) reject(err);
+
+                resolve(records[0]);
+            });
+        });
+
+        message.channel.send("Setup has begun. To add this league, send the following command: \`porygon, use league [INSERT LEAGUE NAME HERE]\`. Spaces are ok.");
+        let leagueRecord;
+        collector.on("collect", async (m) => {
+            if (m.content.toLowerCase() === `${prefix} endsetup`) {
+                collector.stop();
+            }
+            //Adding a league to the server record
+            else if (m.content.toLowerCase().startsWith(`${prefix} league`)) {
+                console.log("Starting league creation...");
+                leagueName = m.content.split(" ").slice(3).join(" ");
+
+                //To get stream channel id
+                message.channel.send(`Now, run \`porygon, use statschannel [INSERT CHANNEL HERE]\`. This channel that you are inserting is the channel that you want the match results, or stats & replay, to go in. Make sure you actually include the #, etc. part in the channel area like you normally would when referring to a channel.`);
+
+                //Creating the record in the database
+                leagueRecord = await new Promise((resolve, reject) => {
+                    base("Leagues").create([
+                        {
+                            "fields": {
+                                "Name": leagueName,
+                                "Server": [serverRecord.id],
+                                "Channel ID": message.channel.id,
+                                "Stats Storage System": "Discord DM"
+                            }
+                        }
+                    ], (err, records) => {
+                        if (err) reject(err);
+
+                        resolve(records[0]);
+                    });
+                });
+            }
+            else if (m.content.toLowerCase().startsWith(`${prefix} statschannel`)) {
+                let streamChannel = m.content.split(" ")[3];
+
+                base("Leagues").update([
+                    {
+                        "id": leagueRecord.id,
+                        "fields": {
+                            "Stream Channel ID": streamChannel.id
+                        }
+                    }
+                ]);
+                message.channel.send("I've set the current channel to your live links channel and received the stream channel as well.");
+                message.channel.send(`\`${leagueName}\` setup is complete. If you'd like to add another league, go to that league's live links channel and run \`porygon, use setup\` there. For now, run \`porygon, use endsetup\` in this channel.`);
+            }
+        });
+
+        collector.on("end", async (collected) => {
+            let leagueName = await leagueRecord.get("Name");
+            message.channel.send(`${leagueName} setup complete. You may now start adding players to your league.`);
+            console.log(`${leagueName} has just been setup.`);
+        });
     }
 });
 

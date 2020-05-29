@@ -60,8 +60,13 @@ let getPlayerRecordId = async (playerName) => {
     }).all().then(async (playerRecords) => {
         for (let playerRecord of playerRecords) {
             let recordId = playerRecord.id;
-            let showdownName = playerRecord.get("Showdown Name");
-            if (showdownName.toLowerCase() === playerName.toLowerCase()) playerId = recordId;
+            let showdownName = await playerRecord.get("Showdown Name");
+            console.log(`Airtable during battle: ${showdownName}player`);
+            if (showdownName.toLowerCase() === playerName.toLowerCase()) {
+                playerId = recordId;
+                console.log(`      found ${playerName}`);
+                break;
+            }
         }
     });
     
