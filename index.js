@@ -16,24 +16,27 @@ bot.on("ready", async() => {
 });
 
 //Getting the list of available channels
-let channels = [];
-const base = new Airtable({
-    apiKey: airtable_key
-}).base(base_id);
-var viewname = "Grid view";
-base('Leagues').select({
-    maxRecords: 50,
-    view: "Grid view"
-}).eachPage(function page(records, fetchNextPage) {
-    records.forEach(function(record) {
-        channels.push(record.get("Channel ID"));
+const getChannels = async () => {
+    let channels = [];
+    const base = new Airtable({
+        apiKey: airtable_key
+    }).base(base_id);
+    base('Leagues').select({
+        maxRecords: 50,
+        view: "Grid view"
+    }).eachPage(function page(records, fetchNextPage) {
+        records.forEach(function(record) {
+            channels.push(record.get("Channel ID"));
+        });
+
+        fetchNextPage();
+
+    }, function done(err) {
+        if (err) { console.error(err); return; }
     });
-
-    fetchNextPage();
-
-}, function done(err) {
-    if (err) { console.error(err); return; }
-});
+    
+    return channels;
+}
 
 let findLeagueId = async (checkChannelId) => {
     let leagueId;
@@ -92,6 +95,7 @@ let getPlayerRecordId = async (playerName) => {
 //When a message is sent
 bot.on("message", async (message) => {
     let channel = message.channel;
+    let channels = await getChannels();
 
     if (message.author.bot) return;
 
