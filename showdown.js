@@ -35,15 +35,17 @@ let findLeagueId = async (checkChannelId) => {
         id: leagueId,
         name: leagueName
     };
+    console.log("End of first function");
     return leagueJson;
 };
 
 let getPlayersIds = async (leagueId) => {
+    console.log("Inside the second function");
     let recordsIds = await new Promise((resolve, reject) => {
-        base("Leagues").find(leagueId, async (err, record) => {
+        base("Leagues").find(leagueId, (err, record) => {
             if (err) reject(err);
 
-            recordIds = await record.get("Players");
+            recordIds = record.get("Players");
             resolve(recordIds);
         });
     });
@@ -73,57 +75,6 @@ let getPlayerRecordId = async (playerName) => {
     if (!playerId) playerId = false;
     return playerId;
 };
-
-let getDiscordUser = (usernameWithDisc, server) => {
-    let username = usernameWithDisc.substring(0, usernameWithDisc.length - 5);
-    let userObj = server.members.find(m => m.user.username === username).user;
-
-    //just double checking to make sure the user is correct
-    if (`${userObj.username}#${userObj.discriminator}` === usernameWithDisc) {
-        return userObj;
-    }
-    else {
-        return "Invalid user";
-    }
-}
-
-let getMods = async (leagueId, server) => {
-    let modsIds = await new Promise((resolve, reject) => {
-        base("Leagues").find(leagueId, async (err, record) => {
-            if (err) return reject(err);
-
-            let recordIds = await record.get("Mods");
-            return resolve(recordIds);
-        });
-    });
-
-    let modsUsernames = [];
-    let funcarr = [];
-    for (let modId of modsIds) {
-        funcarr.push(new Promise((resolve, reject) => {
-            base("Players").find(modId, async (err, record) => {
-                if (err) reject(err);
-
-                let username = await record.get("Discord Tag");
-
-                modsUsernames.push(username);
-                resolve()
-            });
-        }));
-    }
-    await Promise.all(funcarr);
-
-    let mods = [];
-    console.log(modsUsernames);
-    if (modsUsernames === []) return [];
-    for (let modUser of modsUsernames) {
-        if (modUser) {
-            mods.push(getDiscordUser(modUser, server));
-        }
-    }
-
-    return mods;
-}
 
 class Showdown {
     constructor(battle, server, message) {
@@ -432,29 +383,17 @@ class Showdown {
                 }
         
                 //|player|p2|infernapeisawesome|1|
-                else if (linenew.startsWith(`title`)) {
-                    players = parts[1].split(" vs. ");
+                else if (linenew.startsWith(`player`)) {
+                    players.push(parts[2]);
                     console.log("Players: " + players);
 
                     //Checking if either player isn't in the database
                     let leagueJson = await findLeagueId(this.message.channel.id);
+                    console.log("got league id for checking during battle ");
                     let playersIds = await getPlayersIds(leagueJson.id);
-                    let player1Id = await getPlayerRecordId(players[0].toLowerCase());
-                    let player2Id = await getPlayerRecordId(players[1].toLowerCase());
-
-                    //Gets the @ of the division mods
-                    let mods = await getMods(leagueJson.id, this.message.guild);
-
-                    if (!playersIds.includes(player1Id) && !playersIds.includes(player2Id)) { //Both players aren't in the database
-                        this.message.channel.send(`:exclamation: Players \`${players[0]}\` and \`${players[1]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
-                    }
-		    else if (!playersIds.includes(player1Id)) { //Just player 1 isn't in the database
-			console.log(`${players[0]}: ${player1Id}`);
-                        this.message.channel.send(`:exclamation: Player \`${players[0]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
-                    }
-                    else if (!playersIds.includes(player2Id)) { //Just player 1 isn't in the database
-			console.log(`${players[1]}: ${player2Id}`);
-                        this.message.channel.send(`:exclamation: Player \`${players[1]}\` isn't in the database. Quick, Mods ${mods === [] ? "" : mods.join(" ")} add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    let playerId = await getPlayerRecordId(parts[2]);
+                    if (!playersIds.includes(playerId)) {
+                        this.message.channel.send(`:exclamation: \`${parts[2]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
                 }
         

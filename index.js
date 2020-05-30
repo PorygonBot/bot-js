@@ -22,18 +22,14 @@ const base = new Airtable({
 //Getting the list of available channels
 const getChannels = async () => {
     let channels = [];
-    base('Leagues').select({
+    await base('Leagues').select({
         maxRecords: 50,
         view: "Grid view"
-    }).eachPage(function page(records, fetchNextPage) {
-        records.forEach(function(record) {
-            channels.push(record.get("Channel ID"));
+    }).all().then((records) => {
+        records.forEach(async (record) => {
+            let channelId = await record.get("Channel ID");
+            channels.push(channelId);
         });
-
-        fetchNextPage();
-
-    }, function done(err) {
-        if (err) { console.error(err); return; }
     });
     
     return channels;
@@ -138,7 +134,7 @@ bot.on("message", async (message) => {
         }
     }
 
-    if (msgStr.toLowerCase().startsWith( `${prefix} help`)) {
+    if (msgStr.toLowerCase().contains( `${prefix} help`)) {
         let bicon = bot.user.displayAvatarURL;
         if (msgStr.endsWith("commands")) {
             let helpEmbed = new Discord.RichEmbed()
@@ -175,7 +171,7 @@ bot.on("message", async (message) => {
         }
 
         //Finding the league that the player is going to get added to
-        let player = msgParams.join(" ");
+        let player = msgParams[0];
         let leagueJson = await findLeagueId(channel.id);
         let leagueRecordId = leagueJson.id;
         let leagueName = leagueJson.name;
@@ -262,6 +258,7 @@ bot.on("message", async (message) => {
 
         return channel.send(listEmbed);
     }
+    /*
     else if (msgStr.toLowerCase().contains(`${prefix} setup`)) {
         if (!message.member.hasPermission("MANAGE_ROLES")) {
             return channel.send(":x: You're not a moderator. Ask a moderator to set up the bot for this server.");
@@ -338,6 +335,7 @@ bot.on("message", async (message) => {
             console.log(`${leagueName} has just been setup.`);
         });
     }
+    */
 });
 
 bot.login(token);
