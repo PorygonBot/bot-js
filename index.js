@@ -138,7 +138,7 @@ bot.on("message", async (message) => {
         }
     }
 
-    if (msgStr.toLowerCase().startsWith( `${prefix} help`)) {
+    if (msgStr.toLowerCase().contains( `${prefix} help`)) {
         let bicon = bot.user.displayAvatarURL;
         if (msgStr.endsWith("commands")) {
             let helpEmbed = new Discord.RichEmbed()
@@ -175,7 +175,7 @@ bot.on("message", async (message) => {
         }
 
         //Finding the league that the player is going to get added to
-        let player = msgParams.join(" ");
+        let player = msgParams[0];
         let leagueJson = await findLeagueId(channel.id);
         let leagueRecordId = leagueJson.id;
         let leagueName = leagueJson.name;
