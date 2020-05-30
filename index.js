@@ -105,7 +105,7 @@ bot.on("message", async (message) => {
     let prefix = "porygon, use";
 
     if (channel.type === "dm") return;
-    else if (channels.includes(channel.id)) {
+    if (channels.includes(channel.id)) {
         //Extracting battlelink from the message
         let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
         let battlelink = urls.next().value;
