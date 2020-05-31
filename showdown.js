@@ -426,13 +426,13 @@ class Showdown {
                     const containsOne = playersIds.includes(player1Id);
                     const containsTwo = playersIds.includes(player2Id);
 
-                    if (containsOne && containsTwo) { //Both players aren't in the database
+                    if (!containsOne && !containsTwo) { //Both players aren't in the database
                         this.message.channel.send(`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
-                    else if (containsOne) { //Only player 1 isn't in the database
+                    else if (!containsOne) { //Only player 1 isn't in the database
                         this.message.channel.send(`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
-                    else if (containsTwo) { //Only player 2 isn't in the database
+                    else if (!containsTwo) { //Only player 2 isn't in the database
                         this.message.channel.send(`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
                 }
