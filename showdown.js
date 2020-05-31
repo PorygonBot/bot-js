@@ -377,11 +377,25 @@ class Showdown {
                     turns++;
                 }
         
-                else if (linenew.startsWith(`switch`)) {
-                    if (linenew.includes("p1a")) p1a = parts[2].split(",")[0];
-                    else if (linenew.includes("p2a")) p2a = parts[2].split(",")[0];
+                //|switch|p1a: Primarina|Primarina, M|100/100
+                // or
+                //|switch|p1a: Hydreigon|Hydreigon, M|100/100|[from]move: U-turn
+                // or
+                //|drag|p2a: Alakazam|Alakazam, F|251/251
+                else if (linenew.startsWith(`switch`) || linenew.startsWith(`drag`)) {
+                    if (linenew.includes("p1a")) {
+                        let oldP1a = p1a;
+                        p1a = parts[2].split(",")[0];
+                        console.log(`Switched from ${oldP1a} to ${p1a}`);
+                    }   
+                    else if (linenew.includes("p2a")) {
+                        let oldP2a = p2a;
+                        p2a = parts[2].split(",")[0];
+                        console.log(`Switched from ${oldP2a} to ${p2a}`);  
+                    }
                 }
         
+                /*
                 //|player|p2|infernapeisawesome|1|
                 else if (linenew.startsWith(`player`)) {
                     players.push(parts[2]);
@@ -394,6 +408,32 @@ class Showdown {
                     let playerId = await getPlayerRecordId(parts[2]);
                     if (!playersIds.includes(playerId)) {
                         this.message.channel.send(`:exclamation: \`${parts[2]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    }
+                }
+                */
+
+                //|title|Talal_23 vs. infernapeisawesome
+                else if (linenew.startsWith(`title`)) {
+                    players = parts[1].split(" vs. ");
+                    console.log("Players: " + players);
+
+                    //Checking if either player isn't in the database
+                    let leagueJson = await findLeagueId(this.message.channel.id);
+                    console.log("got league id for checking during battle ");
+                    let playersIds = await getPlayersIds(leagueJson.id);
+                    let player1Id = await getPlayerRecordId(players[0]);
+                    let player2Id = await getPlayerRecordId(players[1]);
+                    const containsOne = playersIds.includes(player1Id);
+                    const containsTwo = playersIds.includes(player2Id);
+
+                    if (containsOne && containsTwo) { //Both players aren't in the database
+                        this.message.channel.send(`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    }
+                    else if (containsOne) { //Only player 1 isn't in the database
+                        this.message.channel.send(`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
+                    }
+                    else if (containsTwo) { //Only player 2 isn't in the database
+                        this.message.channel.send(`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
                     }
                 }
         

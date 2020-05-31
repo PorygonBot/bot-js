@@ -134,7 +134,7 @@ bot.on("message", async (message) => {
         }
     }
 
-    if (msgStr.toLowerCase().contains( `${prefix} help`)) {
+    if (msgStr.toLowerCase().startsWith( `${prefix} help`)) {
         let bicon = bot.user.displayAvatarURL;
         if (msgStr.endsWith("commands")) {
             let helpEmbed = new Discord.RichEmbed()
@@ -162,7 +162,7 @@ bot.on("message", async (message) => {
 
         return channel.send(helpEmbed);
     }
-    else if (msgStr.toLowerCase().contains(`${prefix} add`)) { //Command name might be changed
+    else if (msgStr.toLowerCase().startsWith(`${prefix} add`)) { //Command name might be changed
         if (!message.member.hasPermission("MANAGE_ROLES")) {
             return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
         }
@@ -196,7 +196,7 @@ bot.on("message", async (message) => {
         console.log(`${player} has been added to ${leagueName}!`);
         return channel.send(`\`${player}\` has been added to \`${leagueName}\`!`);
     }
-    else if (msgStr.toLowerCase().contains(`${prefix} remove`)) {
+    else if (msgStr.toLowerCase().startsWith(`${prefix} remove`)) {
         if (!message.member.hasPermission("MANAGE_ROLES")) {
             return channel.send(":x: You're not a moderator. Ask a moderator to remove this person for you.");
         }
@@ -227,7 +227,7 @@ bot.on("message", async (message) => {
         console.log(`\`${player}\` has been removed from \`${leagueName}\`.`);
         return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
     }
-    else if (msgStr.toLowerCase().contains(`${prefix} list`)) {
+    else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
         if (!channels.includes(channel.id)) {
             return channel.send(":x: This is not a valid live-links channel. Try this command again in the proper channel.");
         }
