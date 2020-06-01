@@ -70,7 +70,7 @@ let getPlayersIds = async (leagueId) => {
 
     return recordsIds;
 };
-
+/*
 let getPlayerRecordId = async (playerName) => {
     let playerId;
     
@@ -88,6 +88,7 @@ let getPlayerRecordId = async (playerName) => {
     if (!playerId) playerId = false;
     return playerId;
 };
+*/
 
 //When a message is sent
 bot.on("message", async (message) => {
@@ -162,6 +163,7 @@ bot.on("message", async (message) => {
 
         return channel.send(helpEmbed);
     }
+    /*
     else if (msgStr.toLowerCase().startsWith(`${prefix} add`)) { //Command name might be changed
         if (!message.member.hasPermission("MANAGE_ROLES")) {
             return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
@@ -215,18 +217,116 @@ bot.on("message", async (message) => {
         }
         playersIds.splice(playersIds.indexOf(newId), 1);
 
-        base("Leagues").update([
+        base("Leagues").destroy([newId], (err, deletedRecords) => {
+            if (err) console.error(err);
+        });
+
+        console.log(`${player} has been removed from \`${leagueName}\`.`);
+        return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
+    }
+    */
+    
+    else if (msgStr.toLowerCase().startsWith(`${prefix} add`)) {
+        if (!message.member.hasPermission("MANAGE_ROLES")) {
+            return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
+        }
+        if (!channels.includes(channel.id)) {
+            return channel.send(":x: This is not a valid live-links channel. Try this command again in the proper channel.");
+        }
+
+        //Finding the league that the player is going to get added to
+        let player = msgParams.join(" ");
+        let leagueJson = await findLeagueId(channel.id);
+        let leagueRecordId = leagueJson.id;
+        let leagueName = leagueJson.name;
+        let playersIds = await getPlayersIds(leagueRecordId);
+        
+        //Checking if the player is already in the database
+        let funcarr = [];
+        let isIn = false;
+        for (let playerId of playersIds) {
+            funcarr.push(new Promise((resolve, reject) => {
+                base("Players").find(playerId, async (err, record) => {
+                    if (err) reject(err);
+
+                    let recordName = await record.get("Showdown Name");
+                    if (recordName.toLowerCase() === player.toLowerCase()) {
+                        isIn = true;
+                    }
+
+                    resolve();
+                });
+            }));
+        }
+        await Promise.all(funcarr);
+        if (isIn) {
+            return message.channel.send(`${player} is already in this league's database!`);
+        }
+
+        //Creates a new record for the player
+        await base("Players").create([
             {
-                id: leagueRecordId,
-                fields: {
-                    "Players": playersIds
+                "fields": {
+                    "Showdown Name": player,
+                    "Leagues": [
+                        leagueRecordId
+                    ]
                 }
             }
         ]);
 
-        console.log(`\`${player}\` has been removed from \`${leagueName}\`.`);
-        return channel.send(`\`${player}\` has been removed from \`${leagueName}\`.`);
+        console.log(`${player} has been added to ${leagueName}!`);
+        return channel.send(`\`${player}\` has been added to \`${leagueName}\`!`);
     }
+
+    else if (msgStr.toLowerCase().startsWith(`${prefix} remove`)) {
+        if (!message.member.hasPermission("MANAGE_ROLES")) {
+            return channel.send(":x: You're not a moderator. Ask a moderator to add this person for you.");
+        }
+        if (!channels.includes(channel.id)) {
+            return channel.send(":x: This is not a valid live-links channel. Try this command again in the proper channel.");
+        }
+
+        //Finding the league that the player is going to get added to
+        let player = msgParams.join(" ");
+        let leagueJson = await findLeagueId(channel.id);
+        let leagueRecordId = leagueJson.id;
+        let leagueName = leagueJson.name;
+        let playersIds = await getPlayersIds(leagueRecordId);
+        
+        //Checking if the player is already in the database
+        let funcarr = [];
+        let isIn = false;
+        let realPlayerId;
+        for (let playerId of playersIds) {
+            funcarr.push(new Promise((resolve, reject) => {
+                base("Players").find(playerId, async (err, record) => {
+                    if (err) reject(err);
+
+                    let recordName = await record.get("Showdown Name");
+                    if (recordName.toLowerCase() === player.toLowerCase()) {
+                        isIn = true;
+                        realPlayerId = playerId;
+                    }
+
+                    resolve();
+                });
+            }));
+        }
+        await Promise.all(funcarr);
+        if (!isIn) {
+            return message.channel.send(`${player} is not in this league's database!`);
+        }
+
+        //Creates a new record for the player
+        await base("Players").destroy([realPlayerId], (err, deletedRecords) => {
+            if (err) console.error(err);
+        });
+
+        console.log(`${player} has been removed from ${leagueName}!`);
+        return channel.send(`\`${player}\` has been removed from \`${leagueName}\`!`);
+    }
+
     else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
         if (!channels.includes(channel.id)) {
             return channel.send(":x: This is not a valid live-links channel. Try this command again in the proper channel.");
