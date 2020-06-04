@@ -53,30 +53,6 @@ let getPlayersIds = async (leagueId) => {
     return recordsIds;
 };
 
-/*
-let getPlayerRecordId = async (playerName) => {
-    let playerId;
-    
-    await base("Players").select({
-        maxRecords: 1000,
-        view: "Grid view"
-    }).all().then(async (playerRecords) => {
-        for (let playerRecord of playerRecords) {
-            let recordId = playerRecord.id;
-            let showdownName = await playerRecord.get("Showdown Name");
-            console.log(`Airtable during battle: ${showdownName}player`);
-            if (showdownName.toLowerCase() === playerName.toLowerCase()) {
-                playerId = recordId;
-                console.log(`      found ${playerName}`);
-                break;
-            }
-        }
-    });
-    
-    if (!playerId) playerId = false;
-    return playerId;
-};
-*/
 let playerInLeague = async (playersIds, playerName) => {
     let funcarr = [];
     let isIn = false;
@@ -429,12 +405,6 @@ class Showdown {
                     let playersIds = await getPlayersIds(leagueJson.id);
                     const containsOne = await playerInLeague(playersIds, players[0]);
                     const containsTwo = await playerInLeague(playersIds, players[1]);
-                    /*
-                    let player1Id = await getPlayerRecordId(players[0]);
-                    let player2Id = await getPlayerRecordId(players[1]);
-                    const containsOne = playersIds.includes(player1Id);
-                    const containsTwo = playersIds.includes(player2Id);
-                    */
 
                     if (!containsOne && !containsTwo) { //Both players aren't in the database
                         this.message.channel.send(`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);

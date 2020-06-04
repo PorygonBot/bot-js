@@ -70,25 +70,6 @@ let getPlayersIds = async (leagueId) => {
 
     return recordsIds;
 };
-/*
-let getPlayerRecordId = async (playerName) => {
-    let playerId;
-    
-    await base("Players").select({
-        maxRecords: 1000,
-        view: "Grid view"
-    }).all().then(async (playerRecords) => {
-        for (let playerRecord of playerRecords) {
-            let recordId = playerRecord.id;
-            let showdownName = playerRecord.get("Showdown Name");
-            if (showdownName.toLowerCase() === playerName.toLowerCase()) playerId = recordId;
-        }
-    });
-    
-    if (!playerId) playerId = false;
-    return playerId;
-};
-*/
 
 //When a message is sent
 bot.on("message", async (message) => {
