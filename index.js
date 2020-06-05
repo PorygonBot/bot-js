@@ -2,7 +2,7 @@
 const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
-const Showdown = require("./showdown");
+const Showdown = require("./tracker/Showdown");
 
 //Getting config info
 const { username, password, token, airtable_key, base_id, google_key } = require("./config.json");
