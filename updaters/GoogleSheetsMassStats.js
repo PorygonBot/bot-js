@@ -1,22 +1,45 @@
 const {google} = require("googleapis");
-const gc = require("../googleclient");
-
-const sheets = google.sheets({
-    version: "v4",
-    auth: gc.oAuth2Client
-});
+const gc = require("../GoogleClient");
 
 class GoogleSheetsMassStats {
     constructor(spreadsheetId, p1range, p2range) {
         this.sheetid = spreadsheetId;
         this.p1range = p1range;
         this.p2range = p2range;
+
+        gcOauth = gc.oAuth2Client;
+
+        google.options({ auth: gcOauth });
+        this.sheets = google.sheets({
+            version: "v4",
+            auth: gcOauth
+        });
+    }
+
+    async getValues(range) {
+        let request = {
+            "spreadsheetId": this.sheetid,
+            "range": range
+        };
+
+        let valuesJson = await new Promise((resolve, reject) => {
+            this.sheets.spreadsheets.values.get(request, (err, response) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(response);
+                }
+            });
+        });
+
+        return valuesJson;
     }
 
     async update(killJson1, deathJson1, killJson2, deathJson2, replay) {
         //Getting current sheet's values and initializing new update request
-        let currentRequest1 = await getValues(this.p1range);
-        let currentRequest2 = await getValues(this.p2range);
+        let currentRequest1 = await this.getValues(this.p1range);
+        let currentRequest2 = await this.getValues(this.p2range);
         let newRequest1 = {
             "spreadsheetId": this.sheetid,
             "range": this.p1range,
@@ -68,7 +91,7 @@ class GoogleSheetsMassStats {
 
         //Updating both players' info using new request
         let res1 = await new Promise((resolve, reject) => {
-            sheets.spreadsheets.values.update(newRequest1, (err, response) => {
+            this.sheets.spreadsheets.values.update(newRequest1, (err, response) => {
                 if (err) {
                     reject(err);
                 }
@@ -78,7 +101,7 @@ class GoogleSheetsMassStats {
             });
         });
         let res2 = await new Promise((resolve, reject) => {
-            sheets.spreadsheets.values.update(newRequest2, (err, response) => {
+            this.sheets.spreadsheets.values.update(newRequest2, (err, response) => {
                 if (err) {
                     reject(err);
                 }
@@ -93,24 +116,6 @@ class GoogleSheetsMassStats {
             "res2": res2
         };
     }
-
-    async getValues(range) {
-        let request = {
-            "spreadsheetId": this.sheetid,
-            "range": range
-        };
-
-        let valuesJson = await new Promise((resolve, reject) => {
-            sheets.spreadsheets.values.get(request, (err, response) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(response);
-                }
-            });
-        });
-
-        return valuesJson;
-    }
 }
+
+module.exports = GoogleSheetsMassStats;

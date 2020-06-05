@@ -1,5 +1,5 @@
 const {google} = require("googleapis");
-const gclient = require("../googleclient");
+const gclient = require("../GoogleClient");
 
 const sheets = google.sheets({
     version: "v4",
