@@ -1,11 +1,11 @@
 const {google} = require("googleapis");
-const gclient = require("../GoogleClient");
 
+/*
 const sheets = google.sheets({
     version: "v4",
     auth: gclient.oAuth2Client
 });
-
+*/
 class GoogleSheetsLineStats {
     constructor(spreadsheetId, tab) {
         this.sheetid = spreadsheetId;

@@ -1,5 +1,4 @@
 const {google} = require("googleapis");
-const gc = require("../GoogleClient");
 
 class GoogleSheetsMassStats {
     constructor(spreadsheetId, p1range, p2range) {
@@ -7,12 +6,19 @@ class GoogleSheetsMassStats {
         this.p1range = p1range;
         this.p2range = p2range;
 
-        gcOauth = gc.oAuth2Client;
+        const serviceauth = new google.auth.GoogleAuth({
+            keyFile: `./service_account.json`,
+            scopes: [
+                "https://www.googleapis.com/auth/drive", 
+                "https://www.googleapis.com/auth/drive.file",
+                "https://www.googleapis.com/auth/spreadsheets"
+            ]
+        });
 
-        google.options({ auth: gcOauth });
+        google.options({auth: serviceauth});
         this.sheets = google.sheets({
             version: "v4",
-            auth: gcOauth
+            auth: serviceauth
         });
     }
 
@@ -36,7 +42,24 @@ class GoogleSheetsMassStats {
         return valuesJson;
     }
 
-    async update(killJson1, deathJson1, killJson2, deathJson2, replay) {
+    async update(recordJson) {
+        //Getting info from recordJson
+        let winner = recordJson.info.winner.substring(0, recordJson.info.winner.length - 2).toLowerCase();
+        let loser = recordJson.info.loser.substring(0, recordJson.info.loser.length - 2).toLowerCase();
+        //let player1 = winner.endsWith("p1") ? winner : loser;
+        //let player2 = winner.endsWith("p1") ? loser : winner;
+        let player1 = recordJson.players[winner].sheet_tab === this.p1range.slice(0, 3) ? winner : loser;
+        console.log(this.p1range.slice(0, 4) + player1);
+        let player2 = player1 === winner ? loser : winner;
+
+        console.log(`${player1} (${this.p1range}) vs. ${player2} (${this.p2range})`);
+
+        let killJsonp1 = recordJson.players[player1].kills;
+        let deathJsonp1 = recordJson.players[player1].deaths;
+        let killJsonp2 = recordJson.players[player2].kills;
+        let deathJsonp2 = recordJson.players[player2].deaths;
+        let replay = recordJson.info.replay;
+
         //Getting current sheet's values and initializing new update request
         let currentRequest1 = await this.getValues(this.p1range);
         let currentRequest2 = await this.getValues(this.p2range);
@@ -59,35 +82,43 @@ class GoogleSheetsMassStats {
             "valueInputOption": "USER_ENTERED",
             "resource": {
                 "range": this.p2range,
-                "values": currentRequest1.data.values
+                "values": currentRequest2.data.values
             }
         }
+
+        //Printing requests before
+        console.log(`newRequest1 before: ${JSON.stringify(newRequest1.resource)}`);
+        console.log(`newRequest2 before: ${JSON.stringify(newRequest2.resource)}`);
 
         //Updating new info to the request
-        for (let i = 0; i < request1.data.values.length; i++) {
-            let pokemon1 = currentRequest1.data.values[i][0].split("-")[0];
-            let pokemon2 = currentRequest2.data.values[i][0].split("-")[0];
-
-            //Updating Games Played
-            newRequest1.resource.values[i][2] = (parseInt(currentRequest1.data.values[i][2] + 1)).toString();
-            newRequest2.resource.values[i][2] = (parseInt(currentRequest2.data.values[i][2] + 1)).toString();
+        for (let i = 0; i < currentRequest1.data.values.length; i++) {
+            let pokeOne = currentRequest1.data.values[i][0].split("-")[0];
+            let pokeTwo = currentRequest2.data.values[i][0].split("-")[0];
+            
+            //Updating the Games Played value.
+            if (pokeOne in killJsonp1 || pokeOne in deathJsonp1) {
+                newRequest1.resource.values[i][2] = (parseInt(newRequest1.resource.values[i][2]) + 1).toString();
+            }
+            if (pokeTwo in killJsonp2 || pokeTwo in deathJsonp2) {
+                newRequest2.resource.values[i][2] = (parseInt(newRequest2.resource.values[i][2]) + 1).toString();
+            }
 
             //Updating Player 1's info
-            if (killJson1[pokemon1] >= 0) {
-                newRequest1.resource.values[i][4] = (parseInt(currentRequest1.data.values[i][4] + killJson1[pokemon1])).toString();
-            }
-            if (deathJson1[pokemon1] >= 0) {
-                newRequest1.resource.values[i][5] = (parseInt(currentRequest1.data.values[i][5] + deathJson1[pokemon1])).toString();
-            }
+            if (killJsonp1[pokeOne] >= 0)
+                newRequest1.resource.values[i][4] = (killJsonp1[pokeOne] + parseInt(newRequest1.resource.values[i][4])).toString();
+            if (deathJsonp1[pokeOne] >= 0)
+                newRequest1.resource.values[i][5] = (deathJsonp1[pokeOne] + parseInt(newRequest1.resource.values[i][5])).toString();
 
             //Updating Player 2's info
-            if (killJson2[pokemon2] >= 0) {
-                newRequest2.resource.values[i][4] = (parseInt(currentRequest2.data.values[i][4] + killJson2[pokemon2])).toString();
-            }
-            if (deathJson2[pokemon2] >= 0) {
-                newRequest2.resource.values[i][5] = (parseInt(currentRequest2.data.values[i][5] + deathJson2[pokemon2])).toString();
-            }
+            if (killJsonp2[pokeTwo] >= 0)
+                newRequest2.resource.values[i][4] = (killJsonp2[pokeTwo] + parseInt(newRequest2.resource.values[i][4])).toString();
+            if (deathJsonp2[pokeTwo] >= 0)
+                newRequest2.resource.values[i][5] = (deathJsonp2[pokeTwo] + parseInt(newRequest2.resource.values[i][5])).toString();
         }
+
+        //Printing requests after
+        console.log(`newRequest1 after: ${JSON.stringify(newRequest1.resource)}`);
+        console.log(`newRequest2 after: ${JSON.stringify(newRequest2.resource)}`);
 
         //Updating both players' info using new request
         let res1 = await new Promise((resolve, reject) => {

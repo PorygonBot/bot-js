@@ -3,7 +3,6 @@ const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
 const Showdown = require("./tracker/Showdown");
-const gc = require("./GoogleClient");
 
 //Getting config info
 const { username, password, token, airtable_key, base_id, google_key } = require("./config.json");
@@ -71,11 +70,6 @@ let getPlayersIds = async (leagueId) => {
 
     return recordsIds;
 };
-
-//Authorizing GoogleClient
-gc.authenticate(gc._options.scopes).then(() => {
-    console.log("Authenticated google.");
-});
 
 //When a message is sent
 bot.on("message", async (message) => {
