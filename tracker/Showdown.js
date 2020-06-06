@@ -214,8 +214,9 @@ class Showdown {
                 case "Google Sheets Mass":
                     let masser = new GoogleSheetsMassStats(recordJson.sheetId, 
                                                        `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
-                                                       `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
-                    await masser.update(killJson1, deathJson1, killJson2, deathJson1, info.replay);
+                                                       `${recordJson.players[player2].sheet_tab}!${recordJson.range}`,
+                                                       this.message);
+                    await masser.update(recordJson);
                     break;
                 case "Discord DM":
                     await dmer.update(recordJson);
@@ -267,13 +268,13 @@ class Showdown {
            log: data.log,
            id: data.id
        });
-       console.log("newData: " + JSON.stringify(newData) + "\n");
+       //console.log("newData: " + JSON.stringify(newData) + "\n");
 
        let response = await axios.post(url, newData);
 
        console.log("Replay posted!");
        let replay = `https://replay.pokemonshowdown.com/${data.id}`;
-       console.log(`Response to replay: ${response.data}`);
+       //console.log(`Response to replay: ${response.data}`);
 
        return replay;
     }
