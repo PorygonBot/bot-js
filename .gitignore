@@ -1,3 +1,2 @@
-config.json
-client_secret.json
+*.json
 node_modules/
