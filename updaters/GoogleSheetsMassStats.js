@@ -1,7 +1,7 @@
 const {google} = require("googleapis");
 
 class GoogleSheetsMassStats {
-    constructor(spreadsheetId, p1range, p2range) {
+    constructor(spreadsheetId, p1range, p2range, message) {
         this.sheetid = spreadsheetId;
         this.p1range = p1range;
         this.p2range = p2range;
@@ -20,6 +20,8 @@ class GoogleSheetsMassStats {
             version: "v4",
             auth: serviceauth
         });
+
+        this.channel = message.channel;
     }
 
     async getValues(range) {
@@ -49,7 +51,6 @@ class GoogleSheetsMassStats {
         //let player1 = winner.endsWith("p1") ? winner : loser;
         //let player2 = winner.endsWith("p1") ? loser : winner;
         let player1 = recordJson.players[winner].sheet_tab === this.p1range.slice(0, 3) ? winner : loser;
-        console.log(this.p1range.slice(0, 4) + player1);
         let player2 = player1 === winner ? loser : winner;
 
         console.log(`${player1} (${this.p1range}) vs. ${player2} (${this.p2range})`);
@@ -142,6 +143,7 @@ class GoogleSheetsMassStats {
             });
         });
 
+        this.channel.send(`Battle between \`${player1}\`(${this.p1range.slice(0, 3)}) and \`${player2}\`(${this.p2range.slice(0, 3)}) is complete and info has been updated!/nReplay: ${replay}`);
         return {
             "res1": res1,
             "res2": res2

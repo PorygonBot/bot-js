@@ -214,7 +214,8 @@ class Showdown {
                 case "Google Sheets Mass":
                     let masser = new GoogleSheetsMassStats(recordJson.sheetId, 
                                                        `${recordJson.players[player1].sheet_tab}!${recordJson.range}`, 
-                                                       `${recordJson.players[player2].sheet_tab}!${recordJson.range}`);
+                                                       `${recordJson.players[player2].sheet_tab}!${recordJson.range}`,
+                                                       this.message);
                     await masser.update(recordJson);
                     break;
                 case "Discord DM":
