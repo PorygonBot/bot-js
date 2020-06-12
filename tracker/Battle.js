@@ -20,6 +20,8 @@ class Battle {
                 "Toxic Spikes": undefined
             }
         }
+        this.weather = "";
+        this.weatherInflictor = "";
         this.turns = 0;
         this.replay = "";
         this.winner = "";
@@ -34,6 +36,16 @@ class Battle {
 
     endHazard(side, hazard) {
         this.hazardsSet[side][hazard] = undefined;
+    }
+
+    setWeather(weather, inflictor) {
+        this.weather = weather;
+        this.weatherInflictor = inflictor;
+    }
+
+    clearWeather() {
+        this.weather = "";
+        this.weatherInflictor = "";
     }
 }
 

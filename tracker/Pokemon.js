@@ -4,6 +4,7 @@ class Pokemon {
         this.nickname = nickname || name;
         this.status = "n/a";
         this.statusInflictor = "";
+        this.otherAffliction = {}; //Like Leech Seed and stuff
         this.causeOfDeath = "n/a";
         this.directKills = 0;
         this.passiveKills = 0;

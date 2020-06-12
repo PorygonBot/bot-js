@@ -488,10 +488,19 @@ class Showdown {
 					line.splice(realdata.indexOf(line), 1);
 				}
 
-				/**
-                |switch|p2a: Poochyena|Poochyena, F|211/211
-                |-status|p2a: Poochyena|psn
-                 */
+				//If a weather condition is set
+				if (line.startsWith(`|-weather|`)) {
+					if (!line.contains("[upkeep]") && !line.contains("none")) {
+						let weather = parts[1];
+						let inflictor = parts[3].split("p1a: ")[1];
+						battle.setWeather(weather, inflictor);
+					}
+
+					//If the weather has been stopped
+					if (parts[1] === "none") {
+						battle.clearWeather();
+					}
+				}
 
 				//Checks for certain specific moves: hazards, statuses, etc.
 				else if (line.startsWith(`|move|`)) {
@@ -514,19 +523,15 @@ class Showdown {
 					let prevMove = dataArr[dataArr.length - 2];
 					if (prevMove.startsWith(`|move|`)) {
 						//If status was caused by a move
+						let moveUserNickname = prevMove
+							.split("|")
+							.slice(1)[1]
+							.split(": ")[1];
 						if (prevMove.split("|").slice(1)[1].startsWith("p1a")) {
-							let moveUserNickname = prevMove
-								.split("|")
-								.slice(1)[1]
-								.split(": ")[1];
 							if (moveUserNickname === battle.p1a.nickname) {
 								battle.p2a.statusEffect(parts[2], battle.p1a);
 							}
 						} else {
-							let moveUserNickname = prevMove
-								.split("|")
-								.slice(1)[1]
-								.split(": ")[1];
 							if (moveUserNickname === battle.p2a.nickname) {
 								battle.p1a.statusEffect(parts[2], battle.p2a);
 							}
@@ -554,51 +559,84 @@ class Showdown {
 					battle.endHazard(side, hazard);
 				}
 
-				/**
-                |-damage|p2a: Shedinja|0 fnt|[from] Stealth Rock
-                |faint|p2a: Shedinja
-
-                |-damage|p2a: Aegislash|0 fnt|[from] brn
-                |faint|p2a: Aegislash
-
-                |-curestatus|p1a: Sylveon|brn|[msg]
-                |-curestatus|p1: Aegislash|brn|[msg]
-
-                |-damage|p2a: Heliolisk|0 fnt|[from] ability: Solar Power|[of] p2a: Heliolisk
-                |faint|p2a: Heliolisk
-
-                |-damage|p2a: Tyrogue|0 fnt|[from] highjumpkick
-                |faint|p2a: Tyrogue
-
-                |move|p2a: Electrode|Self-Destruct|p1a: Clefable
-                |-damage|p1a: Clefable|71/100
-                |faint|p2a: Electrode
-
-                |move|p1a: Latias|Healing Wish|p1a: Latias
-                |faint|p1a: Latias
-
-                |switch|p1a: Vulpix|Vulpix, M|41/100
-                |-heal|p1a: Vulpix|100/100|[from] move: Healing Wish
-
-                |-activate|p2a: Horsea|confusion
-                |-damage|p2a: Horsea|0 fnt|[from] confusion
-                |faint|p2a: Horsea
-                */
+				//If an affliction like Leech Seed starts
+				else if (line.startsWith(`|-start|`)) {
+					let prevMove = dataArr[dataArr.length - 2];
+					let affliction = parts[2].split("move: ")[1];
+					if (
+						prevMove.startsWith(`|move|`) &&
+						prevMove.split("|").split(1)[2] === affliction
+					) {
+						let afflictor = prevMove
+							.split("|")
+							.split(1)[1]
+							.split(": ")[1];
+						let side = parts[1].split(": ")[0];
+						if (side === "p1a") {
+							battle.p1a.otherAffliction[affliction] = afflictor;
+						} else if (side === "p2a") {
+							battle.p2a.otherAffliction[affliction] = afflictor;
+						}
+					}
+                }
+                
+                //If a pokemon's status is cured
+                else if (line.startsWith(`|-curestatus|`)) {
+                    let pokemon = parts[1].split(": ")[1];
+                    let side = parts[1].split(": ")[0];
+                    if (side.startsWith("p1")) {
+                        battle.p1Pokemon[pokemon].statusFix();
+                    }
+                    else {
+                        battle.p2Pokemon[pokemon].statusFix();
+                    }
+                }
 
 				//When a Pokemon is damaged, and possibly faints
 				else if (line.startsWith(`|-damage|`)) {
-					let move = parts[3].split("[from] ")[1];
 					if (parts[2].endsWith("fnt")) {
 						//A pokemon has fainted
 						let victimSide = parts[1].split(": ")[0];
-						if (move === "Stealth Rock" || move === "Spikes") {
-							//Hazards
-							if (victimSide === "p1a") {
-								let killer = battle.hazardsSet.p1[move];
-								p1a.died(move, killer, true);
-							} else if (victimSide === "p2a") {
-								let killer = battle.hazardsSet.p2[move];
-								p2a.died(move, killer, true);
+
+						if (parts[3].contains("[from]")) {
+							//It's a special death, not a normal one.
+							let move = parts[3].split("[from] ")[1];
+							if (move === "Stealth Rock" || move === "Spikes") {
+								//Hazards
+								if (victimSide === "p1a") {
+									let killer = battle.hazardsSet.p1[move];
+									p1a.died(move, killer, true);
+								} else if (victimSide === "p2a") {
+									let killer = battle.hazardsSet.p2[move];
+									p2a.died(move, killer, true);
+								}
+							} else if (
+								move === "Hail" ||
+								move === "Sandstorm"
+							) {
+								//Weather
+								let killer = battle.weatherInflictor;
+								if (victimside === "p1a") {
+									p1a.died(move, killer, true);
+								}
+								if (victimside === "p2a") {
+									p2a.died(move, killer, true);
+								}
+							} else {
+								//Some sort of affliction-caused death, this might be changed later though
+								if (victimSide === "p1a") {
+									p1a.died(
+										move,
+										battle.p1a.otherAffliction[move],
+										true
+									);
+								} else if (victimSide === "p2a") {
+									p2a.died(
+										move,
+										battle.p2a.otherAffliction[move],
+										true
+									);
+								}
 							}
 						}
 					}
