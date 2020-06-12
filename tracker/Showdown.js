@@ -365,12 +365,15 @@ class Showdown {
 
 	async track() {
         let battle;
+        let dataArr;
 
         this.websocket.on("message", async () => {
             //Separates the data into lines so it's easy to parse
             let realdata = data.split("\n");
 
             for (const line of realdata) {
+                dataArr.push(line);
+
                 //Separates the line into parts, separated by `|`
                 const parts = line.split("|").split(1); //The split is because all lines start with | so the first element is always blank
 
@@ -417,29 +420,46 @@ class Showdown {
                     }
 
                     //Initializes the battle as an object
-                    battle = new Battle(players[0], players[1]);
+                    battle = new Battle(this.battle, players[0], players[1]);
                 }
 
                 //At the beginning of every non-randoms match, a list of Pokemon show up.
                 //This code is to get all that
                 else if (line.startsWith(`|poke|`)) {
-                    let pokemon = new Pokemon(parts[2].split(",")[0]) //Adding a pokemon to the list of pokemon in the battle
+                    let pokemonName = parts[2].split(",")[0];
+                    let pokemon = new Pokemon(pokemonName) //Adding a pokemon to the list of pokemon in the battle
                     if (parts[1] === "p1") { //If the pokemon belongs to Player 1
-                        battle.p1Pokemon.push(pokemon);
+                        battle.p1Pokemon[pokemonName] = pokemon;
                     }
                     else if (parts[1] === "p2") { //If the pokemon belongs to Player 2
-                        battle.p2Pokemon.push(pokemon);
+                        battle.p2Pokemon[pokemonName] = pokemon;
                     }
                 }
 
                 //Increments the total number of turns at the beginning of every new turn
                 else if (line.startsWith(`|turn|`)) {
-                    turns++;
+                    battle.turns++;
                 }
 
                 //If a Pokemon switches, the active Pokemon must now change
                 else if (line.startsWith(`|switch|`) || line.startsWith(`|drag|`)) {
-                    //TODO
+                    if (parts[1].startsWith("p1a")) { //If Player 1's Pokemon get switched out
+                        let oldPokemon = battle.p1a;
+                        if (oldPokemon) {
+                            battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+                        }
+                        battle.p1a = battle.p1Pokemon[parts[2].split(",")[0]];
+                        console.log(`${oldPokemon.name} has been switched into ${battle.p1a.name}`);
+                    }
+
+                    else if (parts[1].startsWith("p2a")) { //If Player 2's Pokemon get switched out
+                        let oldPokemon = battle.p2a;
+                        if (oldPokemon) {
+                            battle.p2Pokemon[oldPokemon.name] = oldPokemon;
+                        }
+                        battle.p2a = battle.p2Pokemon[parts[2].split(",")[0]];
+                        console.log(`${oldPokemon.name} has been switched into ${battle.p2a.name}`);
+                    }
                 }
 
                 //Removes the |-supereffective| part of realdata if it exists
@@ -447,9 +467,103 @@ class Showdown {
                     line.splice(realdata.indexOf(line), 1);
                 }
 
-                //When a Pokemon faints, the most important part :)
-                else if (false) { //TODO
-                    //TODO
+                /**
+                |switch|p2a: Poochyena|Poochyena, F|211/211
+                |-status|p2a: Poochyena|psn
+                 */
+
+                //Checks for certain specific moves: hazards, statuses, etc.
+                else if (line.startsWith(`|move|`)) {
+                    let move = parts[2];
+                    
+                    if (move === "Stealth Rock" || move === "Spikes" || move === "Toxic Spikes") { //Hazards
+                        let side = parts[3].split("a: ")[0];
+                        let inflictor = parts[1].split("a: ")[0];
+                        battle.addHazard(side, move, inflictor);
+                    }
+                }
+
+                //Checks for statuses
+                else if (line.startsWith(`|-status|`)) {
+                    let prevMove = dataArr[dataArr.length - 2];
+                    if (prevMove.startsWith(`|move|`)) { //If status was caused by a move
+                        if (prevMove.split("|").slice(1)[1].startsWith("p1a")) {
+                            let moveUserNickname = prevMove.split("|").slice(1)[1].split(": ")[1];
+                            if (moveUserNickname === battle.p1a.nickname) {
+                                battle.p2a.statusEffect(parts[2], battle.p1a);
+                            }
+                        }
+                        else {
+                            let moveUserNickname = prevMove.split("|").slice(1)[1].split(": ")[1];
+                            if (moveUserNickname === battle.p2a.nickname) {
+                                battle.p1a.statusEffect(parts[2], battle.p2a);
+                            }
+                        }
+                    }
+                    else { //If status wasn't caused by a move, but rather something like a hazard
+                        if (parts[1].split(": ")[0] === "p1a") {
+                            battle.p1a.statusEffect(parts[2], battle.hazardsSet.p2["Toxic Spikes"]);
+                        }
+                        else {
+                            battle.p2a.statusEffect(parts[2], battle.hazardsSet.p1["Toxic Spikes"]);
+                        }
+                    }
+                }
+
+                //If a hazard ends on a side
+                else if (line.startsWith(`|-sideend|`)) {
+                    let side = parts[1].split(": ")[0];
+                    let hazard = parts[2];
+                    battle.endHazard(side, hazard);
+                }
+
+                /**
+                |-damage|p2a: Shedinja|0 fnt|[from] Stealth Rock
+                |faint|p2a: Shedinja
+
+                |-damage|p2a: Aegislash|0 fnt|[from] brn
+                |faint|p2a: Aegislash
+
+                |-curestatus|p1a: Sylveon|brn|[msg]
+                |-curestatus|p1: Aegislash|brn|[msg]
+
+                |-damage|p2a: Heliolisk|0 fnt|[from] ability: Solar Power|[of] p2a: Heliolisk
+                |faint|p2a: Heliolisk
+
+                |-damage|p2a: Tyrogue|0 fnt|[from] highjumpkick
+                |faint|p2a: Tyrogue
+
+                |move|p2a: Electrode|Self-Destruct|p1a: Clefable
+                |-damage|p1a: Clefable|71/100
+                |faint|p2a: Electrode
+
+                |move|p1a: Latias|Healing Wish|p1a: Latias
+                |faint|p1a: Latias
+
+                |switch|p1a: Vulpix|Vulpix, M|41/100
+                |-heal|p1a: Vulpix|100/100|[from] move: Healing Wish
+
+                |-activate|p2a: Horsea|confusion
+                |-damage|p2a: Horsea|0 fnt|[from] confusion
+                |faint|p2a: Horsea
+                */
+
+                //When a Pokemon is damaged, and possibly faints
+                else if (line.startsWith(`|-damage|`)) { 
+                    let move = parts[3].split("[from] ")[1];
+                    if (parts[2].endsWith("fnt")) { //A pokemon has fainted
+                        let victimSide = parts[1].split(": ")[0];
+                        if (move === "Stealth Rock" || move === "Spikes") { //Hazards
+                            if (victimSide === "p1a") {
+                                let killer = battle.hazardsSet.p1[move]
+                                p1a.died(move, killer, true);
+                            }
+                            else if (victimSide === "p2a") {
+                                let killer = battle.hazardsSet.p2[move]
+                                p2a.died(move, killer, true);
+                            }
+                        }
+                    }
                 }
 
                 //At the end of the match, when the winner is announced
@@ -457,27 +571,26 @@ class Showdown {
                     winner = parts[1];
                     winner = ((winner === players[0]) ? `${winner}p1` : `${winner}p2`);
                     loser = ((winner === `${players[0]}p1`) ? `${players[1]}p2` : `${players[0]}p1`);
-                    //Requesting the replay from Showdown
-                    this.websocket.send(`${this.battle}|/uploadreplay`);
+                    
+                    this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
                 }
 
                 //After the match is done and replay request is sent, it uploads the replay and gets the link
                 else if (line.startsWith("|queryresponse|savereplay")) {
                     let replayData = JSON.parse(data.substring(26,));
-                    replay = await this.requestReplay(replayData);
-                    console.log("Replay inside the track function: " + replay);
+                    battle.replay = await this.requestReplay(replayData);
 
                     let info = {
-                        "replay": replay,
-                        "turns": turns,
-                        "winner": winner,
-                        "loser": loser
+                        "replay": battle.replay,
+                        "turns": battle.turns,
+                        "winner": battle.winner,
+                        "loser": battle.loser
                     };
 
-                    if (winner.endsWith("p1") && loser.endsWith("p2")) {
+                    if (battle.winner.endsWith("p1") && battle.loser.endsWith("p2")) {
                         await this.endscript(winner, killJsonp1, deathJsonp1, loser, killJsonp2, deathJsonp2, info);
                     }
-                    else if (winner.endsWith("p2") && loser.endsWith("p1")) {
+                    else if (battle.winner.endsWith("p2") && battle.loser.endsWith("p1")) {
                         await this.endscript(winner, killJsonp2, deathJsonp2, loser, killJsonp1, deathJsonp1, info);
                     }
                     else {
@@ -485,16 +598,11 @@ class Showdown {
                     }
 
                     this.websocket.send(`|/leave ${this.battle}`);
-                    //this.websocket.close();
 
                     let returndata = {
-                        "replay": replay,
-                        "players": {
-                            "winner": winner,
-                            "loser": loser
-                        },
+                        "info": info,
                         "code": "0"
-                    }
+                    };
             
                     return returndata;
                 }

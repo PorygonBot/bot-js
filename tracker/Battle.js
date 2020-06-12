@@ -1,16 +1,24 @@
 class Battle {
-    constructor(player1, player2) {
+    constructor(battleId, player1, player2) {
         //Player info
         this.p1 = player1;
-        this.p1Pokemon = [];
+        this.p1Pokemon = {};
         this.p2 = player2;
-        this.p2Pokemon = [];
+        this.p2Pokemon = {};
 
         //Battle info
+        this.id = battleId;
         this.hazardsSet = {
-            "Stealth Rocks": undefined,
-            "Spikes": undefined,
-            "Toxic Spikes": undefined
+            "p1": {
+                "Stealth Rock": undefined,
+                "Spikes": undefined,
+                "Toxic Spikes": undefined
+            },
+            "p2": {
+                "Stealth Rock": undefined,
+                "Spikes": undefined,
+                "Toxic Spikes": undefined
+            }
         }
         this.turns = 0;
         this.replay = "";
@@ -20,8 +28,12 @@ class Battle {
         this.p2a;
     }
 
-    addHazard(hazard, hazardInflictor) {
-        this.hazardsSet[hazard] = hazardInflictor;
+    addHazard(side, hazard, hazardInflictor) {
+        this.hazardsSet[side][hazard] = hazardInflictor;
+    }
+
+    endHazard(side, hazard) {
+        this.hazardsSet[side][hazard] = undefined;
     }
 }
 
