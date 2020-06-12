@@ -22,6 +22,10 @@ class Pokemon {
         this.statusInflictor = "";
     }
 
+    clearAfflictions() {
+        this.otherAffliction = {};
+    }
+
     //When the pokemon has killed another pokemon in battle
     killed(deathJson) {
         if (deathJson.isPassive) this.passiveKills++;

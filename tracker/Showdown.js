@@ -462,6 +462,7 @@ class Showdown {
 				) {
 					if (parts[1].startsWith("p1a")) {
 						//If Player 1's Pokemon get switched out
+						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p1a;
 						if (oldPokemon) {
 							battle.p1Pokemon[oldPokemon.name] = oldPokemon;
@@ -472,6 +473,7 @@ class Showdown {
 						);
 					} else if (parts[1].startsWith("p2a")) {
 						//If Player 2's Pokemon get switched out
+						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p2a;
 						if (oldPokemon) {
 							battle.p2Pokemon[oldPokemon.name] = oldPokemon;
@@ -483,13 +485,16 @@ class Showdown {
 					}
 				}
 
-				//Removes the |-supereffective| part of realdata if it exists
-				else if (line.startsWith(`|-supereffective|`)) {
-					line.splice(realdata.indexOf(line), 1);
+				//Removes the |-supereffective| or  |upkeep part of realdata if it exists
+				else if (
+					line.startsWith(`|-supereffective|`) ||
+					line.startsWith(`|upkeep`)
+				) {
+					realdata.splice(realdata.indexOf(line), 1);
 				}
 
 				//If a weather condition is set
-				if (line.startsWith(`|-weather|`)) {
+				else if (line.startsWith(`|-weather|`)) {
 					if (!line.contains("[upkeep]") && !line.contains("none")) {
 						let weather = parts[1];
 						let inflictor = parts[3].split("p1a: ")[1];
@@ -559,44 +564,62 @@ class Showdown {
 					battle.endHazard(side, hazard);
 				}
 
-				//If an affliction like Leech Seed starts
+				//If an affliction like Leech Seed or confusion starts
 				else if (line.startsWith(`|-start|`)) {
 					let prevMove = dataArr[dataArr.length - 2];
-					let affliction = parts[2].split("move: ")[1];
+					let affliction = parts[2];
 					if (
 						prevMove.startsWith(`|move|`) &&
 						prevMove.split("|").split(1)[2] === affliction
 					) {
+						let move = affliction.split("move: ")[1];
 						let afflictor = prevMove
 							.split("|")
 							.split(1)[1]
 							.split(": ")[1];
 						let side = parts[1].split(": ")[0];
 						if (side === "p1a") {
-							battle.p1a.otherAffliction[affliction] = afflictor;
+							battle.p1a.otherAffliction[move] = afflictor;
 						} else if (side === "p2a") {
-							battle.p2a.otherAffliction[affliction] = afflictor;
+							battle.p2a.otherAffliction[move] = afflictor;
+						}
+					} else if (affliction === `perish0`) {
+						//Pokemon dies of perish song
+						let side = parts[1].split(": ")[0];
+						if (side === "p1a") {
+							battle.p1a.died(
+								affliction,
+								battle.p1a.otherAffliction["perish3"],
+								true
+							);
+						} else if (side === "p2a") {
+							battle.p2a.died(
+								affliction,
+								battle.p2a.otherAffliction["perish3"],
+								true
+							);
 						}
 					}
-                }
-                
-                //If a pokemon's status is cured
-                else if (line.startsWith(`|-curestatus|`)) {
-                    let pokemon = parts[1].split(": ")[1];
-                    let side = parts[1].split(": ")[0];
-                    if (side.startsWith("p1")) {
-                        battle.p1Pokemon[pokemon].statusFix();
-                    }
-                    else {
-                        battle.p2Pokemon[pokemon].statusFix();
-                    }
-                }
+					dataArr.splice(dataArr.length - 1, 1);
+				}
+
+				//If a pokemon's status is cured
+				else if (line.startsWith(`|-curestatus|`)) {
+					let pokemon = parts[1].split(": ")[1];
+					let side = parts[1].split(": ")[0];
+					if (side.startsWith("p1")) {
+						battle.p1Pokemon[pokemon].statusFix();
+					} else {
+						battle.p2Pokemon[pokemon].statusFix();
+					}
+				}
 
 				//When a Pokemon is damaged, and possibly faints
 				else if (line.startsWith(`|-damage|`)) {
 					if (parts[2].endsWith("fnt")) {
 						//A pokemon has fainted
-						let victimSide = parts[1].split(": ")[0];
+                        let victimSide = parts[1].split(": ")[0];
+                        let victim = parts[1].split(": ")[1];
 
 						if (parts[3].contains("[from]")) {
 							//It's a special death, not a normal one.
@@ -605,10 +628,12 @@ class Showdown {
 								//Hazards
 								if (victimSide === "p1a") {
 									let killer = battle.hazardsSet.p1[move];
-									p1a.died(move, killer, true);
+                                    let deathJson = p1a.died(move, killer, true);
+                                    battle.p2Pokemon[killer.name].killed(deathJson);
 								} else if (victimSide === "p2a") {
 									let killer = battle.hazardsSet.p2[move];
-									p2a.died(move, killer, true);
+                                    let deathJson = p2a.died(move, killer, true);
+                                    battle.p1Pokemon[killer.name].killed(deathJson);
 								}
 							} else if (
 								move === "Hail" ||
@@ -617,25 +642,28 @@ class Showdown {
 								//Weather
 								let killer = battle.weatherInflictor;
 								if (victimside === "p1a") {
-									p1a.died(move, killer, true);
+                                    let deathJson = p1a.died(move, killer, true);
+                                    battle.p2Pokemon[killer.name].killed(deathJson);
 								}
 								if (victimside === "p2a") {
-									p2a.died(move, killer, true);
+                                    let deathJson = p2a.died(move, killer, true);
+                                    battle.p1Pokemon[killer.name].killed(deathJson);
 								}
-							} else {
-								//Some sort of affliction-caused death, this might be changed later though
+							} else { //Affliction-caused deaths
 								if (victimSide === "p1a") {
-									p1a.died(
+									let deathJson = p1a.died(
 										move,
 										battle.p1a.otherAffliction[move],
 										true
-									);
+                                    );
+                                    battle.p2Pokemon[battle.p1a.otherAffliction[move]].killed(deathJson);
 								} else if (victimSide === "p2a") {
-									p2a.died(
+									let deathJson = p2a.died(
 										move,
 										battle.p2a.otherAffliction[move],
 										true
-									);
+                                    );
+                                    battle.p1Pokemon[battle.p2a.otherAffliction[move]].killed(deathJson);
 								}
 							}
 						}
