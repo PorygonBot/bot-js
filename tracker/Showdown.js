@@ -10,12 +10,7 @@ const Battle = require("./Battle");
 const DiscordDMStats = require("../updaters/DiscordDMStats");
 const GoogleSheetsMassStats = require("../updaters/GoogleSheetsMassStats");
 
-const {
-	username,
-	password,
-	airtable_key,
-	base_id,
-} = require("../config.json");
+const { username, password, airtable_key, base_id } = require("../config.json");
 const Airtable = require("airtable");
 const base = new Airtable({
 	apiKey: airtable_key,
@@ -270,13 +265,13 @@ class Showdown {
 				console.log("yay: " + JSON.stringify(recordJson));
 
 				//Instantiating updater objects
-                let dmer = new DiscordDMStats(this.message);
-                let masser = new GoogleSheetsMassStats(
-                    recordJson.sheetId,
-                    recordJson.players[player1],
-                    recordJson.players[player2],
-                    this.message
-                );
+				let dmer = new DiscordDMStats(this.message);
+				let masser = new GoogleSheetsMassStats(
+					recordJson.sheetId,
+					recordJson.players[player1],
+					recordJson.players[player2],
+					this.message
+				);
 
 				//Checking if the player was found in the database
 				if (
@@ -364,160 +359,202 @@ class Showdown {
 	}
 
 	async track() {
-        let battle;
-        let dataArr;
+		let battle;
+		let dataArr;
 
-        this.websocket.on("message", async () => {
-            //Separates the data into lines so it's easy to parse
-            let realdata = data.split("\n");
+		this.websocket.on("message", async () => {
+			//Separates the data into lines so it's easy to parse
+			let realdata = data.split("\n");
 
-            for (const line of realdata) {
-                dataArr.push(line);
+			for (const line of realdata) {
+				dataArr.push(line);
 
-                //Separates the line into parts, separated by `|`
-                const parts = line.split("|").split(1); //The split is because all lines start with | so the first element is always blank
+				//Separates the line into parts, separated by `|`
+				const parts = line.split("|").split(1); //The split is because all lines start with | so the first element is always blank
 
-                //Checks first and foremost if the battle even exists
-                if (line.startsWith(`|noinit|nonexistent|`)) {
-                    return this.message.channel.send(":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle.");
-                }
+				//Checks first and foremost if the battle even exists
+				if (line.startsWith(`|noinit|nonexistent|`)) {
+					return this.message.channel.send(
+						":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
+					);
+				}
 
-                //Once the server connects, the bot logs in and joins the battle
-                else if (data.startsWith("|challstr|")) {
-                    const nonce = data.substring(10);
-                    const assertion = await this.login(nonce);
-                    //logs in
-                    if (assertion) {
-                        this.websocket.send(`|/trn ${username},0,${assertion}|`);
-                        //Joins the battle
-                        await this.join();   
-                    }
-                    else {
-                        return;
-                    }
-                }
+				//Once the server connects, the bot logs in and joins the battle
+				else if (data.startsWith("|challstr|")) {
+					const nonce = data.substring(10);
+					const assertion = await this.login(nonce);
+					//logs in
+					if (assertion) {
+						this.websocket.send(
+							`|/trn ${username},0,${assertion}|`
+						);
+						//Joins the battle
+						await this.join();
+					} else {
+						return;
+					}
+				}
 
-                //At the beginning of every match, the title of a match contains the player's names. 
-                //As such, in order to get and verify the player's names in the database, this is the most effective.
-                else if (line.startsWith(`|title|`)) {
-                    let players = parts[1].split(" vs. ");
-                    console.log("Players: " + players);
+				//At the beginning of every match, the title of a match contains the player's names.
+				//As such, in order to get and verify the player's names in the database, this is the most effective.
+				else if (line.startsWith(`|title|`)) {
+					let players = parts[1].split(" vs. ");
+					console.log("Players: " + players);
 
-                    //Checking if either player isn't in the database
-                    const leagueJson = await findLeagueId(this.message.channel.id);
-                    const playersIds = await getPlayersIds(leagueJson.id);
-                    const containsOne = await playerInLeague(playersIds, players[0]);
-                    const containsTwo = await playerInLeague(playersIds, players[1]);
+					//Checking if either player isn't in the database
+					const leagueJson = await findLeagueId(
+						this.message.channel.id
+					);
+					const playersIds = await getPlayersIds(leagueJson.id);
+					const containsOne = await playerInLeague(
+						playersIds,
+						players[0]
+					);
+					const containsTwo = await playerInLeague(
+						playersIds,
+						players[1]
+					);
 
-                    if (!containsOne && !containsTwo) { //Both players aren't in the database
-                        this.message.channel.send(`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
-                    }
-                    else if (!containsOne) { //Only player 1 isn't in the database
-                        this.message.channel.send(`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
-                    }
-                    else if (!containsTwo) { //Only player 2 isn't in the database
-                        this.message.channel.send(`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`);
-                    }
+					if (!containsOne && !containsTwo) {
+						//Both players aren't in the database
+						this.message.channel.send(
+							`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+						);
+					} else if (!containsOne) {
+						//Only player 1 isn't in the database
+						this.message.channel.send(
+							`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+						);
+					} else if (!containsTwo) {
+						//Only player 2 isn't in the database
+						this.message.channel.send(
+							`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+						);
+					}
 
-                    //Initializes the battle as an object
-                    battle = new Battle(this.battle, players[0], players[1]);
-                }
+					//Initializes the battle as an object
+					battle = new Battle(this.battle, players[0], players[1]);
+				}
 
-                //At the beginning of every non-randoms match, a list of Pokemon show up.
-                //This code is to get all that
-                else if (line.startsWith(`|poke|`)) {
-                    let pokemonName = parts[2].split(",")[0];
-                    let pokemon = new Pokemon(pokemonName) //Adding a pokemon to the list of pokemon in the battle
-                    if (parts[1] === "p1") { //If the pokemon belongs to Player 1
-                        battle.p1Pokemon[pokemonName] = pokemon;
-                    }
-                    else if (parts[1] === "p2") { //If the pokemon belongs to Player 2
-                        battle.p2Pokemon[pokemonName] = pokemon;
-                    }
-                }
+				//At the beginning of every non-randoms match, a list of Pokemon show up.
+				//This code is to get all that
+				else if (line.startsWith(`|poke|`)) {
+					let pokemonName = parts[2].split(",")[0];
+					let pokemon = new Pokemon(pokemonName); //Adding a pokemon to the list of pokemon in the battle
+					if (parts[1] === "p1") {
+						//If the pokemon belongs to Player 1
+						battle.p1Pokemon[pokemonName] = pokemon;
+					} else if (parts[1] === "p2") {
+						//If the pokemon belongs to Player 2
+						battle.p2Pokemon[pokemonName] = pokemon;
+					}
+				}
 
-                //Increments the total number of turns at the beginning of every new turn
-                else if (line.startsWith(`|turn|`)) {
-                    battle.turns++;
-                }
+				//Increments the total number of turns at the beginning of every new turn
+				else if (line.startsWith(`|turn|`)) {
+					battle.turns++;
+				}
 
-                //If a Pokemon switches, the active Pokemon must now change
-                else if (line.startsWith(`|switch|`) || line.startsWith(`|drag|`)) {
-                    if (parts[1].startsWith("p1a")) { //If Player 1's Pokemon get switched out
-                        let oldPokemon = battle.p1a;
-                        if (oldPokemon) {
-                            battle.p1Pokemon[oldPokemon.name] = oldPokemon;
-                        }
-                        battle.p1a = battle.p1Pokemon[parts[2].split(",")[0]];
-                        console.log(`${oldPokemon.name} has been switched into ${battle.p1a.name}`);
-                    }
+				//If a Pokemon switches, the active Pokemon must now change
+				else if (
+					line.startsWith(`|switch|`) ||
+					line.startsWith(`|drag|`)
+				) {
+					if (parts[1].startsWith("p1a")) {
+						//If Player 1's Pokemon get switched out
+						let oldPokemon = battle.p1a;
+						if (oldPokemon) {
+							battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+						}
+						battle.p1a = battle.p1Pokemon[parts[2].split(",")[0]];
+						console.log(
+							`${oldPokemon.name} has been switched into ${battle.p1a.name}`
+						);
+					} else if (parts[1].startsWith("p2a")) {
+						//If Player 2's Pokemon get switched out
+						let oldPokemon = battle.p2a;
+						if (oldPokemon) {
+							battle.p2Pokemon[oldPokemon.name] = oldPokemon;
+						}
+						battle.p2a = battle.p2Pokemon[parts[2].split(",")[0]];
+						console.log(
+							`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+						);
+					}
+				}
 
-                    else if (parts[1].startsWith("p2a")) { //If Player 2's Pokemon get switched out
-                        let oldPokemon = battle.p2a;
-                        if (oldPokemon) {
-                            battle.p2Pokemon[oldPokemon.name] = oldPokemon;
-                        }
-                        battle.p2a = battle.p2Pokemon[parts[2].split(",")[0]];
-                        console.log(`${oldPokemon.name} has been switched into ${battle.p2a.name}`);
-                    }
-                }
+				//Removes the |-supereffective| part of realdata if it exists
+				else if (line.startsWith(`|-supereffective|`)) {
+					line.splice(realdata.indexOf(line), 1);
+				}
 
-                //Removes the |-supereffective| part of realdata if it exists
-                else if (line.startsWith(`|-supereffective|`)) {
-                    line.splice(realdata.indexOf(line), 1);
-                }
-
-                /**
+				/**
                 |switch|p2a: Poochyena|Poochyena, F|211/211
                 |-status|p2a: Poochyena|psn
                  */
 
-                //Checks for certain specific moves: hazards, statuses, etc.
-                else if (line.startsWith(`|move|`)) {
-                    let move = parts[2];
-                    
-                    if (move === "Stealth Rock" || move === "Spikes" || move === "Toxic Spikes") { //Hazards
-                        let side = parts[3].split("a: ")[0];
-                        let inflictor = parts[1].split("a: ")[0];
-                        battle.addHazard(side, move, inflictor);
-                    }
-                }
+				//Checks for certain specific moves: hazards, statuses, etc.
+				else if (line.startsWith(`|move|`)) {
+					let move = parts[2];
 
-                //Checks for statuses
-                else if (line.startsWith(`|-status|`)) {
-                    let prevMove = dataArr[dataArr.length - 2];
-                    if (prevMove.startsWith(`|move|`)) { //If status was caused by a move
-                        if (prevMove.split("|").slice(1)[1].startsWith("p1a")) {
-                            let moveUserNickname = prevMove.split("|").slice(1)[1].split(": ")[1];
-                            if (moveUserNickname === battle.p1a.nickname) {
-                                battle.p2a.statusEffect(parts[2], battle.p1a);
-                            }
-                        }
-                        else {
-                            let moveUserNickname = prevMove.split("|").slice(1)[1].split(": ")[1];
-                            if (moveUserNickname === battle.p2a.nickname) {
-                                battle.p1a.statusEffect(parts[2], battle.p2a);
-                            }
-                        }
-                    }
-                    else { //If status wasn't caused by a move, but rather something like a hazard
-                        if (parts[1].split(": ")[0] === "p1a") {
-                            battle.p1a.statusEffect(parts[2], battle.hazardsSet.p2["Toxic Spikes"]);
-                        }
-                        else {
-                            battle.p2a.statusEffect(parts[2], battle.hazardsSet.p1["Toxic Spikes"]);
-                        }
-                    }
-                }
+					if (
+						move === "Stealth Rock" ||
+						move === "Spikes" ||
+						move === "Toxic Spikes"
+					) {
+						//Hazards
+						let side = parts[3].split("a: ")[0];
+						let inflictor = parts[1].split("a: ")[0];
+						battle.addHazard(side, move, inflictor);
+					}
+				}
 
-                //If a hazard ends on a side
-                else if (line.startsWith(`|-sideend|`)) {
-                    let side = parts[1].split(": ")[0];
-                    let hazard = parts[2];
-                    battle.endHazard(side, hazard);
-                }
+				//Checks for statuses
+				else if (line.startsWith(`|-status|`)) {
+					let prevMove = dataArr[dataArr.length - 2];
+					if (prevMove.startsWith(`|move|`)) {
+						//If status was caused by a move
+						if (prevMove.split("|").slice(1)[1].startsWith("p1a")) {
+							let moveUserNickname = prevMove
+								.split("|")
+								.slice(1)[1]
+								.split(": ")[1];
+							if (moveUserNickname === battle.p1a.nickname) {
+								battle.p2a.statusEffect(parts[2], battle.p1a);
+							}
+						} else {
+							let moveUserNickname = prevMove
+								.split("|")
+								.slice(1)[1]
+								.split(": ")[1];
+							if (moveUserNickname === battle.p2a.nickname) {
+								battle.p1a.statusEffect(parts[2], battle.p2a);
+							}
+						}
+					} else {
+						//If status wasn't caused by a move, but rather something like a hazard
+						if (parts[1].split(": ")[0] === "p1a") {
+							battle.p1a.statusEffect(
+								parts[2],
+								battle.hazardsSet.p2["Toxic Spikes"]
+							);
+						} else {
+							battle.p2a.statusEffect(
+								parts[2],
+								battle.hazardsSet.p1["Toxic Spikes"]
+							);
+						}
+					}
+				}
 
-                /**
+				//If a hazard ends on a side
+				else if (line.startsWith(`|-sideend|`)) {
+					let side = parts[1].split(": ")[0];
+					let hazard = parts[2];
+					battle.endHazard(side, hazard);
+				}
+
+				/**
                 |-damage|p2a: Shedinja|0 fnt|[from] Stealth Rock
                 |faint|p2a: Shedinja
 
@@ -548,67 +585,92 @@ class Showdown {
                 |faint|p2a: Horsea
                 */
 
-                //When a Pokemon is damaged, and possibly faints
-                else if (line.startsWith(`|-damage|`)) { 
-                    let move = parts[3].split("[from] ")[1];
-                    if (parts[2].endsWith("fnt")) { //A pokemon has fainted
-                        let victimSide = parts[1].split(": ")[0];
-                        if (move === "Stealth Rock" || move === "Spikes") { //Hazards
-                            if (victimSide === "p1a") {
-                                let killer = battle.hazardsSet.p1[move]
-                                p1a.died(move, killer, true);
-                            }
-                            else if (victimSide === "p2a") {
-                                let killer = battle.hazardsSet.p2[move]
-                                p2a.died(move, killer, true);
-                            }
-                        }
-                    }
-                }
+				//When a Pokemon is damaged, and possibly faints
+				else if (line.startsWith(`|-damage|`)) {
+					let move = parts[3].split("[from] ")[1];
+					if (parts[2].endsWith("fnt")) {
+						//A pokemon has fainted
+						let victimSide = parts[1].split(": ")[0];
+						if (move === "Stealth Rock" || move === "Spikes") {
+							//Hazards
+							if (victimSide === "p1a") {
+								let killer = battle.hazardsSet.p1[move];
+								p1a.died(move, killer, true);
+							} else if (victimSide === "p2a") {
+								let killer = battle.hazardsSet.p2[move];
+								p2a.died(move, killer, true);
+							}
+						}
+					}
+				}
 
-                //At the end of the match, when the winner is announced
-                else if (line.startsWith(`|win|`)) {
-                    winner = parts[1];
-                    winner = ((winner === players[0]) ? `${winner}p1` : `${winner}p2`);
-                    loser = ((winner === `${players[0]}p1`) ? `${players[1]}p2` : `${players[0]}p1`);
-                    
-                    this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
-                }
+				//At the end of the match, when the winner is announced
+				else if (line.startsWith(`|win|`)) {
+					winner = parts[1];
+					winner =
+						winner === players[0] ? `${winner}p1` : `${winner}p2`;
+					loser =
+						winner === `${players[0]}p1`
+							? `${players[1]}p2`
+							: `${players[0]}p1`;
 
-                //After the match is done and replay request is sent, it uploads the replay and gets the link
-                else if (line.startsWith("|queryresponse|savereplay")) {
-                    let replayData = JSON.parse(data.substring(26,));
-                    battle.replay = await this.requestReplay(replayData);
+					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
+				}
 
-                    let info = {
-                        "replay": battle.replay,
-                        "turns": battle.turns,
-                        "winner": battle.winner,
-                        "loser": battle.loser
-                    };
+				//After the match is done and replay request is sent, it uploads the replay and gets the link
+				else if (line.startsWith("|queryresponse|savereplay")) {
+					let replayData = JSON.parse(data.substring(26));
+					battle.replay = await this.requestReplay(replayData);
 
-                    if (battle.winner.endsWith("p1") && battle.loser.endsWith("p2")) {
-                        await this.endscript(winner, killJsonp1, deathJsonp1, loser, killJsonp2, deathJsonp2, info);
-                    }
-                    else if (battle.winner.endsWith("p2") && battle.loser.endsWith("p1")) {
-                        await this.endscript(winner, killJsonp2, deathJsonp2, loser, killJsonp1, deathJsonp1, info);
-                    }
-                    else {
-                        return {"code": "-1"};
-                    }
+					let info = {
+						replay: battle.replay,
+						turns: battle.turns,
+						winner: battle.winner,
+						loser: battle.loser,
+					};
 
-                    this.websocket.send(`|/leave ${this.battle}`);
+					if (
+						battle.winner.endsWith("p1") &&
+						battle.loser.endsWith("p2")
+					) {
+						await this.endscript(
+							winner,
+							killJsonp1,
+							deathJsonp1,
+							loser,
+							killJsonp2,
+							deathJsonp2,
+							info
+						);
+					} else if (
+						battle.winner.endsWith("p2") &&
+						battle.loser.endsWith("p1")
+					) {
+						await this.endscript(
+							winner,
+							killJsonp2,
+							deathJsonp2,
+							loser,
+							killJsonp1,
+							deathJsonp1,
+							info
+						);
+					} else {
+						return { code: "-1" };
+					}
 
-                    let returndata = {
-                        "info": info,
-                        "code": "0"
-                    };
-            
-                    return returndata;
-                }
-            }
-        });
-    }
+					this.websocket.send(`|/leave ${this.battle}`);
+
+					let returndata = {
+						info: info,
+						code: "0",
+					};
+
+					return returndata;
+				}
+			}
+		});
+	}
 }
 
 module.exports = Showdown;
