@@ -1,7 +1,7 @@
 class Pokemon {
-    contructor(name, nickname) {
-        this.name = name;
-        this.nickname = nickname || name;
+    constructor(pokemonName="Raichu", pokemonNickname=undefined) {
+        this.name = pokemonName;
+        this.nickname = pokemonNickname || pokemonName;
         this.status = "n/a";
         this.statusInflictor = "";
         this.otherAffliction = {}; //Like Leech Seed and stuff

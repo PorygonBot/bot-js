@@ -1,3 +1,5 @@
+const Pokemon = require("./Pokemon");
+
 class Battle {
     constructor(battleId, player1, player2) {
         //Player info
@@ -26,8 +28,8 @@ class Battle {
         this.replay = "";
         this.winner = "";
         this.loser = "";
-        this.p1a;
-        this.p2a;
+        this.p1a = new Pokemon("");
+        this.p2a = new Pokemon("");
     }
 
     addHazard(side, hazard, hazardInflictor) {
