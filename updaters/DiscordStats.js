@@ -58,11 +58,11 @@ class DiscordDMStats {
 
 		//Drafting the message to be sent to the users
 		for (let pokemon of Object.keys(killJson1)) {
-			message1 += `${pokemon} has ${killJson1[pokemon]} kills and ${deathJson1[pokemon]} deaths. \n`;
+			message1 += `${pokemon} has ${killJson1[pokemon].direct} direct kills, ${killJson1[pokemon].passive} passive kills, and ${deathJson1[pokemon]} deaths. \n`;
 		}
 
 		for (let pokemon of Object.keys(killJson2)) {
-			message2 += `${pokemon} has ${killJson2[pokemon]} kills and ${deathJson2[pokemon]} deaths. \n`;
+			message2 += `${pokemon} has ${killJson2[pokemon].direct} direct kills, ${killJson2[pokemon].passive} passive kills, and ${deathJson2[pokemon]} deaths. \n`;
 		}
 
 		//getting User objects from Discord given their username
@@ -100,7 +100,7 @@ class DiscordDMStats {
 		}
 		this.channel.send(
 			`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
-		); // Replay: ${info.replay}`);
+		);
 	}
 }
 

@@ -50,11 +50,19 @@ class GoogleSheetsMassStats {
 			`${this.player1} (${this.p1range}) vs. ${this.player2} (${this.p2range})`
 		);
 
-		let killJsonp1 = recordJson.players[this.player1].kills;
+		let killJsonp1Separated = recordJson.players[this.player1].kills;
 		let deathJsonp1 = recordJson.players[this.player1].deaths;
-		let killJsonp2 = recordJson.players[this.player2].kills;
+		let killJsonp2Separated = recordJson.players[this.player2].kills;
 		let deathJsonp2 = recordJson.players[this.player2].deaths;
-		let replay = recordJson.info.replay;
+        let replay = recordJson.info.replay;
+        
+        //Combining the direct kills and passive kills in the object
+        for (let pokemon of Object.keys(killJsonp1Separated)) {
+            killJsonp1Separated[pokemon] = killJsonp1Separated[pokemon].direct + killJsonp1Separated[pokemon].passive;
+        }
+        for (let pokemon of Object.keys(killJsonp2Separated)) {
+            killJsonp2Separated[pokemon] = killJsonp2Separated[pokemon].direct + killJsonp2Separated[pokemon].passive;
+        }
 
 		//Getting current sheet's values and initializing new update request
 		let currentRequest1 = await this.getValues(this.p1range);

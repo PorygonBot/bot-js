@@ -8,6 +8,7 @@ class Pokemon {
         this.causeOfDeath = "n/a";
         this.directKills = 0;
         this.passiveKills = 0;
+        this.isDead = false;
     }
 
     //If the pokemon gets poisoned, burned, etc.
@@ -36,6 +37,7 @@ class Pokemon {
     died(causeOfDeath, killer, isPassive) {
         killer = killer || this.statusInflictor;
         this.causeOfDeath = causeOfDeath;
+        this.isDead = true;
 
         return {
             "killer": killer,

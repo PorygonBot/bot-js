@@ -7,8 +7,8 @@ const querystring = require("querystring");
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
 
-const DiscordDMStats = require("../updaters/DiscordDMStats");
-const GoogleSheetsMassStats = require("../updaters/GoogleSheetsMassStats");
+const DiscordDMStats = require("../updaters/DiscordStats");
+const GoogleSheetsMassStats = require("../updaters/SheetsStats");
 
 const { username, password, airtable_key, base_id } = require("../config.json");
 const Airtable = require("airtable");
@@ -587,17 +587,19 @@ class Showdown {
 						//Pokemon dies of perish song
 						let side = parts[1].split(": ")[0];
 						if (side === "p1a") {
-							battle.p1a.died(
+							let deathJson = battle.p1a.died(
 								affliction,
 								battle.p1a.otherAffliction["perish3"],
 								true
-							);
+                            );
+                            battle.p1Pokemon[battle.p1a.otherAffliction["perish3"]].killed(deathJson);
 						} else if (side === "p2a") {
-							battle.p2a.died(
+							let deathJson = battle.p2a.died(
 								affliction,
 								battle.p2a.otherAffliction["perish3"],
 								true
-							);
+                            );
+                            battle.p2Pokemon[battle.p2a.otherAffliction["perish3"]].killed(deathJson);
 						}
 					}
 					dataArr.splice(dataArr.length - 1, 1);
@@ -618,8 +620,8 @@ class Showdown {
 				else if (line.startsWith(`|-damage|`)) {
 					if (parts[2].endsWith("fnt")) {
 						//A pokemon has fainted
-                        let victimSide = parts[1].split(": ")[0];
-                        let victim = parts[1].split(": ")[1];
+						let victimSide = parts[1].split(": ")[0];
+						let victimName = parts[1].split(": ")[1];
 
 						if (parts[3].contains("[from]")) {
 							//It's a special death, not a normal one.
@@ -628,12 +630,24 @@ class Showdown {
 								//Hazards
 								if (victimSide === "p1a") {
 									let killer = battle.hazardsSet.p1[move];
-                                    let deathJson = p1a.died(move, killer, true);
-                                    battle.p2Pokemon[killer.name].killed(deathJson);
+									let deathJson = p1a.died(
+										move,
+										killer,
+										true
+									);
+									battle.p2Pokemon[killer.name].killed(
+										deathJson
+									);
 								} else if (victimSide === "p2a") {
 									let killer = battle.hazardsSet.p2[move];
-                                    let deathJson = p2a.died(move, killer, true);
-                                    battle.p1Pokemon[killer.name].killed(deathJson);
+									let deathJson = p2a.died(
+										move,
+										killer,
+										true
+									);
+									battle.p1Pokemon[killer.name].killed(
+										deathJson
+									);
 								}
 							} else if (
 								move === "Hail" ||
@@ -642,30 +656,57 @@ class Showdown {
 								//Weather
 								let killer = battle.weatherInflictor;
 								if (victimside === "p1a") {
-                                    let deathJson = p1a.died(move, killer, true);
-                                    battle.p2Pokemon[killer.name].killed(deathJson);
+									let deathJson = p1a.died(
+										move,
+										killer,
+										true
+									);
+									battle.p2Pokemon[killer.name].killed(
+										deathJson
+									);
 								}
 								if (victimside === "p2a") {
-                                    let deathJson = p2a.died(move, killer, true);
-                                    battle.p1Pokemon[killer.name].killed(deathJson);
+									let deathJson = p2a.died(
+										move,
+										killer,
+										true
+									);
+									battle.p1Pokemon[killer.name].killed(
+										deathJson
+									);
 								}
-							} else { //Affliction-caused deaths
+							} else {
+								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									let deathJson = p1a.died(
 										move,
 										battle.p1a.otherAffliction[move],
 										true
-                                    );
-                                    battle.p2Pokemon[battle.p1a.otherAffliction[move]].killed(deathJson);
+									);
+									battle.p2Pokemon[
+										battle.p1a.otherAffliction[move]
+									].killed(deathJson);
 								} else if (victimSide === "p2a") {
 									let deathJson = p2a.died(
 										move,
 										battle.p2a.otherAffliction[move],
 										true
-                                    );
-                                    battle.p1Pokemon[battle.p2a.otherAffliction[move]].killed(deathJson);
+									);
+									battle.p1Pokemon[
+										battle.p2a.otherAffliction[move]
+									].killed(deathJson);
 								}
 							}
+						} else {
+                            //It's just a regular effing kill
+                            if (p1a.name === victimName) {
+                                let deathJson = p1a.died("direct", p2a, false);
+                                p2a.killed(deathJson);
+                            }
+                            else if (p2a.name === victimName) {
+                                let deathJson = p2a.died("direct", p2a, false);
+                                p1a.killed(deathJson);
+                            }
 						}
 					}
 				}
@@ -678,7 +719,7 @@ class Showdown {
 					loser =
 						winner === `${players[0]}p1`
 							? `${players[1]}p2`
-							: `${players[0]}p1`;
+                            : `${players[0]}p1`;
 
 					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
 				}
@@ -693,7 +734,29 @@ class Showdown {
 						turns: battle.turns,
 						winner: battle.winner,
 						loser: battle.loser,
-					};
+                    };
+                    
+                    //Creating the objects for kills and deaths
+                    //Player 1
+                    let killJsonp1 = {};
+                    let deathJsonp1 = {};
+                    for (let pokemonObj of battle.p1Pokemon) {
+                        killJsonp1[pokemonObj.name] = {
+                            "direct": pokemonObj.directKills,
+                            "passive": pokemonObj.passiveKills
+                        };
+                        deathJsonp1[pokemonObj.name] = pokemonObj.isDead ? 1 : 0;
+                    }
+                    //Player 2
+                    let killJsonp2 = {};
+                    let deathJsonp2 = {};
+                    for (let pokemonObj of battle.p2Pokemon) {
+                        killJsonp2[pokemonObj.name] = {
+                            "direct": pokemonObj.directKills,
+                            "passive": pokemonObj.passiveKills
+                        };
+                        deathJsonp2[pokemonObj.name] = pokemonObj.isDead ? 1 : 0;
+                    }
 
 					if (
 						battle.winner.endsWith("p1") &&
