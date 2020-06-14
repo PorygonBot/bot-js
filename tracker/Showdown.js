@@ -727,12 +727,11 @@ class Showdown {
 
 				//If a pokemon's status is cured
 				else if (line.startsWith(`|-curestatus|`)) {
-					let pokemon = parts[1].split(": ")[1];
 					let side = parts[1].split(": ")[0];
 					if (side.startsWith("p1")) {
-						battle.p1Pokemon[pokemon].statusFix();
+						battle.p1a.statusFix();
 					} else {
-						battle.p2Pokemon[pokemon].statusFix();
+						battle.p2a.statusFix();
 					}
 				}
 
