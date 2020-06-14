@@ -2,93 +2,84 @@
 const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
-const Showdown = require("./showdown");
+const Showdown = require("./tracker/Showdown");
 
 //Getting config info
-const { username, password, token, airtable_key, base_id, google_key } = require("./config.json");
+const {
+	token,
+	airtable_key,
+	base_id,
+} = require("./config.json");
 //Creating the bot
 const bot = new Discord.Client({ disableEveryone: true });
 
 //When the bot is connected and logged in to Discord
-bot.on("ready", async() => {
-    console.log(`${bot.user.username} is online!`);
-    bot.user.setActivity(`PS battles`, { type: "watching" });
+bot.on("ready", async () => {
+	console.log(`${bot.user.username} is online!`);
+	bot.user.setActivity(`PS battles`, { type: "watching" });
 });
 
 const base = new Airtable({
-    apiKey: airtable_key
+	apiKey: airtable_key,
 }).base(base_id);
 
 //Getting the list of available channels
 const getChannels = async () => {
-    let channels = [];
-    await base('Leagues').select({
-        maxRecords: 50,
-        view: "Grid view"
-    }).all().then((records) => {
-        records.forEach(async (record) => {
-            let channelId = await record.get("Channel ID");
-            channels.push(channelId);
-        });
-    });
-    
-    return channels;
-}
+	let channels = [];
+	await base("Leagues")
+		.select({
+			maxRecords: 50,
+			view: "Grid view",
+		})
+		.all()
+		.then((records) => {
+			records.forEach(async (record) => {
+				let channelId = await record.get("Channel ID");
+				channels.push(channelId);
+			});
+		});
+
+	return channels;
+};
 
 let findLeagueId = async (checkChannelId) => {
-    let leagueId;
-    let leagueName;
-    await base("Leagues").select({
-        maxRecords: 500,
-        view: "Grid view"
-    }).all().then(async (records) => {
-        for (let leagueRecord of records) {
-            let channelId = await leagueRecord.get('Channel ID');
-            if (channelId === checkChannelId) {
-                leagueId = leagueRecord.id;
-                leagueName = await leagueRecord.get("Name");
-            }
-        }
-    });
+	let leagueId;
+	let leagueName;
+	await base("Leagues")
+		.select({
+			maxRecords: 500,
+			view: "Grid view",
+		})
+		.all()
+		.then(async (records) => {
+			for (let leagueRecord of records) {
+				let channelId = await leagueRecord.get("Channel ID");
+				if (channelId === checkChannelId) {
+					leagueId = leagueRecord.id;
+					leagueName = await leagueRecord.get("Name");
+				}
+			}
+		});
 
-    let leagueJson = {
-        id: leagueId,
-        name: leagueName
-    };
-    return leagueJson;
+	let leagueJson = {
+		id: leagueId,
+		name: leagueName,
+	};
+	return leagueJson;
 };
 
 let getPlayersIds = async (leagueId) => {
-    let recordsIds = await new Promise((resolve, reject) => {
-        base("Leagues").find(leagueId, (err, record) => {
-            if (err) reject(err);
+	let recordsIds = await new Promise((resolve, reject) => {
+		base("Leagues").find(leagueId, (err, record) => {
+			if (err) reject(err);
 
-            recordIds = record.get("Players");
-            resolve(recordIds);
-        });
-    });
+			recordIds = record.get("Players");
+			resolve(recordIds);
+		});
+	});
 
-    return recordsIds;
+	return recordsIds;
 };
-/*
-let getPlayerRecordId = async (playerName) => {
-    let playerId;
-    
-    await base("Players").select({
-        maxRecords: 1000,
-        view: "Grid view"
-    }).all().then(async (playerRecords) => {
-        for (let playerRecord of playerRecords) {
-            let recordId = playerRecord.id;
-            let showdownName = playerRecord.get("Showdown Name");
-            if (showdownName.toLowerCase() === playerName.toLowerCase()) playerId = recordId;
-        }
-    });
-    
-    if (!playerId) playerId = false;
-    return playerId;
-};
-*/
 
 //When a message is sent
 bot.on("message", async (message) => {

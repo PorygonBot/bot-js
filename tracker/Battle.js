@@ -1,0 +1,75 @@
+const Pokemon = require("./Pokemon");
+
+class Battle {
+    constructor(battleId, player1, player2) {
+        //Player info
+        this.p1 = player1;
+        this.p1Pokemon = {};
+        this.p2 = player2;
+        this.p2Pokemon = {};
+
+        //Battle info
+        this.id = battleId;
+        this.hazardsSet = {
+            "p1": {
+                "Stealth Rock": undefined,
+                "Spikes": undefined,
+                "Toxic Spikes": undefined
+            },
+            "p2": {
+                "Stealth Rock": undefined,
+                "Spikes": undefined,
+                "Toxic Spikes": undefined
+            }
+        }
+        this.weather = "";
+        this.weatherInflictor = "";
+        this.turns = 0;
+        this.replay = "";
+        this.winner = "";
+        this.loser = "";
+        this.p1a = new Pokemon("");
+        this.p2a = new Pokemon("");
+    }
+
+    findPokemonByNickname(nickname, side) {
+        if (side === "p1") {
+            for (let pokemon of Object.values(this.p1Pokemon)) {
+                console.log(pokemon.nickname)
+                if (pokemon.nickname === nickname) {
+                    return pokemon;
+                }
+            }
+        }
+        else {
+            for (let pokemon of Object.values(this.p2Pokemon)) {
+                console.log(pokemon.nickname)
+                if (pokemon.nickname === nickname) {
+                    return pokemon;
+                }
+            }
+        }
+
+        return "";
+    }
+
+    addHazard(side, hazard, hazardInflictor) {
+        this.hazardsSet[side][hazard] = hazardInflictor;
+    }
+
+    endHazard(side, hazard) {
+        this.hazardsSet[side][hazard] = undefined;
+    }
+
+    setWeather(weather, inflictor) {
+        this.weather = weather;
+        this.weatherInflictor = inflictor;
+    }
+
+    clearWeather() {
+        this.weather = "";
+        this.weatherInflictor = "";
+    }
+}
+
+module.exports = Battle;
