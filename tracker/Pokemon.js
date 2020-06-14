@@ -1,7 +1,7 @@
 class Pokemon {
-    constructor(pokemonName="Raichu", pokemonNickname=undefined) {
+    constructor(pokemonName) {
         this.name = pokemonName;
-        this.nickname = pokemonNickname || pokemonName;
+        this.nickname = "";
         this.status = "n/a";
         this.statusInflictor = "";
         this.otherAffliction = {}; //Like Leech Seed and stuff
@@ -9,6 +9,11 @@ class Pokemon {
         this.directKills = 0;
         this.passiveKills = 0;
         this.isDead = false;
+        this.killer = "";
+    }
+
+    setNickname(nickname) {
+        this.nickname = nickname;
     }
 
     //If the pokemon gets poisoned, burned, etc.
@@ -33,16 +38,27 @@ class Pokemon {
         else this.directKills++;
     }
 
+    unkilled(isPassive) {
+        if (isPassive) this.passiveKills--;
+        else this.directKills--;
+    }
+
     //Run when the pokemon has died in battle
     died(causeOfDeath, killer, isPassive) {
         killer = killer || this.statusInflictor;
         this.causeOfDeath = causeOfDeath;
+        this.killer = killer;
         this.isDead = true;
 
         return {
             "killer": killer,
             "isPassive": isPassive
         }
+    }
+
+    undied() {
+        this.causeOfDeath = "";
+        this.isDead = false;
     }
 }
 

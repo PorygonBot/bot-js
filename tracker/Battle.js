@@ -32,6 +32,27 @@ class Battle {
         this.p2a = new Pokemon("");
     }
 
+    findPokemonByNickname(nickname, side) {
+        if (side === "p1") {
+            for (let pokemon of Object.values(this.p1Pokemon)) {
+                console.log(pokemon.nickname)
+                if (pokemon.nickname === nickname) {
+                    return pokemon;
+                }
+            }
+        }
+        else {
+            for (let pokemon of Object.values(this.p2Pokemon)) {
+                console.log(pokemon.nickname)
+                if (pokemon.nickname === nickname) {
+                    return pokemon;
+                }
+            }
+        }
+
+        return "";
+    }
+
     addHazard(side, hazard, hazardInflictor) {
         this.hazardsSet[side][hazard] = hazardInflictor;
     }
