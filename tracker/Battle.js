@@ -12,14 +12,14 @@ class Battle {
         this.id = battleId;
         this.hazardsSet = {
             "p1": {
-                "Stealth Rock": undefined,
-                "Spikes": undefined,
-                "Toxic Spikes": undefined
+                "Stealth Rock": "",
+                "Spikes": "",
+                "Toxic Spikes": ""
             },
             "p2": {
-                "Stealth Rock": undefined,
-                "Spikes": undefined,
-                "Toxic Spikes": undefined
+                "Stealth Rock": "",
+                "Spikes": "",
+                "Toxic Spikes": ""
             }
         }
         this.weather = "";
@@ -54,7 +54,9 @@ class Battle {
     }
 
     addHazard(side, hazard, hazardInflictor) {
-        this.hazardsSet[side][hazard] = hazardInflictor;
+        if (side !== "") {
+            this.hazardsSet[side][hazard] = hazardInflictor;
+        }
     }
 
     endHazard(side, hazard) {
