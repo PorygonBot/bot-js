@@ -498,7 +498,7 @@ class Showdown {
 
 				//Increments the total number of turns at the beginning of every new turn
 				else if (line.startsWith(`|turn|`)) {
-                    battle.turns++;
+					battle.turns++;
 				}
 
 				//If a Pokemon switches, the active Pokemon must now change
@@ -509,7 +509,8 @@ class Showdown {
 					let pokemonNickname = parts[1].split(": ")[1];
 					if (parts[1].startsWith("p1")) {
 						//If Player 1's Pokemon get switched out
-						battle.p1a.setNickname(pokemonNickname);
+                        battle.p1a.setNickname(pokemonNickname);
+                        battle.p1a.hasSubstitute = false;
 						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p1a;
 						if (oldPokemon.name !== "") {
@@ -524,7 +525,8 @@ class Showdown {
 						);
 					} else if (parts[1].startsWith("p2")) {
 						//If Player 2's Pokemon get switched out
-						battle.p2a.setNickname(pokemonNickname);
+                        battle.p2a.setNickname(pokemonNickname);
+                        battle.p2a.hasSubstitute = false;
 						battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p2a;
 						if (oldPokemon.name !== "") {
@@ -567,8 +569,8 @@ class Showdown {
 
 				//Checks for certain specific moves: hazards, statuses, etc.
 				else if (line.startsWith(`|move|`)) {
-                    let move = parts[2];
-                    console.log(line);
+					let move = parts[2];
+					console.log(line);
 
 					if (
 						move === "Stealth Rock" ||
@@ -577,11 +579,11 @@ class Showdown {
 					) {
 						//Hazards
 						//if (!line.endsWith(`[still]`)) {
-							//This would be true if there were already Rocks in the field
-							let side = parts[3].split("a: ")[0];
-							let inflictor = parts[1].split("a: ")[1];
-							battle.addHazard(side, move, inflictor);
-							console.log(battle.hazardsSet);
+						//This would be true if there were already Rocks in the field
+						let side = parts[3].split("a: ")[0];
+						let inflictor = parts[1].split("a: ")[1];
+						battle.addHazard(side, move, inflictor);
+						console.log(battle.hazardsSet);
 						//}
 					}
 				}
@@ -652,9 +654,9 @@ class Showdown {
 						let side = parts[1].split(": ")[0];
 						if (move === "Future Sight" || move === "Doom Desire") {
 							if (side === "p2a") {
-								battle.hazardsSet.p1[move] = afflictor;
+								battle.hazardsSet.p1[move] = battle.p2a.name;
 							} else if (side === "p1a") {
-								battle.hazardsSet.p2[move] = afflictor;
+								battle.hazardsSet.p2[move] = battle.p1a.name;
 							}
 						} else {
 							console.log("Started " + move + " by " + afflictor);
@@ -691,22 +693,42 @@ class Showdown {
 								battle.p2a.otherAffliction["perish3"]
 							].killed(deathJson);
 						}
-					}
+					} else if (affliction === `Substitute`) {
+                        let side = parts[1].split(": ")[0];
+                        if (side === `p1a`) {
+                            battle.p1a.hasSubstitute = true;
+                        }
+                        else {
+                            battle.p2a.hasSubstitute = true;
+                        }
+                    }
 					dataArr.splice(dataArr.length - 1, 1);
 				} else if (line.startsWith(`|-end|`)) {
 					let side = parts[1].split(": ")[0];
 					let move = parts[2].split("move: ")[1];
 					if (move === "Future Sight" || move === "Doom Desire") {
 						if (side === "p1a") {
-							let killer = battle.hazardsSet.p1[move];
-							let deathJson = battle.p1a.died(move, killer, true);
-							battle.p2Pokemon[killer].killed(deathJson);
+                            if (!battle.p1a.hasSubstitute) {
+                                let killer = battle.hazardsSet.p1[move];
+                                let deathJson = battle.p1a.died(
+                                    move,
+                                    killer,
+                                    true
+                                );
+                                battle.p2Pokemon[killer].killed(deathJson);
+                            }
+                            battle.p1a.hasSubstitute = false;
 						} else if (side === "p2a") {
-							console.log(battle.hazardsSet);
-							let killer = battle.hazardsSet.p2[move];
-							let deathJson = battle.p2a.died(move, killer, true);
-							console.log(killer);
-							battle.p1Pokemon[killer].killed(deathJson);
+                            if (!battle.p2a.hasSubstitute) {
+                                let killer = battle.hazardsSet.p2[move];
+                                let deathJson = battle.p2a.died(
+                                    move,
+                                    killer,
+                                    true
+                                );
+                                battle.p1Pokemon[killer].killed(deathJson);
+                            }
+                            battle.p2a.hasSubstitute = false;
 						}
 					}
 				} else if (line.startsWith(`|-immune|`)) {
@@ -741,9 +763,9 @@ class Showdown {
 					if (parts[2].endsWith("fnt")) {
 						//A pokemon has fainted
 						let victimSide = parts[1].split(": ")[0];
-                        let victimName = parts[1].split(": ")[1];
-                        
-                        console.log(victimName);
+						let victimName = parts[1].split(": ")[1];
+
+						console.log(victimName);
 
 						if (parts[3] && parts[3].contains("[from]")) {
 							//It's a special death, not a normal one.
@@ -871,7 +893,7 @@ class Showdown {
 								}
 							}
 						} else {
-                            //It's just a regular effing kill
+							//It's just a regular effing kill
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								let deathJson = battle.p1a.died(
 									"direct",
@@ -901,11 +923,10 @@ class Showdown {
 								`${victimName} was killed by ${battle.p1a.name}`
 							);
 						}
-                    }
-                    else {
-                        console.log("Nobody died, ok?");
-                    }
-                    dataArr.slice(dataArr.length - 1, 1);
+					} else {
+						console.log("Nobody died, ok?");
+					}
+					dataArr.slice(dataArr.length - 1, 1);
 				}
 
 				//This is mostly only used for the victim of Destiny Bond

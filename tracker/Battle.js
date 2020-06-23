@@ -33,11 +33,12 @@ class Battle {
     }
 
     findPokemonByNickname(nickname, side) {
+        let pokemonList = [];
         if (side === "p1") {
             for (let pokemon of Object.values(this.p1Pokemon)) {
                 console.log(pokemon.nickname)
                 if (pokemon.nickname === nickname) {
-                    return pokemon;
+                    pokemonList.push(pokemon);
                 }
             }
         }
@@ -45,12 +46,12 @@ class Battle {
             for (let pokemon of Object.values(this.p2Pokemon)) {
                 console.log(pokemon.nickname)
                 if (pokemon.nickname === nickname) {
-                    return pokemon;
+                    pokemonList.push(pokemon);
                 }
             }
         }
 
-        return "";
+        return pokemonList;
     }
 
     addHazard(side, hazard, hazardInflictor) {

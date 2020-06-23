@@ -10,6 +10,7 @@ class Pokemon {
         this.passiveKills = 0;
         this.isDead = false;
         this.killer = "";
+        this.hasSubstitute = false;
     }
 
     setNickname(nickname) {
