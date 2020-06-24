@@ -89,7 +89,7 @@ bot.on("message", async (message) => {
 	if (message.author.bot) return;
 
 	let msgStr = message.content;
-	let msgParams = msgStr.split(" ").slice(3); //["porygon,", "use", "command", ...params]
+	let msgParams = msgStr.split(" ").slice(3).join(" "); //["porygon,", "use", "command", ...params]
 	let prefix = "porygon, use";
 
 	if (channel.type === "dm") return;
@@ -140,10 +140,10 @@ bot.on("message", async (message) => {
 				.addField(
 					"setup",
 					"The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up"
-				) //TODO fix the league setup command and this help field
+				) 
 				.addField(
-					"add [Showdown name]",
-					"Adds a player to the database of the league whose live links channel the command is sent in."
+					"add [Showdown name] --r=[Range to be updated on Sheet]",
+					"Adds a player to the database of the league whose live links channel the command is sent in. If the \"--r=\" field is provided, it updates the range of the player's stats in the Google Sheet as well."
 				)
 				.addField(
 					"remove [Showdown name]",
@@ -188,8 +188,12 @@ bot.on("message", async (message) => {
 			);
 		}
 
-		//Finding the league that the player is going to get added to
-		let player = msgParams.join(" ");
+        //Getting info from the command
+        const rangeParams = msgParams.split(" --r=");
+        let player = rangeParams[0];
+        let range = rangeParams[1] ? rangeParams[1].split("--")[0] : "";
+
+        //Finding the league that the player is going to get added to
 		let leagueJson = await findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
@@ -226,7 +230,8 @@ bot.on("message", async (message) => {
 			{
 				fields: {
 					"Showdown Name": player,
-					Leagues: [leagueRecordId],
+                    Leagues: [leagueRecordId],
+                    Range: range
 				},
 			},
 		]);
