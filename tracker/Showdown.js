@@ -578,14 +578,15 @@ class Showdown {
 						move === "Toxic Spikes"
 					) {
 						//Hazards
-						//if (!line.endsWith(`[still]`)) {
 						//This would be true if there were already Rocks in the field
 						let side = parts[3].split("a: ")[0];
 						let inflictor = parts[1].split("a: ")[1];
 						battle.addHazard(side, move, inflictor);
 						console.log(battle.hazardsSet);
-						//}
-					}
+                    }
+                    else {
+                        continue;
+                    }
 				}
 
 				//Checks for statuses
@@ -843,7 +844,7 @@ class Showdown {
 									);
 									battle.p1a.killed(deathJson);
 								}
-							} else if (recoilMoves.includes(move)) {
+							} else if (recoilMoves.includes(move) || move === "Recoil") {
 								//Recoil deaths
 								if (victimSide == "p1a") {
 									let deathJson = battle.p1a.died(
@@ -998,7 +999,14 @@ class Showdown {
 							: `${battle.p1}p1`;
 
 					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
-				}
+                }
+                
+                //If the players miraculously tie
+                else if (line.startsWith(`|tie`)) {
+                    battle.winner = `Both`;
+                    battle.loser = `Both`;
+                    this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
+                }
 
 				//After the match is done and replay request is sent, it uploads the replay and gets the link
 				else if (line.startsWith("|queryresponse|savereplay")) {
