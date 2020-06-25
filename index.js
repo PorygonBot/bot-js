@@ -5,11 +5,7 @@ const getUrls = require("get-urls");
 const Showdown = require("./tracker/Showdown");
 
 //Getting config info
-const {
-	token,
-	airtable_key,
-	base_id,
-} = require("./config.json");
+const { token, airtable_key, base_id } = require("./config.json");
 //Creating the bot
 const bot = new Discord.Client({ disableEveryone: true });
 
@@ -140,14 +136,18 @@ bot.on("message", async (message) => {
 				.addField(
 					"setup",
 					"The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up"
-				) 
+				)
 				.addField(
 					"add [Showdown name] --r=[Range to be updated on Sheet]",
-					"Adds a player to the database of the league whose live links channel the command is sent in. If the \"--r=\" field is provided, it updates the range of the player's stats in the Google Sheet as well."
+					'Adds a player to the database of the league whose live links channel the command is sent in. If the "--r=" field is provided, it updates the range of the player\'s stats in the Google Sheet as well.'
 				)
 				.addField(
 					"remove [Showdown name]",
 					"Removes a player from the database of the league whose live links channel the command is sent in."
+				)
+				.addField(
+					"edit [old Showdown name] --nn=[new Showdown name] -r=[optional Sheet range]",
+					"Edits the given player's Showdown name and, optionally, the player's Sheet range."
 				)
 				.addField(
 					"list",
@@ -188,12 +188,12 @@ bot.on("message", async (message) => {
 			);
 		}
 
-        //Getting info from the command
-        const rangeParams = msgParams.split(" --r=");
-        let player = rangeParams[0];
-        let range = rangeParams[1] ? rangeParams[1].split("--")[0] : "";
+		//Getting info from the command
+		const rangeParams = msgParams.split(" --r=");
+		let player = rangeParams[0];
+		let range = rangeParams[1] ? rangeParams[1].split("--")[0] : "";
 
-        //Finding the league that the player is going to get added to
+		//Finding the league that the player is going to get added to
 		let leagueJson = await findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
@@ -230,8 +230,8 @@ bot.on("message", async (message) => {
 			{
 				fields: {
 					"Showdown Name": player,
-                    Leagues: [leagueRecordId],
-                    Range: range
+					Leagues: [leagueRecordId],
+					Range: range,
 				},
 			},
 		]);
@@ -243,7 +243,7 @@ bot.on("message", async (message) => {
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} remove`)) {
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
-				":x: You're not a moderator. Ask a moderator to add this person for you."
+				":x: You're not a moderator. Ask a moderator to remove this person for you."
 			);
 		}
 		if (!channels.includes(channel.id)) {
@@ -295,6 +295,76 @@ bot.on("message", async (message) => {
 		console.log(`${player} has been removed from ${leagueName}!`);
 		return channel.send(
 			`\`${player}\` has been removed from \`${leagueName}\`!`
+		);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} edit`)) {
+		if (!message.member.hasPermission("MANAGE_ROLES")) {
+			return channel.send(
+				":x: You're not a moderator. Ask a moderator to edit this person for you."
+			);
+		}
+		if (!channels.includes(channel.id)) {
+			return channel.send(
+				":x: This is not a valid live-links channel. Try this command again in the proper channel."
+			);
+		}
+
+		//Getting info from the command
+		let nnParams = msgParams.split(" --nn=");
+		let oldName = nnParams[0];
+		let newName;
+		let range = "";
+		if (nnParams[1].includes(" --r=")) {
+			let rParams = nnParams[1].split(" --r=");
+			newName = rParams[0];
+			range = rParams[1];
+		} else {
+			newName = nnParams[1];
+		}
+
+		//Updates the record in the database
+		//Finding the league that the player is going to get edited in
+		let leagueJson = await findLeagueId(channel.id);
+		let leagueRecordId = leagueJson.id;
+		let leagueName = leagueJson.name;
+		let playersIds = await getPlayersIds(leagueRecordId);
+
+		//Finding the player's recordId
+		let funcarr = [];
+		let recordId = "";
+		for (let playerId of playersIds) {
+			funcarr.push(
+				new Promise((resolve, reject) => {
+					base("Players").find(playerId, async (err, record) => {
+						if (err) reject(err);
+
+						let recordName = await record.get("Showdown Name");
+						if (
+							recordName.toLowerCase() === oldName.toLowerCase()
+						) {
+							recordId = playerId;
+						}
+
+						resolve();
+					});
+				})
+			);
+		}
+		await Promise.all(funcarr);
+		//Editing the record
+		base("Players").update([
+			{
+				id: recordId,
+				fields: {
+					"Showdown Name": newName,
+					Range: range,
+				},
+			},
+		]);
+
+		//Edited!
+		console.log(`Edited ${oldName} to become ${newName} in ${leagueName}.`);
+		message.channel.send(
+			`Edited \`${oldName}\` to become \`${newName}\` in \`${leagueName}\`!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
 		if (!channels.includes(channel.id)) {
