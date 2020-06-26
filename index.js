@@ -404,7 +404,6 @@ bot.on("message", async (message) => {
 
 		return channel.send(listEmbed);
 	}
->>>>>>> a400d30ba941289d00bb1946ddfaad013a968848
 });
 
 bot.login(token);
