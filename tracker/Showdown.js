@@ -1000,13 +1000,6 @@ class Showdown {
 
 					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
                 }
-                
-                //If the players miraculously tie
-                else if (line.startsWith(`|tie`)) {
-                    battle.winner = `Both`;
-                    battle.loser = `Both`;
-                    this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
-                }
 
 				//After the match is done and replay request is sent, it uploads the replay and gets the link
 				else if (line.startsWith("|queryresponse|savereplay")) {
