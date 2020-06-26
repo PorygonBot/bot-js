@@ -1050,6 +1050,7 @@ class Showdown {
 					console.log(killJsonp2);
 					console.log(deathJsonp1);
 					console.log(deathJsonp2);
+					console.log(info);
 
 					if (
 						battle.winner.endsWith("p1") &&
