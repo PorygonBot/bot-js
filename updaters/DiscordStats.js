@@ -50,20 +50,32 @@ class DiscordDMStats {
 			matchJson.players[Object.keys(matchJson.players)[1]].deaths;
 		let info = matchJson.info;
 		let mods = matchJson.mods;
-		let dmMods = matchJson.dmMods;
+        let dmMods = matchJson.dmMods;
+        let combinePD = matchJson.combinePD;
 		let streamChannelId = matchJson.streamChannel;
 
 		let message1 = "";
 		let message2 = "";
 
-		//Drafting the message to be sent to the users
-		for (let pokemon of Object.keys(killJson1)) {
-			message1 += `${pokemon} has ${killJson1[pokemon].direct} direct kills, ${killJson1[pokemon].passive} passive kills, and ${deathJson1[pokemon]} deaths. \n`;
-		}
-
-		for (let pokemon of Object.keys(killJson2)) {
-			message2 += `${pokemon} has ${killJson2[pokemon].direct} direct kills, ${killJson2[pokemon].passive} passive kills, and ${deathJson2[pokemon]} deaths. \n`;
-		}
+        //Drafting the message to be sent to the users\
+        if (!combinePD) {
+            for (let pokemon of Object.keys(killJson1)) {
+                message1 += `${pokemon} has ${killJson1[pokemon].direct} direct kills, ${killJson1[pokemon].passive} passive kills, and ${deathJson1[pokemon]} deaths. \n`;
+            }
+    
+            for (let pokemon of Object.keys(killJson2)) {
+                message2 += `${pokemon} has ${killJson2[pokemon].direct} direct kills, ${killJson2[pokemon].passive} passive kills, and ${deathJson2[pokemon]} deaths. \n`;
+            }
+        }
+        else {
+            for (let pokemon of Object.keys(killJson1)) {
+                message1 += `${pokemon} has ${killJson1[pokemon].direct + killJson1[pokemon].passive} kills and ${deathJson1[pokemon]} deaths. \n`;
+            }
+    
+            for (let pokemon of Object.keys(killJson2)) {
+                message2 += `${pokemon} has ${killJson2[pokemon].direct + killJson2[pokemon].passive} kills and ${deathJson2[pokemon]} deaths. \n`;
+            }
+        }
 
 		//getting User objects from Discord given their username
 		let modsUsers = [];

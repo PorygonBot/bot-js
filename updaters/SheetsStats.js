@@ -54,99 +54,201 @@ class GoogleSheetsMassStats {
 		let deathJsonp1 = recordJson.players[this.player1].deaths;
 		let killJsonp2Separated = recordJson.players[this.player2].kills;
 		let deathJsonp2 = recordJson.players[this.player2].deaths;
-        let replay = recordJson.info.replay;
-        
-        //Combining the direct kills and passive kills in the object
-        for (let pokemon of Object.keys(killJsonp1Separated)) {
-            killJsonp1Separated[pokemon] = killJsonp1Separated[pokemon].direct + killJsonp1Separated[pokemon].passive;
-        }
-        for (let pokemon of Object.keys(killJsonp2Separated)) {
-            killJsonp2Separated[pokemon] = killJsonp2Separated[pokemon].direct + killJsonp2Separated[pokemon].passive;
-        }
+		let replay = recordJson.info.replay;
+		let combinePD = recordJson.combinePD;
+		let killJsonp1 = {};
+		let killJsonp2 = {};
 
-		//Getting current sheet's values and initializing new update request
-		let currentRequest1 = await this.getValues(this.p1range);
-		let currentRequest2 = await this.getValues(this.p2range);
-		let newRequest1 = {
-			spreadsheetId: this.sheetid,
-			range: this.p1range,
-			includeValuesInResponse: false,
-			responseValueRenderOption: "FORMATTED_VALUE",
-			valueInputOption: "USER_ENTERED",
-			resource: {
+		if (combinePD) {
+			for (let pokemon of Object.keys(killJsonp1Separated)) {
+				killJsonp1[pokemon] =
+					killJsonp1Separated[pokemon].direct +
+					killJsonp1Separated[pokemon].passive;
+			}
+			for (let pokemon of Object.keys(killJsonp2Separated)) {
+				killJsonp2[pokemon] =
+					killJsonp2Separated[pokemon].direct +
+					killJsonp2Separated[pokemon].passive;
+			}
+
+			//Getting current sheet's values and initializing new update request
+			let currentRequest1 = await this.getValues(this.p1range);
+			let currentRequest2 = await this.getValues(this.p2range);
+			let newRequest1 = {
+				spreadsheetId: this.sheetid,
 				range: this.p1range,
-				values: currentRequest1.data.values,
-			},
-		};
-		let newRequest2 = {
-			spreadsheetId: this.sheetid,
-			range: this.p2range,
-			includeValuesInResponse: false,
-			responseValueRenderOption: "FORMATTED_VALUE",
-			valueInputOption: "USER_ENTERED",
-			resource: {
+				includeValuesInResponse: false,
+				responseValueRenderOption: "FORMATTED_VALUE",
+				valueInputOption: "USER_ENTERED",
+				resource: {
+					range: this.p1range,
+					values: currentRequest1.data.values,
+				},
+			};
+			let newRequest2 = {
+				spreadsheetId: this.sheetid,
 				range: this.p2range,
-				values: currentRequest2.data.values,
-			},
-		};
+				includeValuesInResponse: false,
+				responseValueRenderOption: "FORMATTED_VALUE",
+				valueInputOption: "USER_ENTERED",
+				resource: {
+					range: this.p2range,
+					values: currentRequest2.data.values,
+				},
+			};
 
-		//Printing requests before
-		console.log(
-			`newRequest1 before: ${JSON.stringify(newRequest1.resource)}`
-		);
-		console.log(
-			`newRequest2 before: ${JSON.stringify(newRequest2.resource)}`
-		);
+			//Printing requests before
+			console.log(
+				`newRequest1 before: ${JSON.stringify(newRequest1.resource)}`
+			);
+			console.log(
+				`newRequest2 before: ${JSON.stringify(newRequest2.resource)}`
+			);
 
-		//Updating new info to the request
-		for (let i = 0; i < currentRequest1.data.values.length; i++) {
-			let pokeOne = currentRequest1.data.values[i][0].split("-")[0];
-			let pokeTwo = currentRequest2.data.values[i][0].split("-")[0];
+			//Updating new info to the request
+			for (let i = 0; i < currentRequest1.data.values.length; i++) {
+				let pokeOne = currentRequest1.data.values[i][0].split("-")[0];
+				let pokeTwo = currentRequest2.data.values[i][0].split("-")[0];
 
-			//Updating the Games Played value.
-			if (pokeOne in killJsonp1 || pokeOne in deathJsonp1) {
-				newRequest1.resource.values[i][2] = (
-					parseInt(newRequest1.resource.values[i][2]) + 1
-				).toString();
+				//Updating the Games Played value.
+				if (pokeOne in killJsonp1 || pokeOne in deathJsonp1) {
+					newRequest1.resource.values[i][2] = (
+						parseInt(newRequest1.resource.values[i][2]) + 1
+					).toString();
+				}
+				if (pokeTwo in killJsonp2 || pokeTwo in deathJsonp2) {
+					newRequest2.resource.values[i][2] = (
+						parseInt(newRequest2.resource.values[i][2]) + 1
+					).toString();
+				}
+
+				//Updating Player 1's info
+				if (killJsonp1[pokeOne] >= 0)
+					newRequest1.resource.values[i][4] = (
+						killJsonp1[pokeOne] +
+						parseInt(newRequest1.resource.values[i][4])
+					).toString();
+				if (deathJsonp1[pokeOne] >= 0)
+					newRequest1.resource.values[i][5] = (
+						deathJsonp1[pokeOne] +
+						parseInt(newRequest1.resource.values[i][5])
+					).toString();
+
+				//Updating Player 2's info
+				if (killJsonp2[pokeTwo] >= 0)
+					newRequest2.resource.values[i][4] = (
+						killJsonp2[pokeTwo] +
+						parseInt(newRequest2.resource.values[i][4])
+					).toString();
+				if (deathJsonp2[pokeTwo] >= 0)
+					newRequest2.resource.values[i][5] = (
+						deathJsonp2[pokeTwo] +
+						parseInt(newRequest2.resource.values[i][5])
+					).toString();
 			}
-			if (pokeTwo in killJsonp2 || pokeTwo in deathJsonp2) {
-				newRequest2.resource.values[i][2] = (
-					parseInt(newRequest2.resource.values[i][2]) + 1
-				).toString();
+
+			//Printing requests after
+			console.log(
+				`newRequest1 after: ${JSON.stringify(newRequest1.resource)}`
+			);
+			console.log(
+				`newRequest2 after: ${JSON.stringify(newRequest2.resource)}`
+			);
+		} else {
+			//Getting current sheet's values and initializing new update request
+			let currentRequest1 = await this.getValues(this.p1range);
+			let currentRequest2 = await this.getValues(this.p2range);
+			let newRequest1 = {
+				spreadsheetId: this.sheetid,
+				range: this.p1range,
+				includeValuesInResponse: false,
+				responseValueRenderOption: "FORMATTED_VALUE",
+				valueInputOption: "USER_ENTERED",
+				resource: {
+					range: this.p1range,
+					values: currentRequest1.data.values,
+				},
+			};
+			let newRequest2 = {
+				spreadsheetId: this.sheetid,
+				range: this.p2range,
+				includeValuesInResponse: false,
+				responseValueRenderOption: "FORMATTED_VALUE",
+				valueInputOption: "USER_ENTERED",
+				resource: {
+					range: this.p2range,
+					values: currentRequest2.data.values,
+				},
+			};
+
+			//Printing requests before
+			console.log(
+				`newRequest1 before: ${JSON.stringify(newRequest1.resource)}`
+			);
+			console.log(
+				`newRequest2 before: ${JSON.stringify(newRequest2.resource)}`
+			);
+
+			//Updating new info to the request
+			for (let i = 0; i < currentRequest1.data.values.length; i++) {
+				let pokeOne = currentRequest1.data.values[i][0].split("-")[0];
+				let pokeTwo = currentRequest2.data.values[i][0].split("-")[0];
+
+				//Updating the Games Played value.
+				if (pokeOne in killJsonp1 || pokeOne in deathJsonp1) {
+					newRequest1.resource.values[i][2] = (
+						parseInt(newRequest1.resource.values[i][2]) + 1
+					).toString();
+				}
+				if (pokeTwo in killJsonp2 || pokeTwo in deathJsonp2) {
+					newRequest2.resource.values[i][2] = (
+						parseInt(newRequest2.resource.values[i][2]) + 1
+					).toString();
+				}
+
+				//Updating Player 1's info
+				if (killJsonp1[pokeOne].direct >= 0)
+					newRequest1.resource.values[i][4] = (
+						killJsonp1[pokeOne].direct +
+						parseInt(newRequest1.resource.values[i][4])
+					).toString();
+				if (killJsonp1[pokeOne].passive >= 0)
+					newRequest1.resource.values[i][5] = (
+						killJsonp1[pokeOne].passive +
+						parseInt(newRequest1.resource.values[i][5])
+					).toString();
+				if (deathJsonp1[pokeOne] >= 0)
+					newRequest1.resource.values[i][6] = (
+						deathJsonp1[pokeOne] +
+						parseInt(newRequest1.resource.values[i][6])
+					).toString();
+
+				//Updating Player 2's info
+				if (killJsonp2[pokeTwo].direct >= 0)
+					newRequest2.resource.values[i][4] = (
+						killJsonp2[pokeTwo].direct +
+						parseInt(newRequest2.resource.values[i][4])
+					).toString();
+				if (killJsonp2[pokeTwo].passive >= 0)
+					newRequest2.resource.values[i][5] = (
+						killJsonp2[pokeTwo].passive +
+						parseInt(newRequest2.resource.values[i][5])
+					).toString();
+				if (deathJsonp2[pokeTwo] >= 0)
+					newRequest2.resource.values[i][6] = (
+						deathJsonp2[pokeTwo] +
+						parseInt(newRequest2.resource.values[i][6])
+					).toString();
 			}
 
-			//Updating Player 1's info
-			if (killJsonp1[pokeOne] >= 0)
-				newRequest1.resource.values[i][4] = (
-					killJsonp1[pokeOne] +
-					parseInt(newRequest1.resource.values[i][4])
-				).toString();
-			if (deathJsonp1[pokeOne] >= 0)
-				newRequest1.resource.values[i][5] = (
-					deathJsonp1[pokeOne] +
-					parseInt(newRequest1.resource.values[i][5])
-				).toString();
-
-			//Updating Player 2's info
-			if (killJsonp2[pokeTwo] >= 0)
-				newRequest2.resource.values[i][4] = (
-					killJsonp2[pokeTwo] +
-					parseInt(newRequest2.resource.values[i][4])
-				).toString();
-			if (deathJsonp2[pokeTwo] >= 0)
-				newRequest2.resource.values[i][5] = (
-					deathJsonp2[pokeTwo] +
-					parseInt(newRequest2.resource.values[i][5])
-				).toString();
+			//Printing requests after
+			console.log(
+				`newRequest1 after: ${JSON.stringify(newRequest1.resource)}`
+			);
+			console.log(
+				`newRequest2 after: ${JSON.stringify(newRequest2.resource)}`
+			);
 		}
-
-		//Printing requests after
-		console.log(
-			`newRequest1 after: ${JSON.stringify(newRequest1.resource)}`
-		);
-		console.log(
-			`newRequest2 after: ${JSON.stringify(newRequest2.resource)}`
-		);
 
 		//Updating both players' info using new request
 		let res1 = await new Promise((resolve, reject) => {

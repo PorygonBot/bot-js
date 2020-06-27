@@ -296,7 +296,8 @@ class Showdown {
 						);
 						recordJson.sheetId = await leagueRecord.get("Sheet ID");
 						recordJson.info = info;
-						recordJson.dmMods = await leagueRecord.get("DM Mods?");
+                        recordJson.dmMods = await leagueRecord.get("DM Mods?");
+                        recordJson.combinePD = await leagueRecord.get("Combine P/D?");
 						recordJson.streamChannel = await leagueRecord.get(
 							"Stream Channel ID"
 						);
