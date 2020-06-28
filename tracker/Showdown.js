@@ -862,7 +862,32 @@ class Showdown {
 									);
 									battle.p1a.killed(deathJson);
 								}
-							} else {
+                            } 
+                            
+                            else if (move.startsWith(`item: `)) {
+                                let item = move.split(": ")[1];
+                                
+                                if (victimSide === "p1a" && !battle.p1a.isDead) {
+                                    let deathJson = battle.p1a.died(
+                                        item,
+                                        battle.p2a,
+                                        false
+                                    );
+                                    battle.p2a.killed(deathJson);
+                                } else if (
+                                    victimSide === "p2a" &&
+                                    !battle.p2a.isDead
+                                ) {
+                                    let deathJson = battle.p2a.died(
+                                        item,
+                                        battle.p1a,
+                                        false
+                                    );
+                                    battle.p1a.killed(deathJson);
+                                }
+                            }
+
+                            else {
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									console.log(move);
@@ -874,7 +899,7 @@ class Showdown {
 										move,
 										battle.p1a.otherAffliction[move],
 										true
-									);
+                                    );
 									battle.p2Pokemon[
 										battle.p1a.otherAffliction[move]
 									].killed(deathJson);
