@@ -950,8 +950,6 @@ class Showdown {
 								`${victimName} was killed by ${battle.p1a.name}`
 							);
 						}
-					} else {
-						console.log("Nobody died, ok?");
 					}
 					dataArr.slice(dataArr.length - 1, 1);
 				}
