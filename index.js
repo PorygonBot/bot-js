@@ -253,7 +253,7 @@ bot.on("message", async (message) => {
 		}
 
 		//Finding the league that the player is going to get added to
-		let player = msgParams[0]
+		let player = msgParams
 		let leagueJson = await findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
