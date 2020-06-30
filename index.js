@@ -146,7 +146,7 @@ bot.on("message", async (message) => {
 					"Removes a player from the database of the league whose live links channel the command is sent in."
 				)
 				.addField(
-					"edit [old Showdown name] --nn=[new Showdown name] -r=[optional Sheet range]",
+					"edit [old Showdown name] --nn=[new Showdown name] --r=[optional Sheet range]",
 					"Edits the given player's Showdown name and, optionally, the player's Sheet range."
 				)
 				.addField(
@@ -253,7 +253,7 @@ bot.on("message", async (message) => {
 		}
 
 		//Finding the league that the player is going to get added to
-		let player = msgParams.join(" ");
+		let player = msgParams[0]
 		let leagueJson = await findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
