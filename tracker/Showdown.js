@@ -1021,7 +1021,7 @@ class Showdown {
 						battle.winner === `${battle.p1}p1`
 							? `${battle.p2}p2`
 							: `${battle.p1}p1`;
-
+							
 					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
                 }
 
