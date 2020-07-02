@@ -61,6 +61,29 @@ const confusionMoves = [
 	"Water Pulse",
 ];
 
+const toxicMoves = [
+	"Baneful Bunker",
+	"Cross Poison",
+	"Fling",
+	"Gunk Shot",
+	"Poison Fang",
+	"Poison Gas",
+	"Poison Jab",
+	"Poison Powder",
+	"Poison Sting",
+	"Poison Tail",
+	"Psycho Shift",
+	"Secret Power",
+	"Shell Side Arm",
+	"Sludge",
+	"Sludge Bomb",
+	"Sludge Wave",
+	"Smog",
+	"Toxic",
+	"Toxic Thread",
+	"Twineedle"
+];
+
 let findLeagueId = async (checkChannelId) => {
 	let leagueId;
 	let leagueName;
@@ -507,10 +530,8 @@ class Showdown {
 					line.startsWith(`|switch|`) ||
 					line.startsWith(`|drag|`)
 				) {
-					let pokemonNickname = parts[1].split(": ")[1];
 					if (parts[1].startsWith("p1")) {
 						//If Player 1's Pokemon get switched out
-                        battle.p1a.setNickname(pokemonNickname);
                         battle.p1a.hasSubstitute = false;
 						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p1a;
@@ -526,7 +547,6 @@ class Showdown {
 						);
 					} else if (parts[1].startsWith("p2")) {
 						//If Player 2's Pokemon get switched out
-                        battle.p2a.setNickname(pokemonNickname);
                         battle.p2a.hasSubstitute = false;
 						battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p2a;
@@ -581,44 +601,37 @@ class Showdown {
 						//Hazards
 						//This would be true if there were already Rocks in the field
 						let side = parts[3].split("a: ")[0];
-						let inflictor = parts[1].split("a: ")[1];
-						battle.addHazard(side, move, inflictor);
-						console.log(battle.hazardsSet);
-                    }
-                    else {
-                        continue;
+						if (side === "p1") {
+							battle.addHazard(side, move, battle.p2a);
+						}
+						else {
+							battle.addHazard(side, move, battle.p1a);
+						}
                     }
 				}
 
 				//Checks for statuses
 				else if (line.startsWith(`|-status|`)) {
-					let prevMove = dataArr[dataArr.length - 2];
-					if (prevMove.startsWith(`|move|`)) {
+					let prevMoveLine = dataArr[dataArr.length - 2];
+					let prevMove = prevMoveLine.split("|").slice(1)[2]
+					if (prevMoveLine.startsWith(`|move|` && toxicMoves.includes(prevMove))) {
 						//If status was caused by a move
-						let moveUserNickname = prevMove
-							.split("|")
-							.slice(1)[1]
-							.split(": ")[1];
-						if (prevMove.split("|").slice(1)[1].startsWith("p1a")) {
-							if (moveUserNickname === battle.p1a.nickname) {
-								battle.p2a.statusEffect(parts[2], battle.p1a);
-							}
+						if (prevMoveLine.split("|").slice(1)[1].startsWith("p1a")) {
+							battle.p2a.statusEffect(parts[2], battle.p1a);
 						} else {
-							if (moveUserNickname === battle.p2a.nickname) {
-								battle.p1a.statusEffect(parts[2], battle.p2a);
-							}
+							battle.p1a.statusEffect(parts[2], battle.p2a);
 						}
 					} else {
 						//If status wasn't caused by a move, but rather something like a hazard
 						if (parts[1].split(": ")[0] === "p1a") {
 							battle.p1a.statusEffect(
 								parts[2],
-								battle.hazardsSet.p2["Toxic Spikes"]
+								battle.hazardsSet.p1["Toxic Spikes"]
 							);
 						} else {
 							battle.p2a.statusEffect(
 								parts[2],
-								battle.hazardsSet.p1["Toxic Spikes"]
+								battle.hazardsSet.p2["Toxic Spikes"]
 							);
 						}
 					}
@@ -782,6 +795,7 @@ class Showdown {
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
+									console.log(`${battle.p1a.name} was killed by ${killer} due to hazards.`);
 								} else if (victimSide === "p2a") {
 									let killer = battle.hazardsSet.p2[move];
 									let deathJson = battle.p2a.died(
@@ -790,6 +804,7 @@ class Showdown {
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
+									console.log(`${battle.p2a.name} was killed by ${killer} due to hazards.`);
 								}
 							} else if (
 								move === "Hail" ||
@@ -836,14 +851,17 @@ class Showdown {
 										battle.p1a.statusInflictor,
 										true
 									);
-									battle.p2a.killed(deathJson);
+									battle.p2Pokemon[battle.p1a.statusInflictor.name].killed(deathJson);
+									console.log(`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`);
 								} else if (victimSide === "p2a") {
+									console.log("Inflictor: " + battle.p2a.name)
 									let deathJson = battle.p2a.died(
 										move,
 										battle.p2a.statusInflictor,
 										true
 									);
-									battle.p1a.killed(deathJson);
+									battle.p1Pokemon[battle.p2a.statusInflictor.name].killed(deathJson);
+									console.log(`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`);
 								}
 							} else if (recoilMoves.includes(move) || move === "Recoil") {
 								//Recoil deaths
@@ -939,16 +957,6 @@ class Showdown {
 								);
 								battle.p1a.killed(deathJson);
 							}
-						}
-
-						if (battle.p1a.name === victimName) {
-							console.log(
-								`${victimName} was killed by ${battle.p2a.name}`
-							);
-						} else {
-							console.log(
-								`${victimName} was killed by ${battle.p1a.name}`
-							);
 						}
 					}
 					dataArr.slice(dataArr.length - 1, 1);
