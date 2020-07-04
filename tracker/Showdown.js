@@ -158,16 +158,18 @@ class Showdown {
 		let ip;
 		switch (server) {
 			case "Showdown":
-				ip = "sim.smogon.com";
+				ip = "sim.smogon.com:8000";
 				break;
 			case "Sports":
-				ip = "34.222.148.43";
+				ip = "34.222.148.43:8000";
 				break;
 			case "Automatthic":
-				ip = "185.224.89.75";
+				ip = "185.224.89.75:8000";
 				break;
+			case "Dawn":
+				ip = "oppai.azure.lol:80"
 		}
-		this.server = `ws://${ip}:8000/showdown/websocket`;
+		this.server = `ws://${ip}/showdown/websocket`;
 
 		this.websocket = new ws(this.server);
 		this.username = username;

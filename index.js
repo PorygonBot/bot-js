@@ -38,7 +38,7 @@ const getChannels = async () => {
 	return channels;
 };
 
-let findLeagueId = async (checkChannelId) => {
+const findLeagueId = async (checkChannelId) => {
 	let leagueId;
 	let leagueName;
 	await base("Leagues")
@@ -64,7 +64,7 @@ let findLeagueId = async (checkChannelId) => {
 	return leagueJson;
 };
 
-let getPlayersIds = async (leagueId) => {
+const getPlayersIds = async (leagueId) => {
 	let recordsIds = await new Promise((resolve, reject) => {
 		base("Leagues").find(leagueId, (err, record) => {
 			if (err) reject(err);
@@ -102,6 +102,8 @@ bot.on("message", async (message) => {
 				psServer = "Automatthic";
 			} else if (battlelink.includes("play.pokemonshowdown.com")) {
 				psServer = "Showdown";
+			} else if (battlelink.includes("dawn.psim.us")) {
+				psServer = "Dawn";
 			} else {
 				channel.send(
 					"This link is not a valid Pokemon Showdown battle url."
@@ -253,7 +255,7 @@ bot.on("message", async (message) => {
 		}
 
 		//Finding the league that the player is going to get added to
-		let player = msgParams
+		let player = msgParams;
 		let leagueJson = await findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
@@ -309,16 +311,38 @@ bot.on("message", async (message) => {
 		}
 
 		//Getting info from the command
-		let nnParams = msgParams.split(" --nn=");
-		let oldName = nnParams[0];
+		// let nnParams = msgParams.split(" --nn=");
+		// let oldName = nnParams[0];
+		// let newName;
+		// let range = "";
+		// if (nnParams[1].includes(" --r=")) {
+		// 	let rParams = nnParams[1].split(" --r=");
+		// 	newName = rParams[0];
+		// 	range = rParams[1];
+		// } else {
+		// 	newName = nnParams[1];
+		// }
+		// Getting info from the command
+		let oldName;
 		let newName;
-		let range = "";
-		if (nnParams[1].includes(" --r=")) {
+		let range;
+		if (msgParams.includes("--nn=") && msgParams.includes("--r=")) {
+			// Both are given
+			let nnParams = msgParams.split(" --nn=");
+			oldName = nnParams[0];
 			let rParams = nnParams[1].split(" --r=");
 			newName = rParams[0];
 			range = rParams[1];
-		} else {
+		} else if (msgParams.includes("--nn=")) {
+			let nnParams = msgParams.split(" --nn=");
+			oldName = nnParams[0];
 			newName = nnParams[1];
+			range = "None";
+		} else if (msgParams.includes("--r=")) {
+			let rParams = msgParams.split(" --r=");
+			oldName = rParams[0];
+			newName = oldName;
+			range = rParams[1];
 		}
 
 		//Updates the record in the database
@@ -362,9 +386,11 @@ bot.on("message", async (message) => {
 		]);
 
 		//Edited!
-		console.log(`Edited ${oldName} to become ${newName} in ${leagueName}.`);
+		console.log(
+			`Edited ${oldName} to become ${newName} in ${leagueName} with ${range} range.`
+		);
 		message.channel.send(
-			`Edited \`${oldName}\` to become \`${newName}\` in \`${leagueName}\`!`
+			`Edited \`${oldName}\` to become \`${newName}\` in \`${leagueName}\ with \`${range}\` range!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
 		if (!channels.includes(channel.id)) {
