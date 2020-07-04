@@ -283,7 +283,7 @@ bot.on("message", async (message) => {
 		await Promise.all(funcarr);
 		if (!isIn) {
 			return message.channel.send(
-				`${player} is not in this league's database!`
+				`\`${player}\` is not in this league's database!`
 			);
 		}
 
