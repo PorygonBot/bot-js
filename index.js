@@ -148,7 +148,7 @@ bot.on("message", async (message) => {
 					"Removes a player from the database of the league whose live links channel the command is sent in."
 				)
 				.addField(
-					"edit [old Showdown name] --nn=[new Showdown name] --r=[optional Sheet range]",
+					"edit [old Showdown name] --nn=[optional new Showdown name] --r=[optional Sheet range]",
 					"Edits the given player's Showdown name and, optionally, the player's Sheet range."
 				)
 				.addField(
