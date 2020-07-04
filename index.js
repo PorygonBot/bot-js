@@ -310,18 +310,6 @@ bot.on("message", async (message) => {
 			);
 		}
 
-		//Getting info from the command
-		// let nnParams = msgParams.split(" --nn=");
-		// let oldName = nnParams[0];
-		// let newName;
-		// let range = "";
-		// if (nnParams[1].includes(" --r=")) {
-		// 	let rParams = nnParams[1].split(" --r=");
-		// 	newName = rParams[0];
-		// 	range = rParams[1];
-		// } else {
-		// 	newName = nnParams[1];
-		// }
 		// Getting info from the command
 		let oldName;
 		let newName;
