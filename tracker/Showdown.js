@@ -81,7 +81,7 @@ const toxicMoves = [
 	"Smog",
 	"Toxic",
 	"Toxic Thread",
-	"Twineedle"
+	"Twineedle",
 ];
 
 let findLeagueId = async (checkChannelId) => {
@@ -167,7 +167,7 @@ class Showdown {
 				ip = "185.224.89.75:8000";
 				break;
 			case "Dawn":
-				ip = "oppai.azure.lol:80"
+				ip = "oppai.azure.lol:80";
 		}
 		this.server = `ws://${ip}/showdown/websocket`;
 
@@ -321,8 +321,10 @@ class Showdown {
 						);
 						recordJson.sheetId = await leagueRecord.get("Sheet ID");
 						recordJson.info = info;
-                        recordJson.dmMods = await leagueRecord.get("DM Mods?");
-                        recordJson.combinePD = await leagueRecord.get("Combine P/D?");
+						recordJson.dmMods = await leagueRecord.get("DM Mods?");
+						recordJson.combinePD = await leagueRecord.get(
+							"Combine P/D?"
+						);
 						recordJson.streamChannel = await leagueRecord.get(
 							"Stream Channel ID"
 						);
@@ -534,7 +536,7 @@ class Showdown {
 				) {
 					if (parts[1].startsWith("p1")) {
 						//If Player 1's Pokemon get switched out
-                        battle.p1a.hasSubstitute = false;
+						battle.p1a.hasSubstitute = false;
 						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p1a;
 						if (oldPokemon.name !== "") {
@@ -549,7 +551,7 @@ class Showdown {
 						);
 					} else if (parts[1].startsWith("p2")) {
 						//If Player 2's Pokemon get switched out
-                        battle.p2a.hasSubstitute = false;
+						battle.p2a.hasSubstitute = false;
 						battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 						let oldPokemon = battle.p2a;
 						if (oldPokemon.name !== "") {
@@ -605,20 +607,28 @@ class Showdown {
 						let side = parts[3].split("a: ")[0];
 						if (side === "p1") {
 							battle.addHazard(side, move, battle.p2a);
-						}
-						else {
+						} else {
 							battle.addHazard(side, move, battle.p1a);
 						}
-                    }
+					}
 				}
 
 				//Checks for statuses
 				else if (line.startsWith(`|-status|`)) {
 					let prevMoveLine = dataArr[dataArr.length - 2];
-					let prevMove = prevMoveLine.split("|").slice(1)[2]
-					if (prevMoveLine.startsWith(`|move|` && toxicMoves.includes(prevMove))) {
+					let prevMove = prevMoveLine.split("|").slice(1)[2];
+					if (
+						prevMoveLine.startsWith(`|move|`) &&
+						toxicMoves.includes(prevMove)
+					) {
 						//If status was caused by a move
-						if (prevMoveLine.split("|").slice(1)[1].startsWith("p1a")) {
+						console.log();
+						if (
+							prevMoveLine
+								.split("|")
+								.slice(1)[1]
+								.startsWith("p1a")
+						) {
 							battle.p2a.statusEffect(parts[2], battle.p1a);
 						} else {
 							battle.p1a.statusEffect(parts[2], battle.p2a);
@@ -711,41 +721,40 @@ class Showdown {
 							].killed(deathJson);
 						}
 					} else if (affliction === `Substitute`) {
-                        let side = parts[1].split(": ")[0];
-                        if (side === `p1a`) {
-                            battle.p1a.hasSubstitute = true;
-                        }
-                        else {
-                            battle.p2a.hasSubstitute = true;
-                        }
-                    }
+						let side = parts[1].split(": ")[0];
+						if (side === `p1a`) {
+							battle.p1a.hasSubstitute = true;
+						} else {
+							battle.p2a.hasSubstitute = true;
+						}
+					}
 					dataArr.splice(dataArr.length - 1, 1);
 				} else if (line.startsWith(`|-end|`)) {
 					let side = parts[1].split(": ")[0];
 					let move = parts[2].split("move: ")[1];
 					if (move === "Future Sight" || move === "Doom Desire") {
 						if (side === "p1a") {
-                            if (!battle.p1a.hasSubstitute) {
-                                let killer = battle.hazardsSet.p1[move];
-                                let deathJson = battle.p1a.died(
-                                    move,
-                                    killer,
-                                    true
-                                );
-                                battle.p2Pokemon[killer].killed(deathJson);
-                            }
-                            battle.p1a.hasSubstitute = false;
+							if (!battle.p1a.hasSubstitute) {
+								let killer = battle.hazardsSet.p1[move];
+								let deathJson = battle.p1a.died(
+									move,
+									killer,
+									true
+								);
+								battle.p2Pokemon[killer].killed(deathJson);
+							}
+							battle.p1a.hasSubstitute = false;
 						} else if (side === "p2a") {
-                            if (!battle.p2a.hasSubstitute) {
-                                let killer = battle.hazardsSet.p2[move];
-                                let deathJson = battle.p2a.died(
-                                    move,
-                                    killer,
-                                    true
-                                );
-                                battle.p1Pokemon[killer].killed(deathJson);
-                            }
-                            battle.p2a.hasSubstitute = false;
+							if (!battle.p2a.hasSubstitute) {
+								let killer = battle.hazardsSet.p2[move];
+								let deathJson = battle.p2a.died(
+									move,
+									killer,
+									true
+								);
+								battle.p1Pokemon[killer].killed(deathJson);
+							}
+							battle.p2a.hasSubstitute = false;
 						}
 					}
 				} else if (line.startsWith(`|-immune|`)) {
@@ -797,7 +806,9 @@ class Showdown {
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
-									console.log(`${battle.p1a.name} was killed by ${killer} due to hazards.`);
+									console.log(
+										`${battle.p1a.name} was killed by ${killer} due to hazards.`
+									);
 								} else if (victimSide === "p2a") {
 									let killer = battle.hazardsSet.p2[move];
 									let deathJson = battle.p2a.died(
@@ -806,7 +817,9 @@ class Showdown {
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
-									console.log(`${battle.p2a.name} was killed by ${killer} due to hazards.`);
+									console.log(
+										`${battle.p2a.name} was killed by ${killer} due to hazards.`
+									);
 								}
 							} else if (
 								move === "Hail" ||
@@ -853,19 +866,29 @@ class Showdown {
 										battle.p1a.statusInflictor,
 										true
 									);
-									battle.p2Pokemon[battle.p1a.statusInflictor.name].killed(deathJson);
-									console.log(`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`);
+									battle.p2Pokemon[
+										battle.p1a.statusInflictor.name
+									].killed(deathJson);
+									console.log(
+										`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`
+									);
 								} else if (victimSide === "p2a") {
-									console.log("Inflictor: " + battle.p2a.name)
 									let deathJson = battle.p2a.died(
 										move,
 										battle.p2a.statusInflictor,
 										true
 									);
-									battle.p1Pokemon[battle.p2a.statusInflictor.name].killed(deathJson);
-									console.log(`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`);
+									battle.p1Pokemon[
+										battle.p2a.statusInflictor.name
+									].killed(deathJson);
+									console.log(
+										`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`
+									);
 								}
-							} else if (recoilMoves.includes(move) || move === "Recoil") {
+							} else if (
+								recoilMoves.includes(move) ||
+								move === "Recoil"
+							) {
 								//Recoil deaths
 								if (victimSide == "p1a") {
 									let deathJson = battle.p1a.died(
@@ -882,32 +905,31 @@ class Showdown {
 									);
 									battle.p1a.killed(deathJson);
 								}
-                            } 
-                            
-                            else if (move.startsWith(`item: `)) {
-                                let item = move.split(": ")[1];
-                                
-                                if (victimSide === "p1a" && !battle.p1a.isDead) {
-                                    let deathJson = battle.p1a.died(
-                                        item,
-                                        battle.p2a,
-                                        false
-                                    );
-                                    battle.p2a.killed(deathJson);
-                                } else if (
-                                    victimSide === "p2a" &&
-                                    !battle.p2a.isDead
-                                ) {
-                                    let deathJson = battle.p2a.died(
-                                        item,
-                                        battle.p1a,
-                                        false
-                                    );
-                                    battle.p1a.killed(deathJson);
-                                }
-                            }
+							} else if (move.startsWith(`item: `)) {
+								let item = move.split(": ")[1];
 
-                            else {
+								if (
+									victimSide === "p1a" &&
+									!battle.p1a.isDead
+								) {
+									let deathJson = battle.p1a.died(
+										item,
+										battle.p2a,
+										false
+									);
+									battle.p2a.killed(deathJson);
+								} else if (
+									victimSide === "p2a" &&
+									!battle.p2a.isDead
+								) {
+									let deathJson = battle.p2a.died(
+										item,
+										battle.p1a,
+										false
+									);
+									battle.p1a.killed(deathJson);
+								}
+							} else {
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									console.log(move);
@@ -919,7 +941,7 @@ class Showdown {
 										move,
 										battle.p1a.otherAffliction[move],
 										true
-                                    );
+									);
 									battle.p2Pokemon[
 										battle.p1a.otherAffliction[move]
 									].killed(deathJson);
@@ -1032,9 +1054,9 @@ class Showdown {
 							? `${battle.p2}p2`
 							: `${battle.p1}p1`;
 
-					console.log(`${battle.winner} won!`)
+					console.log(`${battle.winner} won!`);
 					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
-                }
+				}
 
 				//After the match is done and replay request is sent, it uploads the replay and gets the link
 				else if (line.startsWith("|queryresponse|savereplay")) {
