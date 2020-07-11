@@ -572,7 +572,6 @@ class Showdown {
 					line.startsWith(`|-supereffective|`) ||
 					line.startsWith(`|upkeep`)
 				) {
-					realdata.splice(realdata.length - 1, 1);
 					dataArr.splice(dataArr.length - 1, 1);
 				}
 
