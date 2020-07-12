@@ -84,6 +84,37 @@ const toxicMoves = [
 	"Twineedle",
 ];
 
+const burnMoves = [
+	"Beak Blast",
+	"Blaze Kick",
+	"Blue Flare",
+	"Burning Jealousy",
+	"Ember",
+	"Fire Blast",
+	"Fire Fang",
+	"Fire Punch",
+	"Flame Wheel",
+	"Flamethrower",
+	"Flare Blitz",
+	"Fling",
+	"Heat Wave",
+	"Ice Burn",
+	"Inferno",
+	"Lava Plume",
+	"Psycho Shift",
+	"Pyro Ball",
+	"Sacred Fire",
+	"Scald",
+	"Scorching Sands",
+	"Searing Shot",
+	"Secret Power",
+	"Shadow Fire",
+	"Sizzly Slide",
+	"Steam Eruption",
+	"Tri Attack",
+	"Will-O-Wisp"
+];
+
 let findLeagueId = async (checkChannelId) => {
 	let leagueId;
 	let leagueName;
@@ -603,8 +634,9 @@ class Showdown {
 					) {
 						//Hazards
 						//This would be true if there were already Rocks in the field
-						let side = parts[3].split("a: ")[0];
-						if (side === "p1") {
+						let side = parts[3].split(": ")[0];
+						console.log(side);
+						if (side.startsWith("p1")) {
 							battle.addHazard(side, move, battle.p2a);
 						} else {
 							battle.addHazard(side, move, battle.p1a);
@@ -618,10 +650,9 @@ class Showdown {
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
 					if (
 						prevMoveLine.startsWith(`|move|`) &&
-						toxicMoves.includes(prevMove)
+						(toxicMoves.includes(prevMove) || burnMoves.includes(prevMove))
 					) {
 						//If status was caused by a move
-						console.log();
 						if (
 							prevMoveLine
 								.split("|")
@@ -788,9 +819,6 @@ class Showdown {
 					if (parts[2].endsWith("fnt")) {
 						//A pokemon has fainted
 						let victimSide = parts[1].split(": ")[0];
-						let victimName = parts[1].split(": ")[1];
-
-						console.log(victimName);
 
 						if (parts[3] && parts[3].contains("[from]")) {
 							//It's a special death, not a normal one.
@@ -877,6 +905,7 @@ class Showdown {
 										battle.p2a.statusInflictor,
 										true
 									);
+									console.log(battle.p2a.statusInflictor.name)
 									battle.p1Pokemon[
 										battle.p2a.statusInflictor.name
 									].killed(deathJson);
@@ -982,7 +1011,7 @@ class Showdown {
 							}
 						}
 					}
-					dataArr.slice(dataArr.length - 1, 1);
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//This is mostly only used for the victim of Destiny Bond
