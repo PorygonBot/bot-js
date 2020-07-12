@@ -448,6 +448,7 @@ bot.on("message", async (message) => {
 			},
 		]);
 
+		console.log(`${leagueJson.name}'s player database has been cleared.`);
 		return channel.send(
 			`\`${leagueJson.name}\`'s player database has been cleared.`
 		);
