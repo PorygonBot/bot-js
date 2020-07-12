@@ -112,7 +112,7 @@ const burnMoves = [
 	"Sizzly Slide",
 	"Steam Eruption",
 	"Tri Attack",
-	"Will-O-Wisp"
+	"Will-O-Wisp",
 ];
 
 let findLeagueId = async (checkChannelId) => {
@@ -466,366 +466,321 @@ class Showdown {
 		let dataArr = [];
 
 		this.websocket.on("message", async (data) => {
-			//Separates the data into lines so it's easy to parse
-			let realdata = data.split("\n");
+			try {
+				//Separates the data into lines so it's easy to parse
+				let realdata = data.split("\n");
 
-			for (const line of realdata) {
-				//console.log(line);
-				dataArr.push(line);
+				for (const line of realdata) {
+					//console.log(line);
+					dataArr.push(line);
 
-				//Separates the line into parts, separated by `|`
-				const parts = line.split("|").slice(1); //The substring is because all lines start with | so the first element is always blank
+					//Separates the line into parts, separated by `|`
+					const parts = line.split("|").slice(1); //The substring is because all lines start with | so the first element is always blank
 
-				//Checks first and foremost if the battle even exists
-				if (line.startsWith(`|noinit|nonexistent|`)) {
-					return this.message.channel.send(
-						":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
-					);
-				}
-
-				//Once the server connects, the bot logs in and joins the battle
-				else if (data.startsWith("|challstr|")) {
-					const nonce = data.substring(10);
-					const assertion = await this.login(nonce);
-					//logs in
-					if (assertion) {
-						this.websocket.send(
-							`|/trn ${username},0,${assertion}|`
-						);
-						//Joins the battle
-						await this.join();
-					} else {
-						return;
-					}
-				}
-
-				//At the beginning of every match, the title of a match contains the player's names.
-				//As such, in order to get and verify the player's names in the database, this is the most effective.
-				else if (line.startsWith(`|title|`)) {
-					let players = parts[1].split(" vs. ");
-					console.log("Players: " + players);
-
-					//Checking if either player isn't in the database
-					const leagueJson = await findLeagueId(
-						this.message.channel.id
-					);
-					const playersIds = await getPlayersIds(leagueJson.id);
-					const containsOne = await playerInLeague(
-						playersIds,
-						players[0]
-					);
-					const containsTwo = await playerInLeague(
-						playersIds,
-						players[1]
-					);
-
-					if (!containsOne && !containsTwo) {
-						//Both players aren't in the database
-						this.message.channel.send(
-							`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
-						);
-					} else if (!containsOne) {
-						//Only player 1 isn't in the database
-						this.message.channel.send(
-							`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
-						);
-					} else if (!containsTwo) {
-						//Only player 2 isn't in the database
-						this.message.channel.send(
-							`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+					//Checks first and foremost if the battle even exists
+					if (line.startsWith(`|noinit|nonexistent|`)) {
+						return this.message.channel.send(
+							":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
 						);
 					}
 
-					//Initializes the battle as an object
-					battle = new Battle(this.battle, players[0], players[1]);
-				}
-
-				//At the beginning of every non-randoms match, a list of Pokemon show up.
-				//This code is to get all that
-				else if (line.startsWith(`|poke|`)) {
-					let pokemonName = parts[2].split(",")[0].split("-")[0];
-					//console.log(pokemonName);
-					let pokemon = new Pokemon(pokemonName); //Adding a pokemon to the list of pokemon in the battle
-					if (parts[1] === "p1") {
-						//If the pokemon belongs to Player 1
-						battle.p1Pokemon[pokemonName] = pokemon;
-					} else if (parts[1] === "p2") {
-						//If the pokemon belongs to Player 2
-						battle.p2Pokemon[pokemonName] = pokemon;
-					}
-				}
-
-				//Increments the total number of turns at the beginning of every new turn
-				else if (line.startsWith(`|turn|`)) {
-					battle.turns++;
-				}
-
-				//If a Pokemon switches, the active Pokemon must now change
-				else if (
-					line.startsWith(`|switch|`) ||
-					line.startsWith(`|drag|`)
-				) {
-					if (parts[1].startsWith("p1")) {
-						//If Player 1's Pokemon get switched out
-						battle.p1a.hasSubstitute = false;
-						battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
-						let oldPokemon = battle.p1a;
-						if (oldPokemon.name !== "") {
-							battle.p1Pokemon[oldPokemon.name] = oldPokemon;
-						}
-						battle.p1a =
-							battle.p1Pokemon[
-								parts[2].split(",")[0].split("-")[0]
-							];
-						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p1a.name}`
-						);
-					} else if (parts[1].startsWith("p2")) {
-						//If Player 2's Pokemon get switched out
-						battle.p2a.hasSubstitute = false;
-						battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
-						let oldPokemon = battle.p2a;
-						if (oldPokemon.name !== "") {
-							battle.p2Pokemon[oldPokemon.name] = oldPokemon;
-						}
-						battle.p2a =
-							battle.p2Pokemon[
-								parts[2].split(",")[0].split("-")[0]
-							];
-						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p2a.name}`
-						);
-					}
-				}
-
-				//Removes the |-supereffective| or  |upkeep part of realdata if it exists
-				else if (
-					line.startsWith(`|-supereffective|`) ||
-					line.startsWith(`|upkeep`)
-				) {
-					dataArr.splice(dataArr.length - 1, 1);
-				}
-
-				//If a weather condition is set
-				else if (line.startsWith(`|-weather|`)) {
-					let prevLine = dataArr[dataArr.length - 2];
-					let prevParts = prevLine.split("|").slice(1);
-					if (!line.contains("[upkeep]") && !line.contains("none")) {
-						let weather = parts[1];
-						let inflictor = prevParts[3].split("p1a: ")[1];
-						battle.setWeather(weather, inflictor);
-					}
-
-					//If the weather has been stopped
-					if (parts[1] === "none") {
-						battle.clearWeather();
-					}
-				}
-
-				//Checks for certain specific moves: hazards, statuses, etc.
-				else if (line.startsWith(`|move|`)) {
-					let move = parts[2];
-					console.log(line);
-
-					if (
-						move === "Stealth Rock" ||
-						move === "Spikes" ||
-						move === "Toxic Spikes"
-					) {
-						//Hazards
-						//This would be true if there were already Rocks in the field
-						let side = parts[3].split(": ")[0];
-						console.log(side);
-						if (side.startsWith("p1")) {
-							battle.addHazard(side, move, battle.p2a);
+					//Once the server connects, the bot logs in and joins the battle
+					else if (data.startsWith("|challstr|")) {
+						const nonce = data.substring(10);
+						const assertion = await this.login(nonce);
+						//logs in
+						if (assertion) {
+							this.websocket.send(
+								`|/trn ${username},0,${assertion}|`
+							);
+							//Joins the battle
+							await this.join();
 						} else {
-							battle.addHazard(side, move, battle.p1a);
+							return;
 						}
 					}
-				}
 
-				//Checks for statuses
-				else if (line.startsWith(`|-status|`)) {
-					let prevMoveLine = dataArr[dataArr.length - 2];
-					let prevMove = prevMoveLine.split("|").slice(1)[2];
-					if (
-						prevMoveLine.startsWith(`|move|`) &&
-						(toxicMoves.includes(prevMove) || burnMoves.includes(prevMove))
+					//At the beginning of every match, the title of a match contains the player's names.
+					//As such, in order to get and verify the player's names in the database, this is the most effective.
+					else if (line.startsWith(`|title|`)) {
+						let players = parts[1].split(" vs. ");
+						console.log("Players: " + players);
+
+						//Checking if either player isn't in the database
+						const leagueJson = await findLeagueId(
+							this.message.channel.id
+						);
+						const playersIds = await getPlayersIds(leagueJson.id);
+						const containsOne = await playerInLeague(
+							playersIds,
+							players[0]
+						);
+						const containsTwo = await playerInLeague(
+							playersIds,
+							players[1]
+						);
+
+						if (!containsOne && !containsTwo) {
+							//Both players aren't in the database
+							this.message.channel.send(
+								`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+							);
+						} else if (!containsOne) {
+							//Only player 1 isn't in the database
+							this.message.channel.send(
+								`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+							);
+						} else if (!containsTwo) {
+							//Only player 2 isn't in the database
+							this.message.channel.send(
+								`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
+							);
+						}
+
+						//Initializes the battle as an object
+						battle = new Battle(
+							this.battle,
+							players[0],
+							players[1]
+						);
+					}
+
+					//At the beginning of every non-randoms match, a list of Pokemon show up.
+					//This code is to get all that
+					else if (line.startsWith(`|poke|`)) {
+						let pokemonName = parts[2].split(",")[0].split("-")[0];
+						//console.log(pokemonName);
+						let pokemon = new Pokemon(pokemonName); //Adding a pokemon to the list of pokemon in the battle
+						if (parts[1] === "p1") {
+							//If the pokemon belongs to Player 1
+							battle.p1Pokemon[pokemonName] = pokemon;
+						} else if (parts[1] === "p2") {
+							//If the pokemon belongs to Player 2
+							battle.p2Pokemon[pokemonName] = pokemon;
+						}
+					}
+
+					//Increments the total number of turns at the beginning of every new turn
+					else if (line.startsWith(`|turn|`)) {
+						battle.turns++;
+					}
+
+					//If a Pokemon switches, the active Pokemon must now change
+					else if (
+						line.startsWith(`|switch|`) ||
+						line.startsWith(`|drag|`)
 					) {
-						//If status was caused by a move
+						if (parts[1].startsWith("p1")) {
+							//If Player 1's Pokemon get switched out
+							battle.p1a.hasSubstitute = false;
+							battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
+							let oldPokemon = battle.p1a;
+							if (oldPokemon.name !== "") {
+								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+							}
+							battle.p1a =
+								battle.p1Pokemon[
+									parts[2].split(",")[0].split("-")[0]
+								];
+							console.log(
+								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
+							);
+						} else if (parts[1].startsWith("p2")) {
+							//If Player 2's Pokemon get switched out
+							battle.p2a.hasSubstitute = false;
+							battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
+							let oldPokemon = battle.p2a;
+							if (oldPokemon.name !== "") {
+								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
+							}
+							battle.p2a =
+								battle.p2Pokemon[
+									parts[2].split(",")[0].split("-")[0]
+								];
+							console.log(
+								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+							);
+						}
+					}
+
+					//Removes the |-supereffective| or  |upkeep part of realdata if it exists
+					else if (
+						line.startsWith(`|-supereffective|`) ||
+						line.startsWith(`|upkeep`)
+					) {
+						dataArr.splice(dataArr.length - 1, 1);
+					}
+
+					//If a weather condition is set
+					else if (line.startsWith(`|-weather|`)) {
+						let prevLine = dataArr[dataArr.length - 2];
+						let prevParts = prevLine.split("|").slice(1);
 						if (
-							prevMoveLine
+							!line.contains("[upkeep]") &&
+							!line.contains("none")
+						) {
+							let weather = parts[1];
+							let inflictor = prevParts[3].split("p1a: ")[1];
+							battle.setWeather(weather, inflictor);
+						}
+
+						//If the weather has been stopped
+						if (parts[1] === "none") {
+							battle.clearWeather();
+						}
+					}
+
+					//Checks for certain specific moves: hazards, statuses, etc.
+					else if (line.startsWith(`|move|`)) {
+						let move = parts[2];
+						console.log(line);
+
+						if (
+							move === "Stealth Rock" ||
+							move === "Spikes" ||
+							move === "Toxic Spikes"
+						) {
+							//Hazards
+							//This would be true if there were already Rocks in the field
+							let side = parts[3].split(": ")[0];
+							console.log(side);
+							if (side.startsWith("p1")) {
+								battle.addHazard(side, move, battle.p2a);
+							} else {
+								battle.addHazard(side, move, battle.p1a);
+							}
+						}
+					}
+
+					//Checks for statuses
+					else if (line.startsWith(`|-status|`)) {
+						let prevMoveLine = dataArr[dataArr.length - 2];
+						let prevMove = prevMoveLine.split("|").slice(1)[2];
+						if (
+							prevMoveLine.startsWith(`|move|`) &&
+							(toxicMoves.includes(prevMove) ||
+								burnMoves.includes(prevMove))
+						) {
+							//If status was caused by a move
+							if (
+								prevMoveLine
+									.split("|")
+									.slice(1)[1]
+									.startsWith("p1a")
+							) {
+								battle.p2a.statusEffect(parts[2], battle.p1a);
+							} else {
+								battle.p1a.statusEffect(parts[2], battle.p2a);
+							}
+						} else {
+							//If status wasn't caused by a move, but rather something like a hazard
+							if (parts[1].split(": ")[0] === "p1a") {
+								battle.p1a.statusEffect(
+									parts[2],
+									battle.hazardsSet.p1["Toxic Spikes"]
+								);
+							} else {
+								battle.p2a.statusEffect(
+									parts[2],
+									battle.hazardsSet.p2["Toxic Spikes"]
+								);
+							}
+						}
+					}
+
+					//If a hazard ends on a side
+					else if (line.startsWith(`|-sideend|`)) {
+						let side = parts[1].split(": ")[0];
+						let hazard = parts[2];
+						battle.endHazard(side, hazard);
+					}
+
+					//If an affliction like Leech Seed or confusion starts
+					else if (line.startsWith(`|-start|`)) {
+						let prevMove = dataArr[dataArr.length - 2];
+						let affliction = parts[2];
+						if (
+							prevMove.startsWith(`|move|`) &&
+							(prevMove.split("|").slice(1)[2] ===
+								affliction.split("move: ")[1] ||
+							confusionMoves.includes(
+								prevMove.split("|").slice(1)[2]
+							) || //For confusion
+							affliction.includes("perish") || //For Perish Song
+							affliction === "Curse" || //For Curse
+								affliction === "Nightmare") //For Nightmare
+						) {
+							let move = affliction.split("move: ")[1]
+								? affliction.split("move: ")[1]
+								: affliction;
+							let afflictor = prevMove
 								.split("|")
 								.slice(1)[1]
-								.startsWith("p1a")
-						) {
-							battle.p2a.statusEffect(parts[2], battle.p1a);
-						} else {
-							battle.p1a.statusEffect(parts[2], battle.p2a);
-						}
-					} else {
-						//If status wasn't caused by a move, but rather something like a hazard
-						if (parts[1].split(": ")[0] === "p1a") {
-							battle.p1a.statusEffect(
-								parts[2],
-								battle.hazardsSet.p1["Toxic Spikes"]
-							);
-						} else {
-							battle.p2a.statusEffect(
-								parts[2],
-								battle.hazardsSet.p2["Toxic Spikes"]
-							);
-						}
-					}
-				}
-
-				//If a hazard ends on a side
-				else if (line.startsWith(`|-sideend|`)) {
-					let side = parts[1].split(": ")[0];
-					let hazard = parts[2];
-					battle.endHazard(side, hazard);
-				}
-
-				//If an affliction like Leech Seed or confusion starts
-				else if (line.startsWith(`|-start|`)) {
-					let prevMove = dataArr[dataArr.length - 2];
-					let affliction = parts[2];
-					if (
-						prevMove.startsWith(`|move|`) &&
-						(prevMove.split("|").slice(1)[2] ===
-							affliction.split("move: ")[1] ||
-						confusionMoves.includes(
-							prevMove.split("|").slice(1)[2]
-						) || //For confusion
-						affliction.includes("perish") || //For Perish Song
-						affliction === "Curse" || //For Curse
-							affliction === "Nightmare") //For Nightmare
-					) {
-						let move = affliction.split("move: ")[1]
-							? affliction.split("move: ")[1]
-							: affliction;
-						let afflictor = prevMove
-							.split("|")
-							.slice(1)[1]
-							.split(": ")[1];
-						let side = parts[1].split(": ")[0];
-						if (move === "Future Sight" || move === "Doom Desire") {
-							if (side === "p2a") {
-								battle.hazardsSet.p1[move] = battle.p2a.name;
-							} else if (side === "p1a") {
-								battle.hazardsSet.p2[move] = battle.p1a.name;
+								.split(": ")[1];
+							let side = parts[1].split(": ")[0];
+							if (
+								move === "Future Sight" ||
+								move === "Doom Desire"
+							) {
+								if (side === "p2a") {
+									battle.hazardsSet.p1[move] =
+										battle.p2a.name;
+								} else if (side === "p1a") {
+									battle.hazardsSet.p2[move] =
+										battle.p1a.name;
+								}
+							} else {
+								console.log(
+									"Started " + move + " by " + afflictor
+								);
+								if (side === "p1a") {
+									battle.p1a.otherAffliction[move] =
+										battle.p2a.name;
+								} else if (side === "p2a") {
+									battle.p2a.otherAffliction[move] =
+										battle.p1a.name;
+								}
 							}
-						} else {
-							console.log("Started " + move + " by " + afflictor);
+						} else if (affliction === `perish0`) {
+							//Pokemon dies of perish song
+							let side = parts[1].split(": ")[0];
 							if (side === "p1a") {
-								battle.p1a.otherAffliction[move] =
-									battle.p2a.name;
-							} else if (side === "p2a") {
-								battle.p2a.otherAffliction[move] =
-									battle.p1a.name;
-							}
-						}
-					} else if (affliction === `perish0`) {
-						//Pokemon dies of perish song
-						let side = parts[1].split(": ")[0];
-						if (side === "p1a") {
-							let deathJson = battle.p1a.died(
-								affliction,
-								battle.p1a.otherAffliction["perish3"],
-								true
-							);
-							battle.p2Pokemon[
-								battle.p1a.otherAffliction["perish3"]
-							].killed(deathJson);
-						} else if (side === "p2a") {
-							let deathJson = battle.p2a.died(
-								affliction,
-								battle.p2a.otherAffliction["perish3"],
-								true
-							);
-							console.log(
-								JSON.stringify(battle.p1a.otherAffliction)
-							);
-							battle.p1Pokemon[
-								battle.p2a.otherAffliction["perish3"]
-							].killed(deathJson);
-						}
-					} else if (affliction === `Substitute`) {
-						let side = parts[1].split(": ")[0];
-						if (side === `p1a`) {
-							battle.p1a.hasSubstitute = true;
-						} else {
-							battle.p2a.hasSubstitute = true;
-						}
-					}
-					dataArr.splice(dataArr.length - 1, 1);
-				} else if (line.startsWith(`|-end|`)) {
-					let side = parts[1].split(": ")[0];
-					let move = parts[2].split("move: ")[1];
-					if (move === "Future Sight" || move === "Doom Desire") {
-						if (side === "p1a") {
-							if (!battle.p1a.hasSubstitute) {
-								let killer = battle.hazardsSet.p1[move];
 								let deathJson = battle.p1a.died(
-									move,
-									killer,
+									affliction,
+									battle.p1a.otherAffliction["perish3"],
 									true
 								);
-								battle.p2Pokemon[killer].killed(deathJson);
-							}
-							battle.p1a.hasSubstitute = false;
-						} else if (side === "p2a") {
-							if (!battle.p2a.hasSubstitute) {
-								let killer = battle.hazardsSet.p2[move];
+								battle.p2Pokemon[
+									battle.p1a.otherAffliction["perish3"]
+								].killed(deathJson);
+							} else if (side === "p2a") {
 								let deathJson = battle.p2a.died(
-									move,
-									killer,
+									affliction,
+									battle.p2a.otherAffliction["perish3"],
 									true
 								);
-								battle.p1Pokemon[killer].killed(deathJson);
+								console.log(
+									JSON.stringify(battle.p1a.otherAffliction)
+								);
+								battle.p1Pokemon[
+									battle.p2a.otherAffliction["perish3"]
+								].killed(deathJson);
 							}
-							battle.p2a.hasSubstitute = false;
+						} else if (affliction === `Substitute`) {
+							let side = parts[1].split(": ")[0];
+							if (side === `p1a`) {
+								battle.p1a.hasSubstitute = true;
+							} else {
+								battle.p2a.hasSubstitute = true;
+							}
 						}
-					}
-				} else if (line.startsWith(`|-immune|`)) {
-					let side = parts[1].split(": ")[0];
-					if (side === "p1a") {
-						if (battle.p1a.isDead) {
-							battle.p1a.undied();
-							battle[battle.p1a.killer].unkilled();
-						}
-					}
-					if (side === "p2a") {
-						if (battle.p2a.isDead) {
-							battle.p2a.undied();
-							battle[battle.p2a.killer.name].unkilled();
-						}
-					}
-				}
-
-				//If a pokemon's status is cured
-				else if (line.startsWith(`|-curestatus|`)) {
-					let side = parts[1].split(": ")[0];
-					if (side.startsWith("p1")) {
-						battle.p1a.statusFix();
-					} else {
-						battle.p2a.statusFix();
-					}
-				}
-
-				//When a Pokemon is damaged, and possibly faints
-				else if (line.startsWith(`|-damage|`)) {
-					//TODO destiny bond
-					if (parts[2].endsWith("fnt")) {
-						//A pokemon has fainted
-						let victimSide = parts[1].split(": ")[0];
-
-						if (parts[3] && parts[3].contains("[from]")) {
-							//It's a special death, not a normal one.
-							let move = parts[3].split("[from] ")[1];
-							if (move === "Stealth Rock" || move === "Spikes") {
-								//Hazards
-								if (victimSide === "p1a") {
+						dataArr.splice(dataArr.length - 1, 1);
+					} else if (line.startsWith(`|-end|`)) {
+						let side = parts[1].split(": ")[0];
+						let move = parts[2].split("move: ")[1];
+						if (move === "Future Sight" || move === "Doom Desire") {
+							if (side === "p1a") {
+								if (!battle.p1a.hasSubstitute) {
 									let killer = battle.hazardsSet.p1[move];
 									let deathJson = battle.p1a.died(
 										move,
@@ -833,10 +788,10 @@ class Showdown {
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
-									console.log(
-										`${battle.p1a.name} was killed by ${killer} due to hazards.`
-									);
-								} else if (victimSide === "p2a") {
+								}
+								battle.p1a.hasSubstitute = false;
+							} else if (side === "p2a") {
+								if (!battle.p2a.hasSubstitute) {
 									let killer = battle.hazardsSet.p2[move];
 									let deathJson = battle.p2a.died(
 										move,
@@ -844,104 +799,219 @@ class Showdown {
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
-									console.log(
-										`${battle.p2a.name} was killed by ${killer} due to hazards.`
-									);
 								}
-							} else if (
-								move === "Hail" ||
-								move === "Sandstorm"
-							) {
-								//Weather
-								if (victimSide === "p1a") {
-									let killer =
-										battle.p2Pokemon[
-											battle.weatherInflictor
-										];
-									let deathJson = battle.p1a.died(
-										move,
-										killer,
-										true
-									);
-									battle.p2Pokemon[killer.name].killed(
-										deathJson
-									);
-								}
-								if (victimSide === "p2a") {
-									let killer =
-										battle.p1Pokemon[
-											battle.weatherInflictor
-										];
-									let deathJson = battle.p2a.died(
-										move,
-										killer,
-										true
-									);
-									console.log(killer);
-									battle.p1Pokemon[killer.name].killed(
-										deathJson
-									);
-								}
-							} else if (
-								move === "brn" ||
-								move === "psn" ||
-								move === "tox"
-							) {
-								if (victimSide === "p1a") {
-									let deathJson = battle.p1a.died(
-										move,
-										battle.p1a.statusInflictor,
-										true
-									);
-									battle.p2Pokemon[
-										battle.p1a.statusInflictor.name
-									].killed(deathJson);
-									console.log(
-										`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`
-									);
-								} else if (victimSide === "p2a") {
-									let deathJson = battle.p2a.died(
-										move,
-										battle.p2a.statusInflictor,
-										true
-									);
-									console.log(battle.p2a.statusInflictor.name)
-									battle.p1Pokemon[
-										battle.p2a.statusInflictor.name
-									].killed(deathJson);
-									console.log(
-										`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`
-									);
-								}
-							} else if (
-								recoilMoves.includes(move) ||
-								move === "Recoil"
-							) {
-								//Recoil deaths
-								if (victimSide == "p1a") {
-									let deathJson = battle.p1a.died(
-										"recoil",
-										battle.p2a,
-										false
-									);
-									battle.p2a.killed(deathJson);
-								} else {
-									let deathJson = battle.p2a.died(
-										"recoil",
-										battle.p1a,
-										false
-									);
-									battle.p1a.killed(deathJson);
-								}
-							} else if (move.startsWith(`item: `)) {
-								let item = move.split(": ")[1];
+								battle.p2a.hasSubstitute = false;
+							}
+						}
+					} else if (line.startsWith(`|-immune|`)) {
+						let side = parts[1].split(": ")[0];
+						if (side === "p1a") {
+							if (battle.p1a.isDead) {
+								battle.p1a.undied();
+								battle[battle.p1a.killer].unkilled();
+							}
+						}
+						if (side === "p2a") {
+							if (battle.p2a.isDead) {
+								battle.p2a.undied();
+								battle[battle.p2a.killer.name].unkilled();
+							}
+						}
+					}
 
+					//If a pokemon's status is cured
+					else if (line.startsWith(`|-curestatus|`)) {
+						let side = parts[1].split(": ")[0];
+						if (side.startsWith("p1")) {
+							battle.p1a.statusFix();
+						} else {
+							battle.p2a.statusFix();
+						}
+					}
+
+					//When a Pokemon is damaged, and possibly faints
+					else if (line.startsWith(`|-damage|`)) {
+						//TODO destiny bond
+						if (parts[2].endsWith("fnt")) {
+							//A pokemon has fainted
+							let victimSide = parts[1].split(": ")[0];
+
+							if (parts[3] && parts[3].contains("[from]")) {
+								//It's a special death, not a normal one.
+								let move = parts[3].split("[from] ")[1];
+								if (
+									move === "Stealth Rock" ||
+									move === "Spikes"
+								) {
+									//Hazards
+									if (victimSide === "p1a") {
+										let killer = battle.hazardsSet.p1[move];
+										let deathJson = battle.p1a.died(
+											move,
+											killer,
+											true
+										);
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										console.log(
+											`${battle.p1a.name} was killed by ${killer} due to hazards.`
+										);
+									} else if (victimSide === "p2a") {
+										let killer = battle.hazardsSet.p2[move];
+										let deathJson = battle.p2a.died(
+											move,
+											killer,
+											true
+										);
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
+										console.log(
+											`${battle.p2a.name} was killed by ${killer} due to hazards.`
+										);
+									}
+								} else if (
+									move === "Hail" ||
+									move === "Sandstorm"
+								) {
+									//Weather
+									if (victimSide === "p1a") {
+										let killer =
+											battle.p2Pokemon[
+												battle.weatherInflictor
+											];
+										let deathJson = battle.p1a.died(
+											move,
+											killer,
+											true
+										);
+										battle.p2Pokemon[killer.name].killed(
+											deathJson
+										);
+									}
+									if (victimSide === "p2a") {
+										let killer =
+											battle.p1Pokemon[
+												battle.weatherInflictor
+											];
+										let deathJson = battle.p2a.died(
+											move,
+											killer,
+											true
+										);
+										console.log(killer);
+										battle.p1Pokemon[killer.name].killed(
+											deathJson
+										);
+									}
+								} else if (
+									move === "brn" ||
+									move === "psn" ||
+									move === "tox"
+								) {
+									if (victimSide === "p1a") {
+										let deathJson = battle.p1a.died(
+											move,
+											battle.p1a.statusInflictor,
+											true
+										);
+										battle.p2Pokemon[
+											battle.p1a.statusInflictor.name
+										].killed(deathJson);
+										console.log(
+											`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`
+										);
+									} else if (victimSide === "p2a") {
+										let deathJson = battle.p2a.died(
+											move,
+											battle.p2a.statusInflictor,
+											true
+										);
+										console.log(
+											battle.p2a.statusInflictor.name
+										);
+										battle.p1Pokemon[
+											battle.p2a.statusInflictor.name
+										].killed(deathJson);
+										console.log(
+											`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`
+										);
+									}
+								} else if (
+									recoilMoves.includes(move) ||
+									move === "Recoil"
+								) {
+									//Recoil deaths
+									if (victimSide == "p1a") {
+										let deathJson = battle.p1a.died(
+											"recoil",
+											battle.p2a,
+											false
+										);
+										battle.p2a.killed(deathJson);
+									} else {
+										let deathJson = battle.p2a.died(
+											"recoil",
+											battle.p1a,
+											false
+										);
+										battle.p1a.killed(deathJson);
+									}
+								} else if (move.startsWith(`item: `)) {
+									let item = move.split(": ")[1];
+
+									if (
+										victimSide === "p1a" &&
+										!battle.p1a.isDead
+									) {
+										let deathJson = battle.p1a.died(
+											item,
+											battle.p2a,
+											false
+										);
+										battle.p2a.killed(deathJson);
+									} else if (
+										victimSide === "p2a" &&
+										!battle.p2a.isDead
+									) {
+										let deathJson = battle.p2a.died(
+											item,
+											battle.p1a,
+											false
+										);
+										battle.p1a.killed(deathJson);
+									}
+								} else {
+									//Affliction-caused deaths
+									if (victimSide === "p1a") {
+										let deathJson = battle.p1a.died(
+											move,
+											battle.p1a.otherAffliction[move],
+											true
+										);
+										battle.p2Pokemon[
+											battle.p1a.otherAffliction[move]
+										].killed(deathJson);
+									} else if (victimSide === "p2a") {
+										let deathJson = battle.p2a.died(
+											move,
+											battle.p2a.otherAffliction[move],
+											true
+										);
+										battle.p1Pokemon[
+											battle.p2a.otherAffliction[move]
+										].killed(deathJson);
+									}
+								}
+							} else {
+								//It's just a regular effing kill
 								if (
 									victimSide === "p1a" &&
 									!battle.p1a.isDead
 								) {
 									let deathJson = battle.p1a.died(
-										item,
+										"direct",
 										battle.p2a,
 										false
 									);
@@ -951,224 +1021,184 @@ class Showdown {
 									!battle.p2a.isDead
 								) {
 									let deathJson = battle.p2a.died(
-										item,
+										"direct",
 										battle.p1a,
 										false
 									);
 									battle.p1a.killed(deathJson);
 								}
-							} else {
-								//Affliction-caused deaths
-								if (victimSide === "p1a") {
-									console.log(move);
-									console.log(battle.p1a.otherAffliction);
-									console.log(
-										battle.p1a.otherAffliction[move]
-									);
-									let deathJson = battle.p1a.died(
-										move,
-										battle.p1a.otherAffliction[move],
-										true
-									);
-									battle.p2Pokemon[
-										battle.p1a.otherAffliction[move]
-									].killed(deathJson);
-								} else if (victimSide === "p2a") {
-									console.log(move);
-									console.log(battle.p2a.otherAffliction);
-									console.log(
-										battle.p2a.otherAffliction[move]
-									);
-									let deathJson = battle.p2a.died(
-										move,
-										battle.p2a.otherAffliction[move],
-										true
-									);
-									battle.p1Pokemon[
-										battle.p2a.otherAffliction[move]
-									].killed(deathJson);
-								}
+							}
+						}
+						dataArr.splice(dataArr.length - 1, 1);
+					}
+
+					//This is mostly only used for the victim of Destiny Bond
+					else if (line.startsWith(`|faint|`)) {
+						let victimSide = parts[1].split(": ")[0];
+						let prevLine = dataArr[dataArr.length - 2];
+						if (
+							prevLine.startsWith(`|-activate|`) &&
+							prevLine.endsWith(`Destiny Bond`)
+						) {
+							if (victimSide === "p1a") {
+								let deathJson = battle.p1a.died(
+									"Destiny Bond",
+									battle.p2a,
+									true
+								);
+								battle.p2a.killed(deathJson);
+								console.log(
+									`${battle.p1a.name} was killed by ${battle.p2a.name}`
+								);
+							}
+							if (victimSide === "p2a") {
+								let deathJson = battle.p2a.died(
+									"Destiny Bond",
+									battle.p1a,
+									true
+								);
+								battle.p1a.killed(deathJson);
+								console.log(
+									`${battle.p2a.name} was killed by ${battle.p1a.name}`
+								);
 							}
 						} else {
-							//It's just a regular effing kill
+							//Regular kill if it wasn't picked up by the |-damage| statement
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								let deathJson = battle.p1a.died(
-									"direct",
+									"faint",
 									battle.p2a,
 									false
 								);
 								battle.p2a.killed(deathJson);
+								console.log(
+									`${battle.p1a.name} was killed by ${battle.p2a.name}`
+								);
 							} else if (
 								victimSide === "p2a" &&
 								!battle.p2a.isDead
 							) {
 								let deathJson = battle.p2a.died(
-									"direct",
+									"faint",
 									battle.p1a,
 									false
 								);
 								battle.p1a.killed(deathJson);
+								console.log(
+									`${battle.p2a.name} was killed by ${battle.p1a.name}`
+								);
 							}
 						}
 					}
-					dataArr.splice(dataArr.length - 1, 1);
-				}
 
-				//This is mostly only used for the victim of Destiny Bond
-				else if (line.startsWith(`|faint|`)) {
-					let victimSide = parts[1].split(": ")[0];
-					let prevLine = dataArr[dataArr.length - 2];
-					if (
-						prevLine.startsWith(`|-activate|`) &&
-						prevLine.endsWith(`Destiny Bond`)
-					) {
-						if (victimSide === "p1a") {
-							let deathJson = battle.p1a.died(
-								"Destiny Bond",
-								battle.p2a,
-								true
-							);
-							battle.p2a.killed(deathJson);
-							console.log(
-								`${battle.p1a.name} was killed by ${battle.p2a.name}`
-							);
-						}
-						if (victimSide === "p2a") {
-							let deathJson = battle.p2a.died(
-								"Destiny Bond",
-								battle.p1a,
-								true
-							);
-							battle.p1a.killed(deathJson);
-							console.log(
-								`${battle.p2a.name} was killed by ${battle.p1a.name}`
-							);
-						}
-					} else {
-						//Regular kill if it wasn't picked up by the |-damage| statement
-						if (victimSide === "p1a" && !battle.p1a.isDead) {
-							let deathJson = battle.p1a.died(
-								"faint",
-								battle.p2a,
-								false
-							);
-							battle.p2a.killed(deathJson);
-							console.log(
-								`${battle.p1a.name} was killed by ${battle.p2a.name}`
-							);
-						} else if (victimSide === "p2a" && !battle.p2a.isDead) {
-							let deathJson = battle.p2a.died(
-								"faint",
-								battle.p1a,
-								false
-							);
-							battle.p1a.killed(deathJson);
-							console.log(
-								`${battle.p2a.name} was killed by ${battle.p1a.name}`
-							);
-						}
+					//At the end of the match, when the winner is announced
+					else if (line.startsWith(`|win|`)) {
+						battle.winner = parts[1];
+						battle.winner =
+							battle.winner === battle.p1
+								? `${battle.winner}p1`
+								: `${battle.winner}p2`;
+						battle.loser =
+							battle.winner === `${battle.p1}p1`
+								? `${battle.p2}p2`
+								: `${battle.p1}p1`;
+
+						console.log(`${battle.winner} won!`);
+						this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
 					}
-				}
 
-				//At the end of the match, when the winner is announced
-				else if (line.startsWith(`|win|`)) {
-					battle.winner = parts[1];
-					battle.winner =
-						battle.winner === battle.p1
-							? `${battle.winner}p1`
-							: `${battle.winner}p2`;
-					battle.loser =
-						battle.winner === `${battle.p1}p1`
-							? `${battle.p2}p2`
-							: `${battle.p1}p1`;
+					//After the match is done and replay request is sent, it uploads the replay and gets the link
+					else if (line.startsWith("|queryresponse|savereplay")) {
+						let replayData = JSON.parse(data.substring(26));
+						battle.replay = await this.requestReplay(replayData);
 
-					console.log(`${battle.winner} won!`);
-					this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
-				}
-
-				//After the match is done and replay request is sent, it uploads the replay and gets the link
-				else if (line.startsWith("|queryresponse|savereplay")) {
-					let replayData = JSON.parse(data.substring(26));
-					battle.replay = await this.requestReplay(replayData);
-
-					let info = {
-						replay: battle.replay,
-						turns: battle.turns,
-						winner: battle.winner,
-						loser: battle.loser,
-					};
-
-					//Creating the objects for kills and deaths
-					//Player 1
-					let killJsonp1 = {};
-					let deathJsonp1 = {};
-					for (let pokemonObj of Object.values(battle.p1Pokemon)) {
-						killJsonp1[pokemonObj.name] = {
-							direct: pokemonObj.directKills,
-							passive: pokemonObj.passiveKills,
+						let info = {
+							replay: battle.replay,
+							turns: battle.turns,
+							winner: battle.winner,
+							loser: battle.loser,
 						};
-						deathJsonp1[pokemonObj.name] = pokemonObj.isDead
-							? 1
-							: 0;
-					}
-					//Player 2
-					let killJsonp2 = {};
-					let deathJsonp2 = {};
-					for (let pokemonObj of Object.values(battle.p2Pokemon)) {
-						killJsonp2[pokemonObj.name] = {
-							direct: pokemonObj.directKills,
-							passive: pokemonObj.passiveKills,
+
+						//Creating the objects for kills and deaths
+						//Player 1
+						let killJsonp1 = {};
+						let deathJsonp1 = {};
+						for (let pokemonObj of Object.values(
+							battle.p1Pokemon
+						)) {
+							killJsonp1[pokemonObj.name] = {
+								direct: pokemonObj.directKills,
+								passive: pokemonObj.passiveKills,
+							};
+							deathJsonp1[pokemonObj.name] = pokemonObj.isDead
+								? 1
+								: 0;
+						}
+						//Player 2
+						let killJsonp2 = {};
+						let deathJsonp2 = {};
+						for (let pokemonObj of Object.values(
+							battle.p2Pokemon
+						)) {
+							killJsonp2[pokemonObj.name] = {
+								direct: pokemonObj.directKills,
+								passive: pokemonObj.passiveKills,
+							};
+							deathJsonp2[pokemonObj.name] = pokemonObj.isDead
+								? 1
+								: 0;
+						}
+
+						console.log(killJsonp1);
+						console.log(killJsonp2);
+						console.log(deathJsonp1);
+						console.log(deathJsonp2);
+						console.log(info);
+
+						if (
+							battle.winner.endsWith("p1") &&
+							battle.loser.endsWith("p2")
+						) {
+							await this.endscript(
+								battle.winner,
+								killJsonp1,
+								deathJsonp1,
+								battle.loser,
+								killJsonp2,
+								deathJsonp2,
+								info
+							);
+						} else if (
+							battle.winner.endsWith("p2") &&
+							battle.loser.endsWith("p1")
+						) {
+							await this.endscript(
+								battle.winner,
+								killJsonp2,
+								deathJsonp2,
+								battle.loser,
+								killJsonp1,
+								deathJsonp1,
+								info
+							);
+						} else {
+							return { code: "-1" };
+						}
+
+						this.websocket.send(`|/leave ${this.battle}`);
+
+						let returndata = {
+							info: info,
+							code: "0",
 						};
-						deathJsonp2[pokemonObj.name] = pokemonObj.isDead
-							? 1
-							: 0;
+
+						return returndata;
 					}
-
-					console.log(killJsonp1);
-					console.log(killJsonp2);
-					console.log(deathJsonp1);
-					console.log(deathJsonp2);
-					console.log(info);
-
-					if (
-						battle.winner.endsWith("p1") &&
-						battle.loser.endsWith("p2")
-					) {
-						await this.endscript(
-							battle.winner,
-							killJsonp1,
-							deathJsonp1,
-							battle.loser,
-							killJsonp2,
-							deathJsonp2,
-							info
-						);
-					} else if (
-						battle.winner.endsWith("p2") &&
-						battle.loser.endsWith("p1")
-					) {
-						await this.endscript(
-							battle.winner,
-							killJsonp2,
-							deathJsonp2,
-							battle.loser,
-							killJsonp1,
-							deathJsonp1,
-							info
-						);
-					} else {
-						return { code: "-1" };
-					}
-
-					this.websocket.send(`|/leave ${this.battle}`);
-
-					let returndata = {
-						info: info,
-						code: "0",
-					};
-
-					return returndata;
 				}
+			} catch (e) {
+				this.message.channel.send(
+					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's general channel and **@harbar20#9389**.\n**Error:**\`\`\`${e}\`\`\``
+				);
 			}
 		});
 	}
