@@ -74,6 +74,7 @@ const getPlayersIds = async (leagueId) => {
 		});
 	});
 
+	if (!recordsIds) return [];
 	return recordsIds;
 };
 
@@ -154,6 +155,10 @@ bot.on("message", async (message) => {
 				.addField(
 					"list",
 					"Lists the players of the league whose live links channel the command is sent in."
+				)
+				.addField(
+					"clear",
+					"Clears the list of players of the league whose live links channel the command is sent in. This command cannot be undone."
 				);
 
 			return channel.send(helpEmbed);
@@ -201,30 +206,39 @@ bot.on("message", async (message) => {
 		let leagueName = leagueJson.name;
 		let playersIds = await getPlayersIds(leagueRecordId);
 
-		//Checking if the player is already in the database
-		let funcarr = [];
-		let isIn = false;
-		for (let playerId of playersIds) {
-			funcarr.push(
-				new Promise((resolve, reject) => {
-					base("Players").find(playerId, async (err, record) => {
-						if (err) reject(err);
+		//Checking if league is empty
+		let finalMessage = await channel.send(
+			"Verifying league in the database..."
+		);
+		if (playersIds !== []) {
+			//Checking if the player is already in the league's database
+			let funcarr = [];
+			let isIn = false;
+			for (let playerId of playersIds) {
+				funcarr.push(
+					new Promise((resolve, reject) => {
+						base("Players").find(playerId, async (err, record) => {
+							if (err) reject(err);
 
-						let recordName = await record.get("Showdown Name");
-						if (recordName.toLowerCase() === player.toLowerCase()) {
-							isIn = true;
-						}
+							let recordName = await record.get("Showdown Name");
+							if (
+								recordName.toLowerCase() ===
+								player.toLowerCase()
+							) {
+								isIn = true;
+							}
 
-						resolve();
-					});
-				})
-			);
-		}
-		await Promise.all(funcarr);
-		if (isIn) {
-			return message.channel.send(
-				`${player} is already in this league's database!`
-			);
+							resolve();
+						});
+					})
+				);
+			}
+			await Promise.all(funcarr);
+			if (isIn) {
+				return await finalMessage.edit(
+					`${player} is already in this league's database!`
+				);
+			}
 		}
 
 		//Creates a new record for the player
@@ -239,7 +253,7 @@ bot.on("message", async (message) => {
 		]);
 
 		console.log(`${player} has been added to ${leagueName}!`);
-		return channel.send(
+		return await finalMessage.edit(
 			`\`${player}\` has been added to \`${leagueName}\`!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} remove`)) {
@@ -262,6 +276,9 @@ bot.on("message", async (message) => {
 		let playersIds = await getPlayersIds(leagueRecordId);
 
 		//Checking if the player is already in the database
+		let finalMessage = await channel.send(
+			"Verifying league in the database..."
+		);
 		let funcarr = [];
 		let isIn = false;
 		let realPlayerId;
@@ -284,7 +301,7 @@ bot.on("message", async (message) => {
 		}
 		await Promise.all(funcarr);
 		if (!isIn) {
-			return message.channel.send(
+			return await finalMessage.edit(
 				`${player} is not in this league's database!`
 			);
 		}
@@ -295,7 +312,7 @@ bot.on("message", async (message) => {
 		});
 
 		console.log(`${player} has been removed from ${leagueName}!`);
-		return channel.send(
+		return await finalMessage.edit(
 			`\`${player}\` has been removed from \`${leagueName}\`!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} edit`)) {
@@ -388,7 +405,7 @@ bot.on("message", async (message) => {
 		}
 		let leagueJson = await findLeagueId(channel.id);
 		let playersIds = await getPlayersIds(leagueJson.id);
-
+		let finalMessage = await channel.send("Gathering league's players...");
 		let players = [];
 		let funcarr = [];
 		for (let playerId of playersIds) {
@@ -408,15 +425,32 @@ bot.on("message", async (message) => {
 			);
 		}
 		await Promise.all(funcarr);
-		playersStr = players.join();
+		let playersStr = players.join();
+		//If players list is empty
+		if (!playersStr) playersStr = "-";
 
-		//const serverImage = message.guild.iconURL();
-		//console.log(serverImage);
 		const listEmbed = new Discord.RichEmbed()
 			.setTitle(leagueJson.name)
 			.addField("Players", playersStr);
 
-		return channel.send(listEmbed);
+		return await finalMessage.edit(listEmbed);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} clear`)) {
+		//Finding the league that is being cleared
+		let leagueJson = await findLeagueId(channel.id);
+
+		//Clearing the league
+		await base("Leagues").update([
+			{
+				id: leagueJson.id,
+				fields: {
+					Players: [],
+				},
+			},
+		]);
+
+		return channel.send(
+			`\`${leagueJson.name}\`'s player database has been cleared.`
+		);
 	}
 });
 
