@@ -642,7 +642,7 @@ class Showdown {
 						) {
 							//Hazards
 							//This would be true if there were already Rocks in the field
-							let side = parts[3].split(": ")[0];
+							let side = parts[3].split(": ")[0].split("a")[0];
 							console.log(side);
 							if (side.startsWith("p1")) {
 								battle.addHazard(side, move, battle.p2a);
@@ -858,7 +858,7 @@ class Showdown {
 											`${battle.p1a.name} was killed by ${killer} due to hazards.`
 										);
 									} else if (victimSide === "p2a") {
-										let killer = battle.hazardsSet.p2[move];
+										let killer = battle.hazardsSet.p2[move].name;
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
@@ -1199,6 +1199,7 @@ class Showdown {
 				this.message.channel.send(
 					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's general channel and **@harbar20#9389**.\n**Error:**\`\`\`${e}\`\`\``
 				);
+				console.error(e);
 			}
 		});
 	}
