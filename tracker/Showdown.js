@@ -114,6 +114,7 @@ const burnMoves = [
 	"Tri Attack",
 	"Will-O-Wisp",
 ];
+const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
 let findLeagueId = async (checkChannelId) => {
 	let leagueId;
@@ -672,6 +673,19 @@ class Showdown {
 							} else {
 								battle.p1a.statusEffect(parts[2], battle.p2a);
 							}
+						} else if (
+							line.contains("ability") &&
+							statusAbility.includes(
+								parts[3].split("ability: ")[1].split("|")[0]
+							)
+						) {
+							//Ability status
+							let victimSide = parts[1].split(": ")[0];
+							if (victimSide === "p1a") {
+								battle.p1a.statusEffect(parts[2], battle.p2a);
+							} else {
+								battle.p2a.statusEffect(parts[2], battle.p1a);
+							}
 						} else {
 							//If status wasn't caused by a move, but rather something like a hazard
 							if (parts[1].split(": ")[0] === "p1a") {
@@ -845,7 +859,8 @@ class Showdown {
 								) {
 									//Hazards
 									if (victimSide === "p1a") {
-										let killer = battle.hazardsSet.p1[move];
+										let killer =
+											battle.hazardsSet.p1[move].name;
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
@@ -858,7 +873,8 @@ class Showdown {
 											`${battle.p1a.name} was killed by ${killer} due to hazards.`
 										);
 									} else if (victimSide === "p2a") {
-										let killer = battle.hazardsSet.p2[move].name;
+										let killer =
+											battle.hazardsSet.p2[move].name;
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
@@ -977,6 +993,23 @@ class Showdown {
 									) {
 										let deathJson = battle.p2a.died(
 											item,
+											battle.p1a,
+											false
+										);
+										battle.p1a.killed(deathJson);
+									}
+								} else if (move.contains(`ability`)) {
+									//Ability deaths
+									if (victimSide == "p1a") {
+										let deathJson = battle.p1a.died(
+											"ability",
+											battle.p2a,
+											false
+										);
+										battle.p2a.killed(deathJson);
+									} else {
+										let deathJson = battle.p2a.died(
+											"ability",
 											battle.p1a,
 											false
 										);
