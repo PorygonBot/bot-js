@@ -619,7 +619,25 @@ class Showdown {
 							!line.contains("none")
 						) {
 							let weather = parts[1];
-							let inflictor = parts[3].split("a: ")[1];
+							console.log(line);
+							let inflictor;
+							try {
+								//Weather is caused by an ability
+								inflictor = parts[3].split("a: ")[1];
+							} catch (e) {
+								//Weather is caused by a move
+								let prevLine = dataArr[dataArr.length - 2];
+								if (
+									prevLine
+										.split("|")
+										.slice(1)[2]
+										.startsWith("p1a")
+								) {
+									inflictor = battle.p1a.name;
+								} else {
+									inflictor = battle.p2a.name;
+								}
+							}
 							console.log(`${inflictor} caused ${weather}.`);
 							battle.setWeather(weather, inflictor);
 						}
