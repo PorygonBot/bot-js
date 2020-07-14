@@ -614,14 +614,13 @@ class Showdown {
 
 					//If a weather condition is set
 					else if (line.startsWith(`|-weather|`)) {
-						let prevLine = dataArr[dataArr.length - 2];
-						let prevParts = prevLine.split("|").slice(1);
 						if (
 							!line.contains("[upkeep]") &&
 							!line.contains("none")
 						) {
 							let weather = parts[1];
-							let inflictor = prevParts[3].split("p1a: ")[1];
+							let inflictor = parts[3].split("a: ")[1];
+							console.log(`${inflictor} caused ${weather}.`);
 							battle.setWeather(weather, inflictor);
 						}
 
@@ -893,6 +892,7 @@ class Showdown {
 								) {
 									//Weather
 									if (victimSide === "p1a") {
+										console.log(battle.weatherInflicor);
 										let killer =
 											battle.p2Pokemon[
 												battle.weatherInflictor
