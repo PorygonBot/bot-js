@@ -354,6 +354,7 @@ class Showdown {
 						recordJson.sheetId = await leagueRecord.get("Sheet ID");
 						recordJson.info = info;
 						recordJson.dmMods = await leagueRecord.get("DM Mods?");
+						recordJson.dmAuthor = await leagueRecord.get("DM Author?");
 						recordJson.combinePD = await leagueRecord.get(
 							"Combine P/D?"
 						);
@@ -623,7 +624,13 @@ class Showdown {
 							let inflictor;
 							try {
 								//Weather is caused by an ability
-								inflictor = parts[3].split("a: ")[1];
+								let side = parts[3].split("a: ")[0];
+								if (side === "p1") {
+									inflictor = battle.p1a.name;
+								}
+								else {
+									inflictor = battle.p2a.name;
+								}
 							} catch (e) {
 								//Weather is caused by a move
 								let prevLine = dataArr[dataArr.length - 2];
@@ -910,32 +917,26 @@ class Showdown {
 								) {
 									//Weather
 									if (victimSide === "p1a") {
-										console.log(battle.weatherInflicor);
-										let killer =
-											battle.p2Pokemon[
-												battle.weatherInflictor
-											];
+										console.log(battle.weatherInflictor);
+										let killer = battle.weatherInflictor;
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
 											true
 										);
-										battle.p2Pokemon[killer.name].killed(
+										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
 									}
 									if (victimSide === "p2a") {
-										let killer =
-											battle.p1Pokemon[
-												battle.weatherInflictor
-											];
+										let killer = battle.weatherInflictor;
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
 											true
 										);
-										console.log(killer);
-										battle.p1Pokemon[killer.name].killed(
+										console.log(killer)
+										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
 									}
