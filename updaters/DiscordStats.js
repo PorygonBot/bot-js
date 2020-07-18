@@ -6,6 +6,7 @@ class DiscordDMStats {
 		this.message = message;
 		this.channel = this.message.channel;
 		this.server = this.message.guild;
+		this.author = this.message.author;
 	}
 
 	getUser(usernameWithDisc) {
@@ -50,7 +51,8 @@ class DiscordDMStats {
 			matchJson.players[Object.keys(matchJson.players)[1]].deaths;
 		let info = matchJson.info;
 		let mods = matchJson.mods;
-        let dmMods = matchJson.dmMods;
+		let dmMods = matchJson.dmMods;
+		let dmAuthor = matchJson.dmAuthor;
         let combinePD = matchJson.combinePD;
 		let streamChannelId = matchJson.streamChannel;
 
@@ -86,7 +88,13 @@ class DiscordDMStats {
 				modsUsers.push(this.getUser(mod));
 				console.log("Mod: " + mod);
 			}
-		} else if (streamChannelId) {
+		} 
+		
+		else if (dmAuthor) {
+			modsUsers.push(this.author);
+		}
+
+		else if (streamChannelId) {
 			message1 = `||${message1}||`;
 			message2 = `||${message2}||`;
 		} else {
@@ -95,7 +103,7 @@ class DiscordDMStats {
 		}
 
 		//finally sending players the info
-		if (dmMods) {
+		if (dmMods || dmAuthor) {
 			for (let mod of modsUsers) {
 				mod.send(
 					`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`
