@@ -521,8 +521,8 @@ class Showdown {
 					//If a weather condition is set
 					else if (line.startsWith(`|-weather|`)) {
 						if (
-							!line.contains("[upkeep]") &&
-							!line.contains("none")
+							!line.includes("[upkeep]") &&
+							!line.includes("none")
 						) {
 							let weather = parts[1];
 							console.log(line);
@@ -921,7 +921,7 @@ class Showdown {
 										);
 										battle.p1a.killed(deathJson);
 									}
-								} else if (move.contains(`ability`)) {
+								} else if (move.includes(`ability`)) {
 									//Ability deaths
 									if (victimSide == "p1a") {
 										let deathJson = battle.p1a.died(
