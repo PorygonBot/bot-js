@@ -752,10 +752,16 @@ class Showdown {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
 							let prevMoveLine = dataArr[dataArr.length - 2];
-							let prevMove = prevMoveLine
+							let prevMove;
+							try {
+								prevMove = prevMoveLine
 								.split("|")
 								.slice(1)[2]
 								.split(": ")[1];
+							}
+							catch (e) {
+								prevMove = "";
+							}
 
 							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
