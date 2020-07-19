@@ -7,8 +7,8 @@ const querystring = require("querystring");
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
 
-const DiscordDMStats = require("../updaters/DiscordStats");
-const GoogleSheetsMassStats = require("../updaters/SheetsStats");
+const DiscordStats = require("../updaters/DiscordStats");
+const SheetsStats = require("../updaters/SheetsStats");
 
 const { username, password, airtable_key, base_id } = require("../config.json");
 const Airtable = require("airtable");
@@ -227,15 +227,22 @@ class Showdown {
 			.toLowerCase()
 			.trim();
 
-		//Getting players info from Airtable
+		// Getting info from Airtable if required
 		let recordJson = {
-			system: "",
 			players: {},
-			sheetId: "",
-			mods: [],
+			system: ""
+		};
+		recordJson.players[player1] = {
+			ps: player1,
+			kills: killJson1,
+			deaths: deathJson1,
+		};
+		recordJson.players[player2] = {
+			ps: player2,
+			kills: killJson2,
+			deaths: deathJson2,
 		};
 
-		console.log("Players: " + player1 + " and " + player2);
 		base("Leagues")
 			.select({
 				maxRecords: 500,
@@ -247,8 +254,28 @@ class Showdown {
 					let channelId = await leagueRecord.get("Channel ID");
 					if (channelId === this.message.channel.id) {
 						let playersIds = await leagueRecord.get("Players");
-						let modsIds = await leagueRecord.get("Mods");
 
+						// Getting info from the league
+						recordJson.system = await leagueRecord.get(
+							"Stats System"
+						);
+						recordJson.sheetId = await leagueRecord.get("Sheet ID");
+						recordJson.info = info;
+						recordJson.dmAuthor = await leagueRecord.get(
+							"DM Author?"
+						);
+						recordJson.combinePD = await leagueRecord.get(
+							"Combine P/D?"
+						);
+						recordJson.streamChannel = await leagueRecord.get(
+							"Stream Channel ID"
+						);
+						recordJson.battleId = this.battle;
+						if (recordJson.system === "Discord") {
+							break;
+						}
+
+						// Gets more info from each player if Google Sheets is the system
 						let funcArr = [];
 						for (let playerId of playersIds) {
 							funcArr.push(
@@ -261,53 +288,24 @@ class Showdown {
 												reject(error);
 											}
 
-											let recordPSName = await record.get(
+											let recordName = await record.get(
 												"Showdown Name"
 											);
-											recordPSName = recordPSName
-												.toLowerCase()
-												.trim();
-											let recordDiscord = await record.get(
-												"Discord Tag"
-											);
+											recordName.toLowerCase().trim();
 											let recordRange = await record.get(
 												"Range"
 											);
-
 											console.log(
 												playerId +
 													"    " +
-													recordPSName +
+													recordName +
 													"player"
 											);
-
-											if (
-												recordPSName === player1 ||
-												recordPSName === player2
-											) {
-												let player =
-													recordPSName === player1
-														? player1
-														: player2;
-												console.log(
-													"Player inside if statement: " +
-														player
-												);
-
-												recordJson.players[player] = {
-													ps: player,
-													discord: recordDiscord,
-													range: recordRange,
-													kills:
-														player === player1
-															? killJson1
-															: killJson2,
-													deaths:
-														player === player1
-															? deathJson1
-															: deathJson2,
-												};
-											}
+											recordJson.players[
+												recordName === player1
+													? player1
+													: player2
+											].range = recordRange;
 
 											resolve();
 										}
@@ -315,92 +313,30 @@ class Showdown {
 								})
 							);
 						}
-
-						let modFuncArr = [];
-						if (modsIds) {
-							for (let modId of modsIds) {
-								modFuncArr.push(
-									new Promise((resolve, reject) => {
-										base("Players").find(
-											modId,
-											async (err, record) => {
-												if (err) reject(err);
-
-												let recordDiscord = await record.get(
-													"Discord Tag"
-												);
-												recordJson.mods.push(
-													recordDiscord
-												);
-
-												resolve();
-											}
-										);
-									})
-								);
-							}
-						}
-
-						await Promise.all(funcArr).then(() => {
-							console.log("Players found! Updating now...");
-						});
-						await Promise.all(modFuncArr).then(() => {
-							console.log("Mods found!");
-						});
-
-						recordJson.system = await leagueRecord.get(
-							"Stats Storage System"
+						await Promise.all(funcArr).then(
+							console.log("Players found! Updating now...")
 						);
-						recordJson.sheetId = await leagueRecord.get("Sheet ID");
-						recordJson.info = info;
-						recordJson.dmMods = await leagueRecord.get("DM Mods?");
-						recordJson.dmAuthor = await leagueRecord.get("DM Author?");
-						recordJson.combinePD = await leagueRecord.get(
-							"Combine P/D?"
-						);
-						recordJson.streamChannel = await leagueRecord.get(
-							"Stream Channel ID"
-						);
-						recordJson.battleId = this.battle;
 					}
 				}
 			})
 			.then(async () => {
-				console.log("Mods: " + recordJson.mods);
-				console.log("yay: " + JSON.stringify(recordJson));
+				console.log(JSON.stringify(recordJson));
 
 				//Instantiating updater objects
-				let dmer = new DiscordDMStats(this.message);
-				let masser = new GoogleSheetsMassStats(
+				let dmer = new DiscordStats(this.message);
+				let masser = new SheetsStats(
 					recordJson.sheetId,
 					recordJson.players[player1],
 					recordJson.players[player2],
 					this.message
 				);
 
-				//Checking if the player was found in the database
-				if (
-					!recordJson.players[player1] ||
-					!recordJson.players[player2]
-				) {
-					this.message.channel.send(
-						`Player \`${
-							!recordJson.players[player1] ? player1 : player2
-						}\` was not found in the database for \`${
-							this.battle
-						}\`. Contact ${dmer.getUser(
-							"harbar20#9389"
-						)} for support and more information.`
-					);
-					return;
-				}
-
 				//Updating stats based on given method
 				switch (recordJson.system) {
-					case "Google Sheets Mass":
+					case "Sheets":
 						await masser.update(recordJson);
 						break;
-					case "Discord DM":
+					case "Discord":
 						await dmer.update(recordJson);
 						break;
 				}
@@ -508,37 +444,6 @@ class Showdown {
 						let players = parts[1].split(" vs. ");
 						console.log("Players: " + players);
 
-						//Checking if either player isn't in the database
-						const leagueJson = await findLeagueId(
-							this.message.channel.id
-						);
-						const playersIds = await getPlayersIds(leagueJson.id);
-						const containsOne = await playerInLeague(
-							playersIds,
-							players[0]
-						);
-						const containsTwo = await playerInLeague(
-							playersIds,
-							players[1]
-						);
-
-						if (!containsOne && !containsTwo) {
-							//Both players aren't in the database
-							this.message.channel.send(
-								`:exclamation: \`${players[0]}\` and \`${players[1]}\` aren't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
-							);
-						} else if (!containsOne) {
-							//Only player 1 isn't in the database
-							this.message.channel.send(
-								`:exclamation: \`${players[0]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
-							);
-						} else if (!containsTwo) {
-							//Only player 2 isn't in the database
-							this.message.channel.send(
-								`:exclamation: \`${players[1]}\` isn't in the database. Quick, add them before the match ends! Don't worry, I'll still track the battle just fine if you do that.`
-							);
-						}
-
 						//Initializes the battle as an object
 						battle = new Battle(
 							this.battle,
@@ -627,8 +532,7 @@ class Showdown {
 								let side = parts[3].split("a: ")[0];
 								if (side === "p1") {
 									inflictor = battle.p1a.name;
-								}
-								else {
+								} else {
 									inflictor = battle.p2a.name;
 								}
 							} catch (e) {
@@ -698,7 +602,7 @@ class Showdown {
 								battle.p1a.statusEffect(parts[2], battle.p2a);
 							}
 						} else if (
-							line.contains("ability") &&
+							line.includes("ability") &&
 							statusAbility.includes(
 								parts[3].split("ability: ")[1].split("|")[0]
 							)
@@ -874,7 +778,7 @@ class Showdown {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
 
-							if (parts[3] && parts[3].contains("[from]")) {
+							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
 								let move = parts[3].split("[from] ")[1];
 								if (
@@ -935,7 +839,7 @@ class Showdown {
 											killer,
 											true
 										);
-										console.log(killer)
+										console.log(killer);
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
@@ -1200,12 +1104,6 @@ class Showdown {
 								? 1
 								: 0;
 						}
-
-						console.log(killJsonp1);
-						console.log(killJsonp2);
-						console.log(deathJsonp1);
-						console.log(deathJsonp2);
-						console.log(info);
 
 						if (
 							battle.winner.endsWith("p1") &&

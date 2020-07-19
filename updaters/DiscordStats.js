@@ -1,6 +1,4 @@
-const discord = require("discord");
-
-class DiscordDMStats {
+class DiscordStats {
 	constructor(message) {
 		//Requires that message is a Discord Message object
 		this.message = message;
@@ -37,21 +35,15 @@ class DiscordDMStats {
 		//retrieving info from the json object
 		let psPlayer1 = Object.keys(matchJson.players)[0];
 		let psPlayer2 = Object.keys(matchJson.players)[1];
-		let player1 =
-			matchJson.players[Object.keys(matchJson.players)[0]].discord;
-		let player2 =
-			matchJson.players[Object.keys(matchJson.players)[1]].discord;
 		let killJson1 =
-			matchJson.players[Object.keys(matchJson.players)[0]].kills;
+			matchJson.players[psPlayer1].kills;
 		let deathJson1 =
-			matchJson.players[Object.keys(matchJson.players)[0]].deaths;
+			matchJson.players[psPlayer1].deaths;
 		let killJson2 =
-			matchJson.players[Object.keys(matchJson.players)[1]].kills;
+			matchJson.players[psPlayer2].kills;
 		let deathJson2 =
-			matchJson.players[Object.keys(matchJson.players)[1]].deaths;
+			matchJson.players[psPlayer2].deaths;
 		let info = matchJson.info;
-		let mods = matchJson.mods;
-		let dmMods = matchJson.dmMods;
 		let dmAuthor = matchJson.dmAuthor;
         let combinePD = matchJson.combinePD;
 		let streamChannelId = matchJson.streamChannel;
@@ -79,49 +71,24 @@ class DiscordDMStats {
             }
         }
 
-		//getting User objects from Discord given their username
-		let modsUsers = [];
-		let user1;
-		let user2;
-		if (dmMods) {
-			for (let mod of mods) {
-				modsUsers.push(this.getUser(mod));
-				console.log("Mod: " + mod);
-			}
-		} 
-		
-		else if (dmAuthor) {
-			modsUsers.push(this.author);
-		}
-
-		else if (streamChannelId) {
-			message1 = `||${message1}||`;
-			message2 = `||${message2}||`;
-		} else {
-			user1 = this.getUser(player1);
-			user2 = this.getUser(player2);
-		}
+		//Spoiler tagging the stats
+		message1 = `||${message1}||`;
+		message2 = `||${message2}||`;
 
 		//finally sending players the info
-		if (dmMods || dmAuthor) {
-			for (let mod of modsUsers) {
-				mod.send(
-					`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`
-				);
-			}
-		} else if (streamChannelId) {
+		if (streamChannelId) {
 			let streamChannelObj = this.getChannel(streamChannelId);
 			streamChannelObj.send(
 				`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`
 			);
 		} else {
-			user1.send(`${message1} \n\n**Replay: **${info.replay}`);
-			user2.send(`${message2} \n\n**Replay: **${info.replay}`);
+			this.author.send(`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`)
 		}
+		
 		this.channel.send(
 			`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
 		);
 	}
 }
 
-module.exports = DiscordDMStats;
+module.exports = DiscordStats;

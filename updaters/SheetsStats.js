@@ -1,6 +1,6 @@
 const { google } = require("googleapis");
 
-class GoogleSheetsMassStats {
+class SheetsStats {
 	constructor(spreadsheetId, player1Json, player2Json, message) {
 		this.sheetid = spreadsheetId;
 		this.player1 = player1Json.ps;
@@ -266,4 +266,4 @@ class GoogleSheetsMassStats {
 	}
 }
 
-module.exports = GoogleSheetsMassStats;
+module.exports = SheetsStats;
