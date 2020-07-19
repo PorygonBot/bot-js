@@ -230,7 +230,7 @@ class Showdown {
 		// Getting info from Airtable if required
 		let recordJson = {
 			players: {},
-			system: ""
+			system: "",
 		};
 		recordJson.players[player1] = {
 			ps: player1,
@@ -717,35 +717,9 @@ class Showdown {
 							}
 						}
 						dataArr.splice(dataArr.length - 1, 1);
-					} else if (line.startsWith(`|-end|`)) {
-						let side = parts[1].split(": ")[0];
-						let move = parts[2].split("move: ")[1];
-						if (move === "Future Sight" || move === "Doom Desire") {
-							if (side === "p1a") {
-								if (!battle.p1a.hasSubstitute) {
-									let killer = battle.hazardsSet.p1[move];
-									let deathJson = battle.p1a.died(
-										move,
-										killer,
-										true
-									);
-									battle.p2Pokemon[killer].killed(deathJson);
-								}
-								battle.p1a.hasSubstitute = false;
-							} else if (side === "p2a") {
-								if (!battle.p2a.hasSubstitute) {
-									let killer = battle.hazardsSet.p2[move];
-									let deathJson = battle.p2a.died(
-										move,
-										killer,
-										true
-									);
-									battle.p1Pokemon[killer].killed(deathJson);
-								}
-								battle.p2a.hasSubstitute = false;
-							}
-						}
-					} else if (line.startsWith(`|-immune|`)) {
+					} 
+					
+					else if (line.startsWith(`|-immune|`)) {
 						let side = parts[1].split(": ")[0];
 						if (side === "p1a") {
 							if (battle.p1a.isDead) {
@@ -777,6 +751,11 @@ class Showdown {
 						if (parts[2].endsWith("fnt")) {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
+							let prevMoveLine = dataArr[dataArr.length - 2];
+							let prevMove = prevMoveLine
+								.split("|")
+								.slice(1)[2]
+								.split(": ")[1];
 
 							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
@@ -959,6 +938,32 @@ class Showdown {
 											battle.p2a.otherAffliction[move]
 										].killed(deathJson);
 									}
+								}
+							} else if (
+								prevMove === "Future Sight" ||
+								prevMove === "Doom Desire"
+							) {
+								//Future Sight or Doom Desire Kill
+								if (victimSide === "p1a") {
+									let killer = battle.hazardsSet.p1[prevMove];
+									console.log(battle.hazardsSet);
+									console.log(prevMove + killer);
+									let deathJson = battle.p1a.died(
+										prevMove,
+										killer,
+										true
+									);
+									battle.p2Pokemon[killer].killed(deathJson);
+								} else if (victimSide === "p2a") {
+									let killer = battle.hazardsSet.p2[prevMove];
+									console.log(battle.hazardsSet);
+									console.log(prevMove + killer);
+									let deathJson = battle.p2a.died(
+										prevMove,
+										killer,
+										true
+									);
+									battle.p1Pokemon[killer].killed(deathJson);
 								}
 							} else {
 								//It's just a regular effing kill
