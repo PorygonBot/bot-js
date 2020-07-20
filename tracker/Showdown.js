@@ -477,18 +477,26 @@ class Showdown {
 						line.startsWith(`|switch|`) ||
 						line.startsWith(`|drag|`)
 					) {
+						let replacer = parts[2].split(",")[0].split("-")[0];
 						if (parts[1].startsWith("p1")) {
 							//If Player 1's Pokemon get switched out
 							battle.p1a.hasSubstitute = false;
 							battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
-							let oldPokemon = battle.p1a;
-							if (oldPokemon.name !== "") {
+							let oldPokemon = { name: "" };
+							if (battle.p1a.name !== "") {
+								let tempCurrentDirectKills =
+									battle.p1a.currentDirectKills;
+								let tempCurrentPassiveKills =
+									battle.p1a.currentPassiveKills;
+								battle.p1a.currentDirectKills = 0;
+								battle.p1a.currentPassiveKills = 0;
+								battle.p1a.directKills += tempCurrentDirectKills;
+								battle.p1a.passiveKills += tempCurrentPassiveKills;
+								oldPokemon = battle.p1a;
+
 								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
 							}
-							battle.p1a =
-								battle.p1Pokemon[
-									parts[2].split(",")[0].split("-")[0]
-								];
+							battle.p1a = battle.p1Pokemon[replacer];
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
 							);
@@ -496,16 +504,59 @@ class Showdown {
 							//If Player 2's Pokemon get switched out
 							battle.p2a.hasSubstitute = false;
 							battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
-							let oldPokemon = battle.p2a;
-							if (oldPokemon.name !== "") {
+							let oldPokemon = { name: "" };
+							if (battle.p2a.name !== "") {
+								let tempCurrentDirectKills =
+									battle.p2a.currentDirectKills;
+								let tempCurrentPassiveKills =
+									battle.p2a.currentPassiveKills;
+								battle.p2a.currentDirectKills = 0;
+								battle.p2a.currentPassiveKills = 0;
+								battle.p2a.directKills += tempCurrentDirectKills;
+								battle.p2a.passiveKills += tempCurrentPassiveKills;
+								oldPokemon = battle.p2a;
 								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 							}
-							battle.p2a =
-								battle.p2Pokemon[
-									parts[2].split(",")[0].split("-")[0]
-								];
+							battle.p2a = battle.p2Pokemon[replacer];
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+							);
+						}
+					}
+
+					//If Zoroark replaces the pokemon due to Illusion
+					else if (line.startsWith(`|replace|`)) {
+						let side = parts[1].split(": ")[0];
+						let replacer = parts[2].split(",")[0].split("-")[0];
+						if (side === "p1a") {
+							let tempCurrentDirectKills =
+								battle.p1a.currentDirectKills;
+							let tempCurrentPassiveKills =
+								battle.p1a.currentPassiveKills;
+							battle.p1a.currentDirectKills = 0;
+							battle.p1a.currentPassiveKills = 0;
+							let oldPokemon = battle.p1a;
+							battle.p1a = battle.p1Pokemon[replacer];
+							battle.p1a.currentDirectKills += tempCurrentDirectKills;
+							battle.p1a.currentPassiveKills += tempCurrentPassiveKills;
+
+							console.log(
+								`${oldPokemon.name} has been replaced by ${battle.p1a.name}`
+							);
+						} else {
+							let tempCurrentDirectKills =
+								battle.p2a.currentDirectKills;
+							let tempCurrentPassiveKills =
+								battle.p2a.currentPassiveKills;
+							battle.p2a.currentDirectKills = 0;
+							battle.p2a.currentPassiveKills = 0;
+							let oldPokemon = battle.p2a;
+							battle.p2a = battle.p2Pokemon[replacer];
+							battle.p2a.currentDirectKills += tempCurrentDirectKills;
+							battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
+
+							console.log(
+								`${oldPokemon.name} has been replaced by ${battle.p2a.name}`
 							);
 						}
 					}
@@ -717,9 +768,7 @@ class Showdown {
 							}
 						}
 						dataArr.splice(dataArr.length - 1, 1);
-					} 
-					
-					else if (line.startsWith(`|-immune|`)) {
+					} else if (line.startsWith(`|-immune|`)) {
 						let side = parts[1].split(": ")[0];
 						if (side === "p1a") {
 							if (battle.p1a.isDead) {
@@ -755,11 +804,10 @@ class Showdown {
 							let prevMove;
 							try {
 								prevMove = prevMoveLine
-								.split("|")
-								.slice(1)[2]
-								.split(": ")[1];
-							}
-							catch (e) {
+									.split("|")
+									.slice(1)[2]
+									.split(": ")[1];
+							} catch (e) {
 								prevMove = "";
 							}
 
@@ -1069,6 +1117,16 @@ class Showdown {
 							battle.winner === `${battle.p1}p1`
 								? `${battle.p2}p2`
 								: `${battle.p1}p1`;
+
+						//Giving mons their proper kills
+						//Pokemon 1
+						battle.p1a.directKills += battle.p1a.currentDirectKills;
+						battle.p1a.passiveKills += battle.p1a.currentPassiveKills;
+						battle.p1Pokemon[battle.p1a.name] = battle.p1a;
+						//Pokemon 2
+						battle.p2a.directKills += battle.p2a.currentDirectKills;
+						battle.p2a.passiveKills += battle.p2a.currentPassiveKills;
+						battle.p2Pokemon[battle.p2a.name] = battle.p2a;
 
 						console.log(`${battle.winner} won!`);
 						this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown

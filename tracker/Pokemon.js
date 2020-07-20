@@ -5,7 +5,9 @@ class Pokemon {
         this.statusInflictor = "";
         this.otherAffliction = {}; //Like Leech Seed and stuff
         this.causeOfDeath = "n/a";
+        this.currentDirectKills = 0;
         this.directKills = 0;
+        this.currentPassiveKills = 0;
         this.passiveKills = 0;
         this.isDead = false;
         this.killer = "";
@@ -34,13 +36,13 @@ class Pokemon {
 
     //When the pokemon has killed another pokemon in battle
     killed(deathJson) {
-        if (deathJson.isPassive) this.passiveKills++;
-        else this.directKills++;
+        if (deathJson.isPassive) this.currentPassiveKills++;
+        else this.currentDirectKills++;
     }
 
     unkilled(isPassive) {
-        if (isPassive) this.passiveKills--;
-        else this.directKills--;
+        if (isPassive) this.currentPassiveKills--;
+        else this.currentDirectKills--;
     }
 
     //Run when the pokemon has died in battle
