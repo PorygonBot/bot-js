@@ -408,7 +408,8 @@ class Showdown {
 					//Removes the |-supereffective| or  |upkeep part of realdata if it exists
 					else if (
 						line.startsWith(`|-supereffective|`) ||
-						line.startsWith(`|upkeep`)
+						line.startsWith(`|upkeep`) ||
+						line.startsWith(`|-resisted|`)
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -480,6 +481,7 @@ class Showdown {
 					else if (line.startsWith(`|-status|`)) {
 						let prevMoveLine = dataArr[dataArr.length - 2];
 						let prevMove = prevMoveLine.split("|").slice(1)[2];
+						console.log("prevmove: " + prevMove);
 						if (
 							prevMoveLine.startsWith(`|move|`) &&
 							(util.toxicMoves.includes(prevMove) ||
@@ -495,6 +497,7 @@ class Showdown {
 								battle.p2a.statusEffect(parts[2], battle.p1a);
 							} else {
 								battle.p1a.statusEffect(parts[2], battle.p2a);
+								console.log(battle.p1a);
 							}
 						} else if (
 							line.includes("ability") &&
@@ -732,6 +735,7 @@ class Showdown {
 											battle.p1a.statusInflictor,
 											true
 										);
+										console.log(JSON.stringify(battle.p2Pokemon));
 										battle.p2Pokemon[
 											battle.p1a.statusInflictor.name
 										].killed(deathJson);
@@ -963,16 +967,16 @@ class Showdown {
 								: `${battle.p1}p1`;
 
 						//Giving mons their proper kills
-						//Pokemon 1
-						battle.p1a.directKills += battle.p1a.currentDirectKills;
-						battle.p1a.passiveKills +=
-							battle.p1a.currentPassiveKills;
-						battle.p1Pokemon[battle.p1a.name] = battle.p1a;
-						//Pokemon 2
-						battle.p2a.directKills += battle.p2a.currentDirectKills;
-						battle.p2a.passiveKills +=
-							battle.p2a.currentPassiveKills;
-						battle.p2Pokemon[battle.p2a.name] = battle.p2a;
+						//Team 1
+						for (let pokemon of Object.values(battle.p1Pokemon)) {
+							battle.p1Pokemon[pokemon.name].directKills += pokemon.currentDirectKills;
+							battle.p1Pokemon[pokemon.name].passiveKills += pokemon.currentPassiveKills;
+						}
+						//Team 2
+						for (let pokemon of Object.values(battle.p2Pokemon)) {
+							battle.p2Pokemon[pokemon.name].directKills += pokemon.currentDirectKills;
+							battle.p2Pokemon[pokemon.name].passiveKills += pokemon.currentPassiveKills;
+						}
 
 						console.log(`${battle.winner} won!`);
 						this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
