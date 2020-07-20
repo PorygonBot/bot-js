@@ -1,13 +1,15 @@
 //This is the code for connecting to and keeping track of a showdown match
-const json = require("json");
 const ws = require("ws");
 const axios = require("axios");
 const querystring = require("querystring");
 
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
+const util = require("../utils.js");
 
-const DiscordStats = require("../updaters/DiscordStats");
+const DiscordDMStats = require("../updaters/DiscordDMStats");
+const DiscordChannelStats = require("../updaters/DiscordChannelStats");
+const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
 const SheetsStats = require("../updaters/SheetsStats");
 
 const { username, password, airtable_key, base_id } = require("../config.json");
@@ -16,170 +18,6 @@ const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
 const VIEW_NAME = "Grid view";
-
-//Pokemon-related Constants
-const recoilMoves = [
-	"bravebird",
-	"doubleedge",
-	"flareblitz",
-	"headcharge",
-	"headsmash",
-	"highjumpkick",
-	"jumpkick",
-	"lightofruin",
-	"shadowend",
-	"shadowrush",
-	"struggle",
-	"submission",
-	"takedown",
-	"volttackle",
-	"wildcharge",
-	"woodhammer",
-];
-
-const confusionMoves = [
-	"Chatter",
-	"Confuse Ray",
-	"Confusion",
-	"Dizzy Punch",
-	"Dynamic Punch",
-	"Flatter",
-	"Hurricane",
-	"Outrage",
-	"Petal Dance",
-	"Psybeam",
-	"Rock Climb",
-	"Secret Power",
-	"Shadow Panic",
-	"Signal Beam",
-	"Strange Stream",
-	"Supersonic",
-	"Swagger",
-	"Sweet Kiss",
-	"Teeter Dance",
-	"Thrash",
-	"Water Pulse",
-];
-
-const toxicMoves = [
-	"Baneful Bunker",
-	"Cross Poison",
-	"Fling",
-	"Gunk Shot",
-	"Poison Fang",
-	"Poison Gas",
-	"Poison Jab",
-	"Poison Powder",
-	"Poison Sting",
-	"Poison Tail",
-	"Psycho Shift",
-	"Secret Power",
-	"Shell Side Arm",
-	"Sludge",
-	"Sludge Bomb",
-	"Sludge Wave",
-	"Smog",
-	"Toxic",
-	"Toxic Thread",
-	"Twineedle",
-];
-
-const burnMoves = [
-	"Beak Blast",
-	"Blaze Kick",
-	"Blue Flare",
-	"Burning Jealousy",
-	"Ember",
-	"Fire Blast",
-	"Fire Fang",
-	"Fire Punch",
-	"Flame Wheel",
-	"Flamethrower",
-	"Flare Blitz",
-	"Fling",
-	"Heat Wave",
-	"Ice Burn",
-	"Inferno",
-	"Lava Plume",
-	"Psycho Shift",
-	"Pyro Ball",
-	"Sacred Fire",
-	"Scald",
-	"Scorching Sands",
-	"Searing Shot",
-	"Secret Power",
-	"Shadow Fire",
-	"Sizzly Slide",
-	"Steam Eruption",
-	"Tri Attack",
-	"Will-O-Wisp",
-];
-const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
-
-let findLeagueId = async (checkChannelId) => {
-	let leagueId;
-	let leagueName;
-	await base("Leagues")
-		.select({
-			maxRecords: 500,
-			view: "Grid view",
-		})
-		.all()
-		.then(async (records) => {
-			for (let leagueRecord of records) {
-				let channelId = await leagueRecord.get("Channel ID");
-				if (channelId === checkChannelId) {
-					leagueId = leagueRecord.id;
-					leagueName = await leagueRecord.get("Name");
-				}
-			}
-		});
-
-	let leagueJson = {
-		id: leagueId,
-		name: leagueName,
-	};
-	console.log("End of first function");
-	return leagueJson;
-};
-
-let getPlayersIds = async (leagueId) => {
-	console.log("Inside the second function");
-	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues").find(leagueId, (err, record) => {
-			if (err) reject(err);
-
-			recordIds = record.get("Players");
-			resolve(recordIds);
-		});
-	});
-
-	return recordsIds;
-};
-
-let playerInLeague = async (playersIds, playerName) => {
-	let funcarr = [];
-	let isIn = false;
-	for (let playerId of playersIds) {
-		funcarr.push(
-			new Promise((resolve, reject) => {
-				base("Players").find(playerId, async (err, record) => {
-					if (err) reject(err);
-
-					let recordName = await record.get("Showdown Name");
-					if (recordName.toLowerCase() === playerName.toLowerCase()) {
-						isIn = true;
-					}
-
-					resolve();
-				});
-			})
-		);
-	}
-	await Promise.all(funcarr);
-
-	return isIn;
-};
 
 class Showdown {
 	constructor(battle, server, message) {
@@ -230,7 +68,8 @@ class Showdown {
 		// Getting info from Airtable if required
 		let recordJson = {
 			players: {},
-			system: "",
+			system: "Discord",
+			info: info,
 		};
 		recordJson.players[player1] = {
 			ps: player1,
@@ -261,9 +100,6 @@ class Showdown {
 						);
 						recordJson.sheetId = await leagueRecord.get("Sheet ID");
 						recordJson.info = info;
-						recordJson.dmAuthor = await leagueRecord.get(
-							"DM Author?"
-						);
 						recordJson.combinePD = await leagueRecord.get(
 							"Combine P/D?"
 						);
@@ -271,51 +107,50 @@ class Showdown {
 							"Stream Channel ID"
 						);
 						recordJson.battleId = this.battle;
-						if (recordJson.system === "Discord") {
-							break;
-						}
 
 						// Gets more info from each player if Google Sheets is the system
-						let funcArr = [];
-						for (let playerId of playersIds) {
-							funcArr.push(
-								new Promise((resolve, reject) => {
-									base("Players").find(
-										playerId,
-										async (error, record) => {
-											if (error) {
-												console.error(error);
-												reject(error);
+						if (playersIds) {
+							let funcArr = [];
+							for (let playerId of playersIds) {
+								funcArr.push(
+									new Promise((resolve, reject) => {
+										base("Players").find(
+											playerId,
+											async (error, record) => {
+												if (error) {
+													console.error(error);
+													reject(error);
+												}
+
+												let recordName = await record.get(
+													"Showdown Name"
+												);
+												recordName.toLowerCase().trim();
+												let recordRange = await record.get(
+													"Range"
+												);
+												console.log(
+													playerId +
+														"    " +
+														recordName +
+														"player"
+												);
+												recordJson.players[
+													recordName === player1
+														? player1
+														: player2
+												].range = recordRange;
+
+												resolve();
 											}
-
-											let recordName = await record.get(
-												"Showdown Name"
-											);
-											recordName.toLowerCase().trim();
-											let recordRange = await record.get(
-												"Range"
-											);
-											console.log(
-												playerId +
-													"    " +
-													recordName +
-													"player"
-											);
-											recordJson.players[
-												recordName === player1
-													? player1
-													: player2
-											].range = recordRange;
-
-											resolve();
-										}
-									);
-								})
+										);
+									})
+								);
+							}
+							await Promise.all(funcArr).then(
+								console.log("Players found! Updating now...")
 							);
 						}
-						await Promise.all(funcArr).then(
-							console.log("Players found! Updating now...")
-						);
 					}
 				}
 			})
@@ -323,7 +158,9 @@ class Showdown {
 				console.log(JSON.stringify(recordJson));
 
 				//Instantiating updater objects
-				let dmer = new DiscordStats(this.message);
+				let dmer = new DiscordDMStats(this.message);
+				let channeler = new DiscordChannelStats(this.message);
+				let defaulter = new DiscordDefaultStats(this.message);
 				let masser = new SheetsStats(
 					recordJson.sheetId,
 					recordJson.players[player1],
@@ -336,8 +173,14 @@ class Showdown {
 					case "Sheets":
 						await masser.update(recordJson);
 						break;
-					case "Discord":
+					case "DM":
 						await dmer.update(recordJson);
+						break;
+					case "Channel":
+						await channeler.update(recordJson);
+						break;
+					default:
+						await defaulter.update(recordJson);
 						break;
 				}
 
@@ -470,6 +313,7 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
+						console.log(battle.turns);
 					}
 
 					//If a Pokemon switches, the active Pokemon must now change
@@ -638,8 +482,8 @@ class Showdown {
 						let prevMove = prevMoveLine.split("|").slice(1)[2];
 						if (
 							prevMoveLine.startsWith(`|move|`) &&
-							(toxicMoves.includes(prevMove) ||
-								burnMoves.includes(prevMove))
+							(util.toxicMoves.includes(prevMove) ||
+								util.burnMoves.includes(prevMove))
 						) {
 							//If status was caused by a move
 							if (
@@ -654,7 +498,7 @@ class Showdown {
 							}
 						} else if (
 							line.includes("ability") &&
-							statusAbility.includes(
+							util.statusAbility.includes(
 								parts[3].split("ability: ")[1].split("|")[0]
 							)
 						) {
@@ -696,7 +540,7 @@ class Showdown {
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
 								affliction.split("move: ")[1] ||
-							confusionMoves.includes(
+							util.confusionMoves.includes(
 								prevMove.split("|").slice(1)[2]
 							) || //For confusion
 							affliction.includes("perish") || //For Perish Song
@@ -911,7 +755,7 @@ class Showdown {
 										);
 									}
 								} else if (
-									recoilMoves.includes(move) ||
+									util.recoilMoves.includes(move) ||
 									move === "Recoil"
 								) {
 									//Recoil deaths
@@ -1121,11 +965,13 @@ class Showdown {
 						//Giving mons their proper kills
 						//Pokemon 1
 						battle.p1a.directKills += battle.p1a.currentDirectKills;
-						battle.p1a.passiveKills += battle.p1a.currentPassiveKills;
+						battle.p1a.passiveKills +=
+							battle.p1a.currentPassiveKills;
 						battle.p1Pokemon[battle.p1a.name] = battle.p1a;
 						//Pokemon 2
 						battle.p2a.directKills += battle.p2a.currentDirectKills;
-						battle.p2a.passiveKills += battle.p2a.currentPassiveKills;
+						battle.p2a.passiveKills +=
+							battle.p2a.currentPassiveKills;
 						battle.p2Pokemon[battle.p2a.name] = battle.p2a;
 
 						console.log(`${battle.winner} won!`);

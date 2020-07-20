@@ -3,6 +3,7 @@ const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
 const Showdown = require("./tracker/Showdown");
+const util = require("./utils.js");
 
 //Getting config info
 const { token, airtable_key, base_id } = require("./config.json");
@@ -19,69 +20,10 @@ const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
 
-//Getting the list of available channels
-const getChannels = async () => {
-	let channels = [];
-	await base("Leagues")
-		.select({
-			maxRecords: 50,
-			view: "Grid view",
-		})
-		.all()
-		.then((records) => {
-			records.forEach(async (record) => {
-				let channelId = await record.get("Channel ID");
-				channels.push(channelId);
-			});
-		});
-
-	return channels;
-};
-
-const findLeagueId = async (checkChannelId) => {
-	let leagueId;
-	let leagueName;
-	await base("Leagues")
-		.select({
-			maxRecords: 500,
-			view: "Grid view",
-		})
-		.all()
-		.then(async (records) => {
-			for (let leagueRecord of records) {
-				let channelId = await leagueRecord.get("Channel ID");
-				if (channelId === checkChannelId) {
-					leagueId = leagueRecord.id;
-					leagueName = await leagueRecord.get("Name");
-				}
-			}
-		});
-
-	let leagueJson = {
-		id: leagueId,
-		name: leagueName,
-	};
-	return leagueJson;
-};
-
-const getPlayersIds = async (leagueId) => {
-	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues").find(leagueId, (err, record) => {
-			if (err) reject(err);
-
-			recordIds = record.get("Players");
-			resolve(recordIds);
-		});
-	});
-
-	if (!recordsIds) return [];
-	return recordsIds;
-};
-
 //When a message is sent
 bot.on("message", async (message) => {
 	let channel = message.channel;
-	let channels = await getChannels();
+	let channels = await util.getChannels();
 
 	if (message.author.bot) return;
 
@@ -90,11 +32,14 @@ bot.on("message", async (message) => {
 	let prefix = "porygon, use";
 
 	if (channel.type === "dm") return;
-	else if (channels.includes(channel.id)) {
+	else if (
+		channel.name.includes("live-links") ||
+		channel.name.includes("live-battles")
+	) {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
 		let battlelink = urls.next().value;
-		if (battlelink) {
+		if (battlelink && !battlelink.includes("google")) {
 			let psServer = "";
 			//Checking what server the battlelink is from
 			if (battlelink.includes("sports.psim.us")) {
@@ -126,60 +71,42 @@ bot.on("message", async (message) => {
 
 	if (msgStr.toLowerCase().startsWith(`${prefix} help`)) {
 		let bicon = bot.user.displayAvatarURL;
-		if (msgStr.endsWith("commands")) {
-			let helpEmbed = new Discord.RichEmbed()
-				.setTitle("Porygon Commands")
-				.setDescription(`Prefix: ${prefix} _______`)
-				.setThumbnail(bicon)
-				.setColor(0xffc0cb)
-				.addField(
-					'help [optional: "commands"]',
-					"How to use the bot, and lists the commands it has."
-				)
-				.addField(
-					"setup",
-					"The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up"
-				)
-				.addField(
-					"add [Showdown name] --r=[Range to be updated on Sheet]",
-					'Adds a player to the database of the league whose live links channel the command is sent in. If the "--r=" field is provided, it updates the range of the player\'s stats in the Google Sheet as well.'
-				)
-				.addField(
-					"remove [Showdown name]",
-					"Removes a player from the database of the league whose live links channel the command is sent in."
-				)
-				.addField(
-					"edit [old Showdown name] --nn=[optional new Showdown name] --r=[optional Sheet range]",
-					"Edits the given player's Showdown name and, optionally, the player's Sheet range."
-				)
-				.addField(
-					"list",
-					"Lists the players of the league whose live links channel the command is sent in."
-				)
-				.addField(
-					"clear",
-					"Clears the list of players of the league whose live links channel the command is sent in. This command cannot be undone."
-				);
-
-			return channel.send(helpEmbed);
-		}
 		let helpEmbed = new Discord.RichEmbed()
-			.setTitle("Porygon Help")
+			.setTitle("Porygon Commands")
+			.setDescription(`Prefix: ${prefix} _______`)
 			.setThumbnail(bicon)
 			.setColor(0xffc0cb)
-			.addField("Prefix", `${prefix} _____`)
 			.addField(
-				"What does Porygon do? ",
-				"It joins a Pokemon Showdown battle when the live battle link is sent to a dedicated channel and keeps track of the deaths/kills in the battle."
+				'help [optional: "commands"]',
+				"How to use the bot, and lists the commands it has."
 			)
 			.addField(
-				"How do I use Porygon?",
-				`Make a dedicated live-battle-links channel, invite the bot, fill out the online dashboard (coming soon!), and start battling!!`
+				"setup",
+				"The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up"
 			)
-			.addField("Source", "https://github.com/PorygonBot/bot")
-			.setFooter(
-				"Made by @harbar20#9389",
-				`https://pm1.narvii.com/6568/c5817e2a693de0f2f3df4d47b0395be12c45edce_hq.jpg`
+			.addField(
+				"add [Showdown name] --r=[Range to be updated on Sheet]",
+				'Adds a player to the database of the league whose live links channel the command is sent in. If the "--r=" field is provided, it updates the range of the player\'s stats in the Google Sheet as well.'
+			)
+			.addField(
+				"remove [Showdown name]",
+				"Removes a player from the database of the league whose live links channel the command is sent in."
+			)
+			.addField(
+				"edit [old Showdown name] --nn=[new Showdown name] --r=[optional Sheet range]",
+				"Edits the given player's Showdown name and, optionally, the player's Sheet range."
+			)
+			.addField(
+				"list",
+				"Lists the players of the league whose live links channel the command is sent in."
+			)
+			.addField(
+				"clear",
+				"Clears the list of players of the league whose live links channel the command is sent in. This command cannot be undone."
+			)
+			.addField(
+				"mode",
+				"Help command for editing the mode in your server."
 			);
 
 		return channel.send(helpEmbed);
@@ -201,10 +128,10 @@ bot.on("message", async (message) => {
 		let range = rangeParams[1] ? rangeParams[1].split("--")[0] : "";
 
 		//Finding the league that the player is going to get added to
-		let leagueJson = await findLeagueId(channel.id);
+		let leagueJson = await util.findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
-		let playersIds = await getPlayersIds(leagueRecordId);
+		let playersIds = await util.getPlayersIds(leagueRecordId);
 
 		//Checking if league is empty
 		let finalMessage = await channel.send(
@@ -270,10 +197,10 @@ bot.on("message", async (message) => {
 
 		//Finding the league that the player is going to get added to
 		let player = msgParams;
-		let leagueJson = await findLeagueId(channel.id);
+		let leagueJson = await util.findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
-		let playersIds = await getPlayersIds(leagueRecordId);
+		let playersIds = await util.getPlayersIds(leagueRecordId);
 
 		//Checking if the player is already in the database
 		let finalMessage = await channel.send(
@@ -352,10 +279,10 @@ bot.on("message", async (message) => {
 
 		//Updates the record in the database
 		//Finding the league that the player is going to get edited in
-		let leagueJson = await findLeagueId(channel.id);
+		let leagueJson = await util.findLeagueId(channel.id);
 		let leagueRecordId = leagueJson.id;
 		let leagueName = leagueJson.name;
-		let playersIds = await getPlayersIds(leagueRecordId);
+		let playersIds = await util.getPlayersIds(leagueRecordId);
 
 		//Finding the player's recordId
 		let funcarr = [];
@@ -403,8 +330,8 @@ bot.on("message", async (message) => {
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
 			);
 		}
-		let leagueJson = await findLeagueId(channel.id);
-		let playersIds = await getPlayersIds(leagueJson.id);
+		let leagueJson = await util.findLeagueId(channel.id);
+		let playersIds = await util.getPlayersIds(leagueJson.id);
 		let finalMessage = await channel.send("Gathering league's players...");
 		let players = [];
 		let funcarr = [];
@@ -436,7 +363,7 @@ bot.on("message", async (message) => {
 		return await finalMessage.edit(listEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} clear`)) {
 		//Finding the league that is being cleared
-		let leagueJson = await findLeagueId(channel.id);
+		let leagueJson = await util.findLeagueId(channel.id);
 
 		//Clearing the league
 		await base("Leagues").update([
@@ -452,6 +379,83 @@ bot.on("message", async (message) => {
 		return channel.send(
 			`\`${leagueJson.name}\`'s player database has been cleared.`
 		);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} mode`)) {
+		let mode;
+		let discordMode = msgParams.split(" ")[0];
+		let streamChannel = "";
+		let sheetId = "";
+		switch (discordMode) {
+			case "-c":
+				mode = "Channel";
+				streamChannel = msgParams.split(" ")[1];
+				break;
+			case "-dm":
+				mode = "DM";
+				break;
+			case "-default":
+				mode = "";
+				break;
+			case "-s":
+				mode = "Sheets";
+				sheetId = msgParams.split(" ")[1].split("/")[5];
+				break;
+			default:
+				return channel.send(
+					"Need help? Here we go!\n```To use the command, type this: porygon, use mode [either -c, -dm, -default, or -sheets] [optional extension] [optionally --combine] \n\n-c: match-results channel mode. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode.\n-sheets: google sheets mode. Make sure you link the sheet's url at the end of this message, and also give full editing perms to porygon-bot@real-porygon.iam.gserviceaccount.com. \n-default: default mode.\n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.\nAttach --combine at the end of your message if you would like passive and direct kills combined in your stats.```"
+				);
+		}
+
+		let leagueInfo = await util.findLeagueId(channel.id);
+		if (leagueInfo.id) {
+			await base("Leagues").update([
+				{
+					id: leagueInfo.id,
+					fields: {
+						"Channel ID": channel.id,
+						"Combine P/D?": msgParams.includes("--combine"),
+						"Stream Channel ID": streamChannel.substring(2, streamChannel.length - 1),
+						"Stats System": mode,
+						"Sheet ID": sheetId,
+					},
+				},
+			]);
+
+			console.log(`${leagueInfo.name}'s mode has been changed to ${mode ? mode : "Default"} mode!`);
+			return channel.send(
+				`\`${leagueInfo.name}\`'s mode has been changed to ${mode ? mode : "Default"} mode!`
+			);
+		} else {
+			// Message Collector for the required info for the bot
+			const filter = (m) => m.author === message.author;
+			const collector = message.channel.createMessageCollector(filter, {
+				max: 3,
+			});
+
+			await channel.send(
+				"What is this league's name? [the whole of your next message will be taken as the league's name]"
+			);
+			collector.on("collect", async (m) => {
+				let leagueName = m.content;
+				base("Leagues").create([
+					{
+						fields: {
+							Name: leagueName,
+							"Channel ID": channel.id,
+							"Combine P/D?": msgParams.includes("--combine"),
+							"Stream Channel ID": streamChannel.substring(2, streamChannel.length - 1),
+							"Stats System": mode,
+							"Sheet ID": sheetId,
+						},
+					},
+				]);
+				collector.stop();
+
+				console.log(`${leagueName}'s mode has been changed to ${mode ? mode : "Default"} mode!`);
+				return channel.send(
+					`\`${leagueName}\`'s mode has been changed to ${mode ? mode : "Default"} mode!`
+				);
+			});
+		}
 	}
 });
 
