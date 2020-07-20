@@ -1,5 +1,4 @@
 //This is the code for connecting to and keeping track of a showdown match
-const json = require("json");
 const ws = require("ws");
 const axios = require("axios");
 const querystring = require("querystring");
@@ -115,71 +114,6 @@ const burnMoves = [
 	"Will-O-Wisp",
 ];
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
-
-let findLeagueId = async (checkChannelId) => {
-	let leagueId;
-	let leagueName;
-	await base("Leagues")
-		.select({
-			maxRecords: 500,
-			view: "Grid view",
-		})
-		.all()
-		.then(async (records) => {
-			for (let leagueRecord of records) {
-				let channelId = await leagueRecord.get("Channel ID");
-				if (channelId === checkChannelId) {
-					leagueId = leagueRecord.id;
-					leagueName = await leagueRecord.get("Name");
-				}
-			}
-		});
-
-	let leagueJson = {
-		id: leagueId,
-		name: leagueName,
-	};
-	console.log("End of first function");
-	return leagueJson;
-};
-
-let getPlayersIds = async (leagueId) => {
-	console.log("Inside the second function");
-	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues").find(leagueId, (err, record) => {
-			if (err) reject(err);
-
-			recordIds = record.get("Players");
-			resolve(recordIds);
-		});
-	});
-
-	return recordsIds;
-};
-
-let playerInLeague = async (playersIds, playerName) => {
-	let funcarr = [];
-	let isIn = false;
-	for (let playerId of playersIds) {
-		funcarr.push(
-			new Promise((resolve, reject) => {
-				base("Players").find(playerId, async (err, record) => {
-					if (err) reject(err);
-
-					let recordName = await record.get("Showdown Name");
-					if (recordName.toLowerCase() === playerName.toLowerCase()) {
-						isIn = true;
-					}
-
-					resolve();
-				});
-			})
-		);
-	}
-	await Promise.all(funcarr);
-
-	return isIn;
-};
 
 class Showdown {
 	constructor(battle, server, message) {
