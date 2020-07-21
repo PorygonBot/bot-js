@@ -3,10 +3,12 @@ const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
 const Showdown = require("./tracker/Showdown");
+const ReplayTracker = require("./tracker/ReplayTracker");
 const util = require("./utils.js");
 
 //Getting config info
 const { token, airtable_key, base_id } = require("./config.json");
+const { default: Axios } = require("axios");
 //Creating the bot
 const bot = new Discord.Client({ disableEveryone: true });
 
@@ -39,7 +41,7 @@ bot.on("message", async (message) => {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
 		let battlelink = urls.next().value;
-		if (battlelink && !battlelink.includes("google")) {
+		if (battlelink && !battlelink.includes("google") && !battlelink.includes("replay")) {
 			let psServer = "";
 			//Checking what server the battlelink is from
 			if (battlelink.includes("sports.psim.us")) {
@@ -379,6 +381,12 @@ bot.on("message", async (message) => {
 			`\`${leagueJson.name}\`'s player database has been cleared.`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} mode`)) {
+		if (!message.member.hasPermission("MANAGE_ROLES")) {
+			return channel.send(
+				":x: You're not a moderator. Ask a moderator to add this person for you."
+			);
+		}
+		
 		let mode;
 		let discordMode = msgParams.split(" ")[0];
 		let streamChannel = "";
@@ -455,6 +463,15 @@ bot.on("message", async (message) => {
 				);
 			});
 		}
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} analyze`)) {
+		let link = msgParams + ".log";
+		let response = await Axios.get(link);
+		let data = response.data;
+		
+		let replayer = new ReplayTracker(msgParams, message);
+		channel.send("Analyzing...");
+		await replayer.track(data);
+		console.log(`${link} has been analyzed!`);
 	}
 });
 
