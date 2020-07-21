@@ -6,69 +6,62 @@ const base = new Airtable({
 }).base(base_id);
 
 const getUser = (server, usernameWithDisc) => {
-    let username = usernameWithDisc.substring(
-        0,
-        usernameWithDisc.length - 5
-    );
-    let userObj = server.members.find(
-        (m) => m.user.username === username
-    ).user;
+	let username = usernameWithDisc.substring(0, usernameWithDisc.length - 5);
+	let userObj = server.members.find((m) => m.user.username === username).user;
 
-    //just double checking to make sure the user is correct
-    if (
-        `${userObj.username}#${userObj.discriminator}` === usernameWithDisc
-    ) {
-        return userObj;
-    } else {
-        return "Invalid user";
-    }
-}
+	//just double checking to make sure the user is correct
+	if (`${userObj.username}#${userObj.discriminator}` === usernameWithDisc) {
+		return userObj;
+	} else {
+		return "Invalid user";
+	}
+};
 
 const getChannel = (server, channelID) => {
-    return server.channels.get(channelID);
-}
+	return server.channels.get(channelID);
+};
 
 const genMessage = (matchJson) => {
-    //retrieving info from the json object
-    let psPlayer1 = Object.keys(matchJson.players)[0];
-    let psPlayer2 = Object.keys(matchJson.players)[1];
-    let killJson1 = matchJson.players[psPlayer1].kills;
-    let deathJson1 = matchJson.players[psPlayer1].deaths;
-    let killJson2 = matchJson.players[psPlayer2].kills;
-    let deathJson2 = matchJson.players[psPlayer2].deaths;
-    let combinePD = matchJson.combinePD;
+	//retrieving info from the json object
+	let psPlayer1 = Object.keys(matchJson.players)[0];
+	let psPlayer2 = Object.keys(matchJson.players)[1];
+	let killJson1 = matchJson.players[psPlayer1].kills;
+	let deathJson1 = matchJson.players[psPlayer1].deaths;
+	let killJson2 = matchJson.players[psPlayer2].kills;
+	let deathJson2 = matchJson.players[psPlayer2].deaths;
+	let combinePD = matchJson.combinePD;
 
-    let message1 = "";
-    let message2 = "";
+	let message1 = "";
+	let message2 = "";
 
-    //Drafting the message to be sent to the users\
-    if (!combinePD) {
-        for (let pokemon of Object.keys(killJson1)) {
-            message1 += `${pokemon} has ${killJson1[pokemon].direct} direct kills, ${killJson1[pokemon].passive} passive kills, and ${deathJson1[pokemon]} deaths. \n`;
-        }
+	//Drafting the message to be sent to the users\
+	if (!combinePD) {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon} has ${killJson1[pokemon].direct} direct kills, ${killJson1[pokemon].passive} passive kills, and ${deathJson1[pokemon]} deaths. \n`;
+		}
 
-        for (let pokemon of Object.keys(killJson2)) {
-            message2 += `${pokemon} has ${killJson2[pokemon].direct} direct kills, ${killJson2[pokemon].passive} passive kills, and ${deathJson2[pokemon]} deaths. \n`;
-        }
-    } else {
-        for (let pokemon of Object.keys(killJson1)) {
-            message1 += `${pokemon} has ${
-                killJson1[pokemon].direct + killJson1[pokemon].passive
-            } kills and ${deathJson1[pokemon]} deaths. \n`;
-        }
+		for (let pokemon of Object.keys(killJson2)) {
+			message2 += `${pokemon} has ${killJson2[pokemon].direct} direct kills, ${killJson2[pokemon].passive} passive kills, and ${deathJson2[pokemon]} deaths. \n`;
+		}
+	} else {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon} has ${
+				killJson1[pokemon].direct + killJson1[pokemon].passive
+			} kills and ${deathJson1[pokemon]} deaths. \n`;
+		}
 
-        for (let pokemon of Object.keys(killJson2)) {
-            message2 += `${pokemon} has ${
-                killJson2[pokemon].direct + killJson2[pokemon].passive
-            } kills and ${deathJson2[pokemon]} deaths. \n`;
-        }
-    }
+		for (let pokemon of Object.keys(killJson2)) {
+			message2 += `${pokemon} has ${
+				killJson2[pokemon].direct + killJson2[pokemon].passive
+			} kills and ${deathJson2[pokemon]} deaths. \n`;
+		}
+	}
 
-    //Spoiler tagging the stats
-    message1 = `||${message1}||`;
-    message2 = `||${message2}||`;
-    return [message1, message2];
-}
+	//Spoiler tagging the stats
+	message1 = `||${message1}||`;
+	message2 = `||${message2}||`;
+	return [message1, message2];
+};
 
 const getChannels = async () => {
 	let channels = [];
@@ -228,15 +221,15 @@ const burnMoves = [
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
 module.exports = {
-    getUser,
-    getChannel,
-    genMessage,
-    getChannels,
-    findLeagueId,
-    getPlayersIds,
-    recoilMoves,
-    confusionMoves,
-    toxicMoves,
-    burnMoves,
-    statusAbility
-}
+	getUser,
+	getChannel,
+	genMessage,
+	getChannels,
+	findLeagueId,
+	getPlayersIds,
+	recoilMoves,
+	confusionMoves,
+	toxicMoves,
+	burnMoves,
+	statusAbility
+};
