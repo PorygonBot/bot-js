@@ -13,7 +13,7 @@ const bot = new Discord.Client({ disableEveryone: true });
 //When the bot is connected and logged in to Discord
 bot.on("ready", async () => {
 	console.log(`${bot.user.username} is online!`);
-	bot.user.setActivity(`PS battles`, { type: "watching" });
+	bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, { type: "watching" });
 });
 
 const base = new Airtable({
