@@ -512,6 +512,14 @@ class Showdown {
 							} else {
 								battle.p2a.statusEffect(parts[2], battle.p1a);
 							}
+						} else if (line.includes("item")) {
+							let item = parts[3].split(": ")[1];
+							let victimSide = parts[1].split(": ")[0];
+							if (victimSide === "p1a") {
+								battle.p1a.statusEffect(parts[2], battle.p2a);
+							} else {
+								battle.p2a.statusEffect(parts[2], battle.p1a);
+							}
 						} else {
 							//If status wasn't caused by a move, but rather something like a hazard
 							if (parts[1].split(": ")[0] === "p1a") {
@@ -735,7 +743,9 @@ class Showdown {
 											battle.p1a.statusInflictor,
 											true
 										);
-										console.log(JSON.stringify(battle.p2Pokemon));
+										console.log(
+											JSON.stringify(battle.p2Pokemon)
+										);
 										battle.p2Pokemon[
 											battle.p1a.statusInflictor.name
 										].killed(deathJson);
@@ -969,13 +979,17 @@ class Showdown {
 						//Giving mons their proper kills
 						//Team 1
 						for (let pokemon of Object.values(battle.p1Pokemon)) {
-							battle.p1Pokemon[pokemon.name].directKills += pokemon.currentDirectKills;
-							battle.p1Pokemon[pokemon.name].passiveKills += pokemon.currentPassiveKills;
+							battle.p1Pokemon[pokemon.name].directKills +=
+								pokemon.currentDirectKills;
+							battle.p1Pokemon[pokemon.name].passiveKills +=
+								pokemon.currentPassiveKills;
 						}
 						//Team 2
 						for (let pokemon of Object.values(battle.p2Pokemon)) {
-							battle.p2Pokemon[pokemon.name].directKills += pokemon.currentDirectKills;
-							battle.p2Pokemon[pokemon.name].passiveKills += pokemon.currentPassiveKills;
+							battle.p2Pokemon[pokemon.name].directKills +=
+								pokemon.currentDirectKills;
+							battle.p2Pokemon[pokemon.name].passiveKills +=
+								pokemon.currentPassiveKills;
 						}
 
 						console.log(`${battle.winner} won!`);
