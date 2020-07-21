@@ -82,10 +82,6 @@ bot.on("message", async (message) => {
 				"How to use the bot, and lists the commands it has."
 			)
 			.addField(
-				"setup",
-				"The setup command for servers who are new to Porygon. You have to send this command in the live links channel you want to use for the league you are setting up"
-			)
-			.addField(
 				"add [Showdown name] --r=[Range to be updated on Sheet]",
 				'Adds a player to the database of the league whose live links channel the command is sent in. If the "--r=" field is provided, it updates the range of the player\'s stats in the Google Sheet as well.'
 			)
@@ -107,7 +103,7 @@ bot.on("message", async (message) => {
 			)
 			.addField(
 				"mode",
-				"Help command for editing the mode in your server."
+				"Command to get started with the bot in your server."
 			);
 
 		return channel.send(helpEmbed);
