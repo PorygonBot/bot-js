@@ -20,7 +20,7 @@ const base = new Airtable({
 const VIEW_NAME = "Grid view";
 
 class Showdown {
-	constructor(battle, server, message) {
+	constructor(battle, server, message, rules) {
 		this.battle = battle.split("/")[3];
 
 		this.serverType = server.toLowerCase();
@@ -46,31 +46,7 @@ class Showdown {
 		this.password = password;
 		this.message = message;
 		//Getting the custom rules for the battle
-		this.rules = {};
-	}
-
-	async getRules() {
-		let rulesId = await util.findRulesId(this.message.channel.id);
-		if (rulesId) {
-			await base("Custom Rules")
-			.find(rulesId, async (err, record) => {
-				if (err) console.error(err);
-				this.rules.hwmemento = await record.get("Healing Wish/Memento");
-				this.rules.recoil = await record.get("Recoil");
-				this.rules.suicide = await record.get("Suicide");
-				this.rules.abilityitem = await record.get("Ability/Item");
-				this.rules.selfteam = await record.get("Self or Teammate");
-				this.rules.db = await record.get("Destiny Bond");
-			});
-		}
-		else {
-			this.rules.hwmemento = "Passive";
-			this.rules.recoil = "Direct";
-			this.rules.suicide = "Direct";
-			this.rules.abilityitem = "Passive";
-			this.rules.selfteam = "None";
-			this.rules.db = "Passive";
-		}
+		this.rules = rules;
 	}
 
 	async endscript(
@@ -450,8 +426,10 @@ class Showdown {
 					//If a weather condition is set
 					else if (line.startsWith(`|-weather|`)) {
 						if (
-							!(line.includes("[upkeep]") ||
-							line.includes("none"))
+							!(
+								line.includes("[upkeep]") ||
+								line.includes("none")
+							)
 						) {
 							let weather = parts[1];
 							console.log(line);
@@ -741,8 +719,13 @@ class Showdown {
 									//Weather
 									killer = battle.weatherInflictor;
 									if (victimSide === "p1a") {
-										if (Object.keys(battle.p1Pokemon).includes(killer)) {
-											if (this.rules.selfteam !== "None") killer = battle.p2a.name;
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											if (this.rules.selfteam !== "None")
+												killer = battle.p2a.name;
 											else killer = undefined;
 										}
 										let deathJson = battle.p1a.died(
@@ -756,10 +739,14 @@ class Showdown {
 											);
 										}
 										victim = battle.p1a.name;
-									}
-									else if (victimSide === "p2a") {
-										if (Object.keys(battle.p2Pokemon).includes(killer)) {
-											if (this.rules.selfteam !== "None") killer = battle.p1a.name;
+									} else if (victimSide === "p2a") {
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											if (this.rules.selfteam !== "None")
+												killer = battle.p1a.name;
 											else killer = undefined;
 										}
 										let deathJson = battle.p2a.died(
@@ -780,9 +767,15 @@ class Showdown {
 									move === "tox"
 								) {
 									if (victimSide === "p1a") {
-										killer = battle.p1a.statusInflictor.name;
-										if (Object.keys(battle.p1Pokemon).includes(killer)) {
-											if (this.rules.selfteam !== "None") killer = battle.p2a.name;
+										killer =
+											battle.p1a.statusInflictor.name;
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											if (this.rules.selfteam !== "None")
+												killer = battle.p2a.name;
 											else killer = undefined;
 										}
 										let deathJson = battle.p1a.died(
@@ -797,9 +790,15 @@ class Showdown {
 										}
 										victim = battle.p1a.name;
 									} else if (victimSide === "p2a") {
-										killer = battle.p2a.statusInflictor.name;
-										if (Object.keys(battle.p2Pokemon).includes(killer)) {
-											if (this.rules.selfteam !== "None") killer = battle.p1a.name;
+										killer =
+											battle.p2a.statusInflictor.name;
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											if (this.rules.selfteam !== "None")
+												killer = battle.p1a.name;
 											else killer = undefined;
 										}
 										let deathJson = battle.p2a.died(
@@ -820,7 +819,8 @@ class Showdown {
 								) {
 									//Recoil deaths
 									if (victimSide == "p1a") {
-										if (this.rules.recoil !== "None") killer = battle.p2a.name;
+										if (this.rules.recoil !== "None")
+											killer = battle.p2a.name;
 										else killer = undefined;
 
 										let deathJson = battle.p1a.died(
@@ -828,10 +828,14 @@ class Showdown {
 											killer,
 											this.rules.recoil === "Passive"
 										);
-										if (killer) battle.p2Pokemon[killer].killed(deathJson);
+										if (killer)
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
 										victim = battle.p1a.name;
 									} else {
-										if (this.rules.recoil !== "None") killer = battle.p1a;
+										if (this.rules.recoil !== "None")
+											killer = battle.p1a;
 										else killer = undefined;
 
 										let deathJson = battle.p2a.died(
@@ -839,7 +843,10 @@ class Showdown {
 											killer,
 											this.rules.recoil === "Passive"
 										);
-										if (killer) battle.p1Pokemon[killer].killed(deathJson);
+										if (killer)
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
 										victim = battle.p2a.name;
 									}
 								} else if (move.startsWith(`item: `)) {
@@ -849,39 +856,64 @@ class Showdown {
 										victimSide === "p1a" &&
 										!battle.p1a.isDead
 									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p2a.name;
+										else killer = undefined;
 										let deathJson = battle.p1a.died(
 											item,
-											battle.p2a,
-											false
+											killer,
+											this.rules.abilityitem === "Passive"
 										);
-										battle.p2a.killed(deathJson);
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										victim = battle.p1a.name;
 									} else if (
 										victimSide === "p2a" &&
 										!battle.p2a.isDead
 									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p1a.name;
+										else killer = undefined;
 										let deathJson = battle.p2a.died(
 											item,
-											battle.p1a,
-											false
+											killer,
+											this.rules.abilityitem === "Passive"
 										);
-										battle.p1a.killed(deathJson);
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
+										victim = battle.p2a.name;
 									}
 								} else if (move.includes(`ability`)) {
 									//Ability deaths
-									if (victimSide == "p1a") {
+									let ability = move.split(": ")[1];
+									if (victimSide === "p1a") {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p2a.name;
+										else killer = undefined;
 										let deathJson = battle.p1a.died(
-											"ability",
-											battle.p2a,
-											false
+											ability,
+											killer,
+											this.rules.abilityitem === "Passive"
 										);
-										battle.p2a.killed(deathJson);
-									} else {
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										victim = battle.p1a.name;
+									} else if (victimSide === "p2a") {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p1a.name;
+										else killer = undefined;
 										let deathJson = battle.p2a.died(
-											"ability",
-											battle.p1a,
-											false
+											ability,
+											killer,
+											this.rules.abilityitem === "Passive"
 										);
-										battle.p1a.killed(deathJson);
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
+										victim = battle.p2a.name;
 									}
 								} else {
 									//Affliction-caused deaths

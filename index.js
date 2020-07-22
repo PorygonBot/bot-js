@@ -66,11 +66,31 @@ bot.on("message", async (message) => {
 			}
 
 			channel.send("Joining the battle...");
+			//Getting the rules
+			let rulesId = await util.findRulesId(channel.id);
+			let rules = {};
+			if (rulesId) {
+				await base("Custom Rules")
+				.find(rulesId, async (err, record) => {
+					if (err) console.error(err);
+					rules.hwmemento = await record.get("Healing Wish/Memento");
+					rules.recoil = await record.get("Recoil");
+					rules.suicide = await record.get("Suicide");
+					rules.abilityitem = await record.get("Ability/Item");
+					rules.selfteam = await record.get("Self or Teammate");
+					rules.db = await record.get("Destiny Bond");
+				});
+			}
+			else {
+				rules.hwmemento = "Passive";
+				rules.recoil = "Direct";
+				rules.suicide = "Direct";
+				rules.abilityitem = "Passive";
+				rules.selfteam = "None";
+				rules.db = "Passive";
+			}
 			//Instantiating the Showdown client
-			const psclient = new Showdown(battlelink, psServer, message);
-			await new Promise(async (resolve, reject) => {
-				await psclient.getRules().then(console.log("rules gotten"));
-			});
+			const psclient = new Showdown(battlelink, psServer, message, rules);
 			//Tracking the battle
 			await new Promise(async (resolve, reject) => {
 				await psclient.track()
