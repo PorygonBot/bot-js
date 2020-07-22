@@ -107,6 +107,27 @@ const findLeagueId = async (checkChannelId) => {
 	return leagueJson;
 };
 
+const findRulesId = async (checkChannelId) => {
+	let recordId;
+
+	await base("Custom Rules")
+		.select({
+			maxRecords: 500,
+			view: "Grid view",
+		})
+		.all()
+		.then(async (records) => {
+			for (let leagueRecord of records) {
+				let channelId = await leagueRecord.get("Channel ID");
+				if (channelId === checkChannelId) {
+					recordId = leagueRecord.id;
+				}
+			}
+		});
+
+	return recordId;
+};
+
 const getPlayersIds = async (leagueId) => {
 	let recordsIds = await new Promise((resolve, reject) => {
 		base("Leagues").find(leagueId, (err, record) => {
@@ -226,10 +247,11 @@ module.exports = {
 	genMessage,
 	getChannels,
 	findLeagueId,
+	findRulesId,
 	getPlayersIds,
 	recoilMoves,
 	confusionMoves,
 	toxicMoves,
 	burnMoves,
-	statusAbility
+	statusAbility,
 };

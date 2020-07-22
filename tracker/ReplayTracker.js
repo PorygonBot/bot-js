@@ -20,7 +20,7 @@ const VIEW_NAME = "Grid view";
 
 class ReplayTracker {
 	constructor(replayLink, message) {
-        this.link = replayLink;
+		this.link = replayLink;
 		this.battle = replayLink.split("/")[3];
 		this.message = message;
 	}
@@ -60,15 +60,15 @@ class ReplayTracker {
 			deaths: deathJson2,
 		};
 
-        //Send the stats
-        let defaulter = new DiscordDefaultStats(this.message);
-        await defaulter.update(recordJson);
+		//Send the stats
+		let defaulter = new DiscordDefaultStats(this.message);
+		await defaulter.update(recordJson);
 	}
 
 	async track(data) {
-        let battle;
-        let players = [];
-        let dataArr = [];
+		let battle;
+		let players = [];
+		let dataArr = [];
 
 		try {
 			//Separates the data into lines so it's easy to parse
@@ -89,14 +89,24 @@ class ReplayTracker {
 
 					//Initializes the battle as an object
 					battle = new Battle(this.battle, players[0], players[1]);
-                }
-                if (line.startsWith(`|player|`)) {
-                    players.push(parts[2]);
-                    if (parts[1] === "p2") {
-                        //Initializes the battle as an object
-					    battle = new Battle(this.battle, players[0], players[1]);
-                    }
-                }
+				}
+				if (line.startsWith(`|player|`)) {
+					players.push(parts[2]);
+					if (parts[1] === "p2") {
+						//Initializes the battle as an object
+						battle = new Battle(
+							this.battle,
+							players[0],
+							players[1]
+						);
+					}
+				}
+
+				else if (line.startsWith(`|tier|`)) {
+					if (line.toLowerCase().includes("random")) {
+						return this.message.channel.send(":x: **Error!** This is a Randoms match. I don't work with Randoms matches.");
+					}
+				}
 
 				//At the beginning of every non-randoms match, a list of Pokemon show up.
 				//This code is to get all that
@@ -281,6 +291,7 @@ class ReplayTracker {
 				else if (line.startsWith(`|-status|`)) {
 					let prevMoveLine = dataArr[dataArr.length - 2];
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
+					console.log("prevmove: " + prevMove);
 					if (
 						prevMoveLine.startsWith(`|move|`) &&
 						(util.toxicMoves.includes(prevMove) ||
@@ -296,6 +307,7 @@ class ReplayTracker {
 							battle.p2a.statusEffect(parts[2], battle.p1a);
 						} else {
 							battle.p1a.statusEffect(parts[2], battle.p2a);
+							console.log(battle.p1a);
 						}
 					} else if (
 						line.includes("ability") &&
@@ -304,6 +316,14 @@ class ReplayTracker {
 						)
 					) {
 						//Ability status
+						let victimSide = parts[1].split(": ")[0];
+						if (victimSide === "p1a") {
+							battle.p1a.statusEffect(parts[2], battle.p2a);
+						} else {
+							battle.p2a.statusEffect(parts[2], battle.p1a);
+						}
+					} else if (line.includes("item")) {
+						let item = parts[3].split(": ")[1];
 						let victimSide = parts[1].split(": ")[0];
 						if (victimSide === "p1a") {
 							battle.p1a.statusEffect(parts[2], battle.p2a);
@@ -325,7 +345,6 @@ class ReplayTracker {
 						}
 					}
 				}
-
 				//If a hazard ends on a side
 				else if (line.startsWith(`|-sideend|`)) {
 					let side = parts[1].split(": ")[0];

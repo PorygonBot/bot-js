@@ -15,7 +15,9 @@ const bot = new Discord.Client({ disableEveryone: true });
 //When the bot is connected and logged in to Discord
 bot.on("ready", async () => {
 	console.log(`${bot.user.username} is online!`);
-	bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, { type: "watching" });
+	bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, {
+		type: "watching",
+	});
 });
 
 const base = new Airtable({
@@ -41,7 +43,11 @@ bot.on("message", async (message) => {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
 		let battlelink = urls.next().value;
-		if (battlelink && !battlelink.includes("google") && !battlelink.includes("replay")) {
+		if (
+			battlelink &&
+			!battlelink.includes("google") &&
+			!battlelink.includes("replay")
+		) {
 			let psServer = "";
 			//Checking what server the battlelink is from
 			if (battlelink.includes("sports.psim.us")) {
@@ -383,7 +389,7 @@ bot.on("message", async (message) => {
 				":x: You're not a moderator. Ask a moderator to add this person for you."
 			);
 		}
-		
+
 		let mode;
 		let discordMode = msgParams.split(" ")[0];
 		let streamChannel = "";
@@ -417,16 +423,25 @@ bot.on("message", async (message) => {
 					fields: {
 						"Channel ID": channel.id,
 						"Combine P/D?": msgParams.includes("--combine"),
-						"Stream Channel ID": streamChannel.substring(2, streamChannel.length - 1),
+						"Stream Channel ID": streamChannel.substring(
+							2,
+							streamChannel.length - 1
+						),
 						"Stats System": mode,
 						"Sheet ID": sheetId,
 					},
 				},
 			]);
 
-			console.log(`${leagueInfo.name}'s mode has been changed to ${mode ? mode : "Default"} mode!`);
+			console.log(
+				`${leagueInfo.name}'s mode has been changed to ${
+					mode ? mode : "Default"
+				} mode!`
+			);
 			return channel.send(
-				`\`${leagueInfo.name}\`'s mode has been changed to ${mode ? mode : "Default"} mode!`
+				`\`${leagueInfo.name}\`'s mode has been changed to ${
+					mode ? mode : "Default"
+				} mode!`
 			);
 		} else {
 			// Message Collector for the required info for the bot
@@ -446,7 +461,10 @@ bot.on("message", async (message) => {
 							Name: leagueName,
 							"Channel ID": channel.id,
 							"Combine P/D?": msgParams.includes("--combine"),
-							"Stream Channel ID": streamChannel.substring(2, streamChannel.length - 1),
+							"Stream Channel ID": streamChannel.substring(
+								2,
+								streamChannel.length - 1
+							),
 							"Stats System": mode,
 							"Sheet ID": sheetId,
 						},
@@ -454,9 +472,15 @@ bot.on("message", async (message) => {
 				]);
 				collector.stop();
 
-				console.log(`${leagueName}'s mode has been changed to ${mode ? mode : "Default"} mode!`);
+				console.log(
+					`${leagueName}'s mode has been changed to ${
+						mode ? mode : "Default"
+					} mode!`
+				);
 				return channel.send(
-					`\`${leagueName}\`'s mode has been changed to ${mode ? mode : "Default"} mode!`
+					`\`${leagueName}\`'s mode has been changed to ${
+						mode ? mode : "Default"
+					} mode!`
 				);
 			});
 		}
@@ -464,11 +488,140 @@ bot.on("message", async (message) => {
 		let link = msgParams + ".log";
 		let response = await Axios.get(link);
 		let data = response.data;
-		
+
 		let replayer = new ReplayTracker(msgParams, message);
 		channel.send("Analyzing...");
 		await replayer.track(data);
 		console.log(`${link} has been analyzed!`);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} rule`)) {
+		if (!message.member.hasPermission("MANAGE_ROLES")) {
+			return channel.send(
+				":x: You're not a moderator. Ask a moderator to add this person for you."
+			);
+		}
+
+		let params = msgParams.split(" ");
+		let rule = params[0];
+		let category = "";
+		let result = `${params[1].charAt(0).toUpperCase()}${params[1].replace(
+			params[1].charAt(0),
+			""
+		)}`;
+		switch (rule) {
+			case "-hw":
+				category = "Healing Wish/Memento";
+				break;
+			case "-memento":
+				category = "Healing Wish/Memento";
+				break;
+			case "-recoil":
+				category = "Recoil";
+				break;
+			case "-suicide":
+				category = "Suicide";
+				break;
+			case "-ability":
+				category = "Ability/Item";
+				break;
+			case "-item":
+				category = "Ability/Item";
+				break;
+			case "-self":
+				category = "Self or Teammate";
+				break;
+			case "-team":
+				category = "Self or Teammate";
+				break;
+			case "-db":
+				category = "Destiny Bond";
+				break;
+			default:
+				return channel.send("```Testing 123```");
+		}
+
+		// Updating the rule in the database for the league
+		let rulesId = await util.findRulesId(channel.id);
+		let leagueJson = await util.findLeagueId(channel.id);
+		let fields = { League: [leagueJson.id], "Channel ID": channel.id };
+		fields[category] = result;
+		if (rulesId) {
+			await base("Custom Rules").update([
+				{
+					id: rulesId,
+					fields: fields,
+				},
+			]);
+
+			console.log(
+				`${leagueJson.name}'s ${category} property has been set to ${result}!`
+			);
+			return channel.send(
+				`\`${leagueJson.name}\`'s ${category} property has been set to ${result}!`
+			);
+		} else {
+			if (!leagueJson.id) {
+				// Message Collector for the required info for the bot
+				const filter = (m) => m.author === message.author;
+				const collector = message.channel.createMessageCollector(
+					filter,
+					{
+						max: 3,
+					}
+				);
+
+				await channel.send(
+					"What is this league's name? [the whole of your next message will be taken as the league's name]"
+				);
+				collector.on("collect", async (m) => {
+					let leagueName = m.content;
+					base("Leagues").create(
+						[
+							{
+								fields: {
+									Name: leagueName,
+									"Channel ID": channel.id,
+								},
+							},
+						],
+						async (err, records) => {
+							if (err) console.error(err);
+							fields["League"] = [records[0].getId()];
+							console.log(fields["League"]);
+
+							collector.stop();
+
+							await base("Custom Rules").create([
+								{
+									fields: fields,
+								},
+							], async (err2, records2) => {
+								if (err2) console.error(err2);
+							});
+
+							console.log(
+								`${leagueName}'s ${category} property has been set to ${result}!`
+							);
+							return channel.send(
+								`\`${leagueName}\`'s ${category} property has been set to ${result}!`
+							);
+						}
+					);
+				});
+			} else {
+				await base("Custom Rules").create([
+					{
+						fields: fields,
+					},
+				]);
+
+				console.log(
+					`${leagueJson.name}'s ${category} property has been set to ${result}!`
+				);
+				return channel.send(
+					`\`${leagueJson.name}\`'s ${category} property has been set to ${result}!`
+				);
+			}
+		}
 	}
 });
 
