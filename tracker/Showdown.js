@@ -295,6 +295,13 @@ class Showdown {
 						);
 					}
 
+					else if (line.startsWith(`|tier|`)) {
+						if (line.toLowerCase().includes("random")) {
+							this.websocket.send(`${this.battle}|/leave`);
+							return this.message.channel.send(":x: **Error!** This is a Randoms match. I don't work with Randoms matches.");
+						}
+					}
+
 					//At the beginning of every non-randoms match, a list of Pokemon show up.
 					//This code is to get all that
 					else if (line.startsWith(`|poke|`)) {
