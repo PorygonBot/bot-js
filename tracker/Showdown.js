@@ -750,9 +750,6 @@ class Showdown {
 											battle.p1a.statusInflictor,
 											true
 										);
-										console.log(
-											JSON.stringify(battle.p2Pokemon)
-										);
 										battle.p2Pokemon[
 											battle.p1a.statusInflictor.name
 										].killed(deathJson);
