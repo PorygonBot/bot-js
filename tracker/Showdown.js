@@ -45,6 +45,32 @@ class Showdown {
 		this.username = username;
 		this.password = password;
 		this.message = message;
+		//Getting the custom rules for the battle
+		this.rules = {};
+	}
+
+	async getRules() {
+		let rulesId = await util.findRulesId(this.message.channel.id);
+		if (rulesId) {
+			await base("Custom Rules")
+			.find(rulesId, async (err, record) => {
+				if (err) console.error(err);
+				this.rules.hwmemento = await record.get("Healing Wish/Memento");
+				this.rules.recoil = await record.get("Recoil");
+				this.rules.suicide = await record.get("Suicide");
+				this.rules.abilityitem = await record.get("Ability/Item");
+				this.rules.selfteam = await record.get("Self or Teammate");
+				this.rules.db = await record.get("Destiny Bond");
+			});
+		}
+		else {
+			this.rules.hwmemento = "Passive";
+			this.rules.recoil = "Direct";
+			this.rules.suicide = "Direct";
+			this.rules.abilityitem = "Passive";
+			this.rules.selfteam = "None";
+			this.rules.db = "Passive";
+		}
 	}
 
 	async endscript(
@@ -293,12 +319,12 @@ class Showdown {
 							players[0],
 							players[1]
 						);
-					}
-
-					else if (line.startsWith(`|tier|`)) {
+					} else if (line.startsWith(`|tier|`)) {
 						if (line.toLowerCase().includes("random")) {
 							this.websocket.send(`${this.battle}|/leave`);
-							return this.message.channel.send(":x: **Error!** This is a Randoms match. I don't work with Randoms matches.");
+							return this.message.channel.send(
+								":x: **Error!** This is a Randoms match. I don't work with Randoms matches."
+							);
 						}
 					}
 
@@ -424,8 +450,8 @@ class Showdown {
 					//If a weather condition is set
 					else if (line.startsWith(`|-weather|`)) {
 						if (
-							!line.includes("[upkeep]") &&
-							!line.includes("none")
+							!(line.includes("[upkeep]") ||
+							line.includes("none"))
 						) {
 							let weather = parts[1];
 							console.log(line);
@@ -672,6 +698,8 @@ class Showdown {
 							} catch (e) {
 								prevMove = "";
 							}
+							let killer = "";
+							let victim = "";
 
 							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
@@ -682,7 +710,7 @@ class Showdown {
 								) {
 									//Hazards
 									if (victimSide === "p1a") {
-										let killer =
+										killer =
 											battle.hazardsSet.p1[move].name;
 										let deathJson = battle.p1a.died(
 											move,
@@ -692,11 +720,9 @@ class Showdown {
 										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
-										console.log(
-											`${battle.p1a.name} was killed by ${killer} due to hazards.`
-										);
+										victim = battle.p1a.name;
 									} else if (victimSide === "p2a") {
-										let killer =
+										killer =
 											battle.hazardsSet.p2[move].name;
 										let deathJson = battle.p2a.died(
 											move,
@@ -706,38 +732,47 @@ class Showdown {
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
-										console.log(
-											`${battle.p2a.name} was killed by ${killer} due to hazards.`
-										);
+										victim = battle.p2a.name;
 									}
 								} else if (
 									move === "Hail" ||
 									move === "Sandstorm"
 								) {
 									//Weather
+									killer = battle.weatherInflictor;
 									if (victimSide === "p1a") {
-										console.log(battle.weatherInflictor);
-										let killer = battle.weatherInflictor;
+										if (Object.keys(battle.p1Pokemon).includes(killer)) {
+											if (this.rules.selfteam !== "None") killer = battle.p2a.name;
+											else killer = undefined;
+										}
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
-											true
+											this.rules.selfteam === "Passive"
 										);
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+										}
+										victim = battle.p1a.name;
 									}
-									if (victimSide === "p2a") {
-										let killer = battle.weatherInflictor;
+									else if (victimSide === "p2a") {
+										if (Object.keys(battle.p2Pokemon).includes(killer)) {
+											if (this.rules.selfteam !== "None") killer = battle.p1a.name;
+											else killer = undefined;
+										}
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
-											true
+											this.rules.selfteam === "Passive"
 										);
-										console.log(killer);
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+										}
+										victim = battle.p2a.name;
 									}
 								} else if (
 									move === "brn" ||
@@ -745,35 +780,39 @@ class Showdown {
 									move === "tox"
 								) {
 									if (victimSide === "p1a") {
+										killer = battle.p1a.statusInflictor.name;
+										if (Object.keys(battle.p1Pokemon).includes(killer)) {
+											if (this.rules.selfteam !== "None") killer = battle.p2a.name;
+											else killer = undefined;
+										}
 										let deathJson = battle.p1a.died(
 											move,
-											battle.p1a.statusInflictor,
-											true
+											killer,
+											this.rules.selfteam === "Passive"
 										);
-										console.log(
-											JSON.stringify(battle.p2Pokemon)
-										);
-										battle.p2Pokemon[
-											battle.p1a.statusInflictor.name
-										].killed(deathJson);
-										console.log(
-											`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`
-										);
+										if (killer) {
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+										}
+										victim = battle.p1a.name;
 									} else if (victimSide === "p2a") {
+										killer = battle.p2a.statusInflictor.name;
+										if (Object.keys(battle.p2Pokemon).includes(killer)) {
+											if (this.rules.selfteam !== "None") killer = battle.p1a.name;
+											else killer = undefined;
+										}
 										let deathJson = battle.p2a.died(
 											move,
-											battle.p2a.statusInflictor,
-											true
+											killer,
+											this.rules.selfteam === "Passive"
 										);
-										console.log(
-											battle.p2a.statusInflictor.name
-										);
-										battle.p1Pokemon[
-											battle.p2a.statusInflictor.name
-										].killed(deathJson);
-										console.log(
-											`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`
-										);
+										if (killer) {
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+										}
+										victim = battle.p2a.name;
 									}
 								} else if (
 									util.recoilMoves.includes(move) ||
@@ -781,19 +820,27 @@ class Showdown {
 								) {
 									//Recoil deaths
 									if (victimSide == "p1a") {
+										if (this.rules.recoil !== "None") killer = battle.p2a.name;
+										else killer = undefined;
+
 										let deathJson = battle.p1a.died(
 											"recoil",
-											battle.p2a,
-											false
+											killer,
+											this.rules.recoil === "Passive"
 										);
-										battle.p2a.killed(deathJson);
+										if (killer) battle.p2Pokemon[killer].killed(deathJson);
+										victim = battle.p1a.name;
 									} else {
+										if (this.rules.recoil !== "None") killer = battle.p1a;
+										else killer = undefined;
+
 										let deathJson = battle.p2a.died(
 											"recoil",
-											battle.p1a,
-											false
+											killer,
+											this.rules.recoil === "Passive"
 										);
-										battle.p1a.killed(deathJson);
+										if (killer) battle.p1Pokemon[killer].killed(deathJson);
+										victim = battle.p2a.name;
 									}
 								} else if (move.startsWith(`item: `)) {
 									let item = move.split(": ")[1];

@@ -68,11 +68,13 @@ bot.on("message", async (message) => {
 			channel.send("Joining the battle...");
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message);
+			await new Promise(async (resolve, reject) => {
+				await psclient.getRules().then(console.log("rules gotten"));
+			});
 			//Tracking the battle
-			let battleInfo = await new Promise(async (resolve, reject) => {
-				resolve(await psclient.track());
-			}).then(() => {
-				console.log("Tracking done!");
+			await new Promise(async (resolve, reject) => {
+				await psclient.track()
+				resolve();
 			});
 		}
 	}
