@@ -662,7 +662,6 @@ class Showdown {
 
 					//When a Pokemon is damaged, and possibly faints
 					else if (line.startsWith(`|-damage|`)) {
-						//TODO destiny bond
 						if (parts[2].endsWith("fnt")) {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
@@ -678,6 +677,7 @@ class Showdown {
 							}
 							let killer = "";
 							let victim = "";
+							let reason = "";
 
 							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
@@ -712,6 +712,7 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
+									reason = move;
 								} else if (
 									move === "Hail" ||
 									move === "Sandstorm"
@@ -761,6 +762,7 @@ class Showdown {
 										}
 										victim = battle.p2a.name;
 									}
+									reason = move;
 								} else if (
 									move === "brn" ||
 									move === "psn" ||
@@ -813,6 +815,7 @@ class Showdown {
 										}
 										victim = battle.p2a.name;
 									}
+									reason = move;
 								} else if (
 									util.recoilMoves.includes(move) ||
 									move === "Recoil"
@@ -849,6 +852,7 @@ class Showdown {
 											);
 										victim = battle.p2a.name;
 									}
+									reason = "recoil";
 								} else if (move.startsWith(`item: `)) {
 									let item = move.split(": ")[1];
 
@@ -885,6 +889,7 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
+									reason = item;
 								} else if (move.includes(`ability`)) {
 									//Ability deaths
 									let ability = move.split(": ")[1];
@@ -915,6 +920,7 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
+									reason = ability;
 								} else {
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
@@ -936,6 +942,7 @@ class Showdown {
 											battle.p2a.otherAffliction[move]
 										].killed(deathJson);
 									}
+									reason = move;
 								}
 							} else if (
 								prevMove === "Future Sight" ||
@@ -943,26 +950,25 @@ class Showdown {
 							) {
 								//Future Sight or Doom Desire Kill
 								if (victimSide === "p1a") {
-									let killer = battle.hazardsSet.p1[prevMove];
-									console.log(battle.hazardsSet);
-									console.log(prevMove + killer);
+									killer = battle.hazardsSet.p1[prevMove];
 									let deathJson = battle.p1a.died(
 										prevMove,
 										killer,
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
+									victim = battle.p1a.name;
 								} else if (victimSide === "p2a") {
-									let killer = battle.hazardsSet.p2[prevMove];
-									console.log(battle.hazardsSet);
-									console.log(prevMove + killer);
+									killer = battle.hazardsSet.p2[prevMove];
 									let deathJson = battle.p2a.died(
 										prevMove,
 										killer,
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
+									victim = battle.p2a.name;
 								}
+								reason = prevMove;
 							} else {
 								//It's just a regular effing kill
 								if (
@@ -975,6 +981,8 @@ class Showdown {
 										false
 									);
 									battle.p2a.killed(deathJson);
+									killer = battle.p2a.name;
+									victim = battle.p1a.name;
 								} else if (
 									victimSide === "p2a" &&
 									!battle.p2a.isDead
@@ -985,8 +993,12 @@ class Showdown {
 										false
 									);
 									battle.p1a.killed(deathJson);
+									killer = battle.p1a.name;
+									victim = battle.p2a.name;
 								}
+								reason = prevMove;
 							}
+							console.log(`${victim} was killed by ${killer} due to ${reason}.`);
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -999,26 +1011,29 @@ class Showdown {
 							prevLine.startsWith(`|-activate|`) &&
 							prevLine.endsWith(`Destiny Bond`)
 						) {
+							let killer = "";
 							if (victimSide === "p1a") {
+								if (this.rules.db !== "None") killer = battle.p2a;
 								let deathJson = battle.p1a.died(
 									"Destiny Bond",
-									battle.p2a,
-									true
+									killer,
+									this.rules.db === "Passive"
 								);
 								battle.p2a.killed(deathJson);
 								console.log(
-									`${battle.p1a.name} was killed by ${battle.p2a.name}`
+									`${battle.p1a.name} was killed by ${battle.p2a.name} due to Destiny Bond`
 								);
 							}
 							if (victimSide === "p2a") {
+								if (this.rules.db !== "None") killer = battle.p2a;
 								let deathJson = battle.p2a.died(
 									"Destiny Bond",
-									battle.p1a,
-									true
+									killer,
+									this.rules.db === "Passive"
 								);
 								battle.p1a.killed(deathJson);
 								console.log(
-									`${battle.p2a.name} was killed by ${battle.p1a.name}`
+									`${battle.p2a.name} was killed by ${battle.p1a.name} due to Destiny Bond`
 								);
 							}
 						} else {
