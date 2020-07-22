@@ -73,9 +73,6 @@ bot.on("message", async (message) => {
 				await base("Custom Rules")
 				.find(rulesId, async (err, record) => {
 					if (err) console.error(err);
-					let hwmemento = await record.get("Healing Wish/Memento");
-					rules.hwmemento = hwmemento ? hwmemento : "Passive";
-
 					let recoil = await record.get("Recoil");
 					rules.recoil = recoil ? recoil : "Direct";
 
@@ -93,7 +90,6 @@ bot.on("message", async (message) => {
 				});
 			}
 			else {
-				rules.hwmemento = "Passive";
 				rules.recoil = "Direct";
 				rules.suicide = "Direct";
 				rules.abilityitem = "Passive";

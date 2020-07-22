@@ -418,7 +418,9 @@ class Showdown {
 					else if (
 						line.startsWith(`|-supereffective|`) ||
 						line.startsWith(`|upkeep`) ||
-						line.startsWith(`|-resisted|`)
+						line.startsWith(`|-resisted|`) ||
+						line.startsWith(`|-unboost|`) ||
+						line.startsWith(`|-boost|`)
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -1043,7 +1045,9 @@ class Showdown {
 						} else if (
 							prevLine.startsWith(`|move|`) &&
 							(prevLine.includes("Self-Destruct") ||
-								prevLine.includes("Explosion"))
+								prevLine.includes("Explosion") ||
+								prevLine.includes("Memento") ||
+								prevLine.includes("Healing Wish"))
 						) {
 							let prevParts = prevLine.split("|").slice(1);
 							let prevMove = prevParts[2];
