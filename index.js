@@ -73,12 +73,23 @@ bot.on("message", async (message) => {
 				await base("Custom Rules")
 				.find(rulesId, async (err, record) => {
 					if (err) console.error(err);
-					rules.hwmemento = await record.get("Healing Wish/Memento");
-					rules.recoil = await record.get("Recoil");
-					rules.suicide = await record.get("Suicide");
-					rules.abilityitem = await record.get("Ability/Item");
-					rules.selfteam = await record.get("Self or Teammate");
-					rules.db = await record.get("Destiny Bond");
+					let hwmemento = await record.get("Healing Wish/Memento");
+					rules.hwmemento = hwmemento ? hwmemento : "Passive";
+
+					let recoil = await record.get("Recoil");
+					rules.recoil = recoil ? recoil : "Direct";
+
+					let suicide = await record.get("Suicide");
+					rules.suicide = suicide ? suicide : "Direct";
+
+					let abilityitem = await record.get("Ability/Item");
+					rules.abilityitem = abilityitem ? abilityitem : "Passive";
+
+					let selfteam = await record.get("Self or Teammate");
+					rules.selfteam = selfteam ? selfteam : "None";
+
+					let db = await record.get("Destiny Bond");
+					rules.db = db ? db : "Passive";
 				});
 			}
 			else {
@@ -527,7 +538,7 @@ bot.on("message", async (message) => {
 		let result = `${params[1].charAt(0).toUpperCase()}${params[1].replace(
 			params[1].charAt(0),
 			""
-		)}`;
+		).toLowerCase()}`;
 		switch (rule) {
 			case "-hw":
 				category = "Healing Wish/Memento";

@@ -998,7 +998,9 @@ class Showdown {
 								}
 								reason = prevMove;
 							}
-							console.log(`${victim} was killed by ${killer} due to ${reason}.`);
+							console.log(
+								`${victim} was killed by ${killer} due to ${reason}.`
+							);
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -1013,7 +1015,8 @@ class Showdown {
 						) {
 							let killer = "";
 							if (victimSide === "p1a") {
-								if (this.rules.db !== "None") killer = battle.p2a;
+								if (this.rules.db !== "None")
+									killer = battle.p2a;
 								let deathJson = battle.p1a.died(
 									"Destiny Bond",
 									killer,
@@ -1025,7 +1028,8 @@ class Showdown {
 								);
 							}
 							if (victimSide === "p2a") {
-								if (this.rules.db !== "None") killer = battle.p2a;
+								if (this.rules.db !== "None")
+									killer = battle.p2a;
 								let deathJson = battle.p2a.died(
 									"Destiny Bond",
 									killer,
@@ -1034,6 +1038,43 @@ class Showdown {
 								battle.p1a.killed(deathJson);
 								console.log(
 									`${battle.p2a.name} was killed by ${battle.p1a.name} due to Destiny Bond`
+								);
+							}
+						} else if (
+							prevLine.startsWith(`|move|`) &&
+							(prevLine.includes("Self-Destruct") ||
+								prevLine.includes("Explosion"))
+						) {
+							let prevParts = prevLine.split("|").slice(1);
+							let prevMove = prevParts[2];
+
+							let killer = "";
+							if (victimSide === "p1a") {
+								if (this.rules.suicide !== "None")
+									killer = battle.p2a.name;
+								else killer = undefined;
+								let deathJson = battle.p1a.died(
+									prevMove,
+									killer,
+									this.rules.suicide === "Passive"
+								);
+								if (killer) battle.p2a.killed(deathJson);
+								console.log(
+									`${battle.p1a.name} was killed by ${battle.p2a.name} due to ${prevMove}`
+								);
+							}
+							else if (victimSide === "p2a") {
+								if (this.rules.suicide !== "None")
+									killer = battle.p1a.name;
+								else killer = undefined;
+								let deathJson = battle.p2a.died(
+									prevMove,
+									killer,
+									this.rules.suicide === "Passive"
+								);
+								if (killer) battle.p1a.killed(deathJson);
+								console.log(
+									`${battle.p2a.name} was killed by ${battle.p1a.name} due to ${prevMove}`
 								);
 							}
 						} else {
