@@ -26,9 +26,16 @@ class DiscordChannelStats {
 		);
 
 		//finally sending players the info
-		streamChannel.send(
-			`||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
-		);
+		if (info.spoiler) {
+			streamChannel.send(
+				`||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+			);
+		}
+		else {
+			streamChannel.send(
+				`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+			);
+		}
 
 		this.channel.send(
 			`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`

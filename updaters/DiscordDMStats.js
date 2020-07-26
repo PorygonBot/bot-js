@@ -19,9 +19,16 @@ class DiscordDMStats {
 		let message2 = messages[1];
 
 		//finally sending players the info
-		this.author.send(
-			`||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
-		);
+		if (info.spoiler) {
+			this.author.send(
+				`||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+			);
+		}
+		else {
+			this.author.send(
+				`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+			);
+		}
 
 		this.channel.send(
 			`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
