@@ -417,7 +417,7 @@ bot.on("message", async (message) => {
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} mode`)) {
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
-				":x: You're not a moderator. Ask a moderator to add this person for you."
+				":x: You're not a moderator. Ask a moderator to set the mode of this league for you."
 			);
 		}
 
@@ -442,7 +442,7 @@ bot.on("message", async (message) => {
 				break;
 			default:
 				return channel.send(
-					"Need help? Here we go!\n```To use the command, type this: porygon, use mode [either -c, -dm, -default, or -sheets] [optional extension] [optionally --combine] \n\n-c: match-results channel mode. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode.\n-sheets: google sheets mode. Make sure you link the sheet's url at the end of this message, and also give full editing perms to porygon-bot@real-porygon.iam.gserviceaccount.com. \n-default: default mode.\n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.\nAttach --combine at the end of your message if you would like passive and direct kills combined in your stats.```"
+					"Need help? Here we go!\n```This command is used to either set up a new league or change the updating method of an existing league. To use the command, type this:\nporygon, use mode [either -c, -dm, -default, or -s] [optional extension] [optionally --combine] \n\n-c: match-results channel mode. This is where the bot will send your stats to a separate match-results channel. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode. This mode will DM the author of the original message that sent the live link with the stats. \n-s: google sheets mode. This updates your google sheet automatically for you. Make sure you link the sheet's url at the end of this message, and also give full editing perms to porygon-bot@real-porygon.iam.gserviceaccount.com (read the bottom of this message). \n-default: default mode. This will just send the stats in the same channel that the link was sent. \n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.\nAttach --combine at the end of your message if you would like passive and direct kills combined in your stats.\nAdd all of your players to the database with the appropriate range in your sheet (refer to #faq in Porygon).```"
 				);
 		}
 
@@ -563,9 +563,6 @@ bot.on("message", async (message) => {
 		let params = msgParams.split(" ");
 		let rule = params[0];
 		let category = "";
-		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
-			.replace(params[1].charAt(0), "")
-			.toLowerCase()}`;
 		switch (rule) {
 			case "-hw":
 				category = "Healing Wish/Memento";
@@ -595,8 +592,13 @@ bot.on("message", async (message) => {
 				category = "Destiny Bond";
 				break;
 			default:
-				return channel.send("```Testing 123```");
+				return channel.send(
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-hw or -memento: sets the kill rule of aHealing Wish or Memento death.\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+				);
 		}
+		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
+			.replace(params[1].charAt(0), "")
+			.toLowerCase()}`;
 
 		// Updating the rule in the database for the league
 		let rulesId = await util.findRulesId(channel.id);
