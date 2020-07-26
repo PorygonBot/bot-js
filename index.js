@@ -70,26 +70,29 @@ bot.on("message", async (message) => {
 			let rulesId = await util.findRulesId(channel.id);
 			let rules = {};
 			if (rulesId) {
-				await base("Custom Rules")
-				.find(rulesId, async (err, record) => {
-					if (err) console.error(err);
-					let recoil = await record.get("Recoil");
-					rules.recoil = recoil ? recoil : "Direct";
+				await base("Custom Rules").find(
+					rulesId,
+					async (err, record) => {
+						if (err) console.error(err);
+						let recoil = await record.get("Recoil");
+						rules.recoil = recoil ? recoil : "Direct";
 
-					let suicide = await record.get("Suicide");
-					rules.suicide = suicide ? suicide : "Direct";
+						let suicide = await record.get("Suicide");
+						rules.suicide = suicide ? suicide : "Direct";
 
-					let abilityitem = await record.get("Ability/Item");
-					rules.abilityitem = abilityitem ? abilityitem : "Passive";
+						let abilityitem = await record.get("Ability/Item");
+						rules.abilityitem = abilityitem
+							? abilityitem
+							: "Passive";
 
-					let selfteam = await record.get("Self or Teammate");
-					rules.selfteam = selfteam ? selfteam : "None";
+						let selfteam = await record.get("Self or Teammate");
+						rules.selfteam = selfteam ? selfteam : "None";
 
-					let db = await record.get("Destiny Bond");
-					rules.db = db ? db : "Passive";
-				});
-			}
-			else {
+						let db = await record.get("Destiny Bond");
+						rules.db = db ? db : "Passive";
+					}
+				);
+			} else {
 				rules.recoil = "Direct";
 				rules.suicide = "Direct";
 				rules.abilityitem = "Passive";
@@ -100,7 +103,7 @@ bot.on("message", async (message) => {
 			const psclient = new Showdown(battlelink, psServer, message, rules);
 			//Tracking the battle
 			await new Promise(async (resolve, reject) => {
-				await psclient.track()
+				await psclient.track();
 				resolve();
 			});
 		}
@@ -517,7 +520,36 @@ bot.on("message", async (message) => {
 		let response = await Axios.get(link);
 		let data = response.data;
 
-		let replayer = new ReplayTracker(msgParams, message);
+		//Getting the rules
+		let rulesId = await util.findRulesId(channel.id);
+		let rules = {};
+		if (rulesId) {
+			await base("Custom Rules").find(rulesId, async (err, record) => {
+				if (err) console.error(err);
+				let recoil = await record.get("Recoil");
+				rules.recoil = recoil ? recoil : "Direct";
+
+				let suicide = await record.get("Suicide");
+				rules.suicide = suicide ? suicide : "Direct";
+
+				let abilityitem = await record.get("Ability/Item");
+				rules.abilityitem = abilityitem ? abilityitem : "Passive";
+
+				let selfteam = await record.get("Self or Teammate");
+				rules.selfteam = selfteam ? selfteam : "None";
+
+				let db = await record.get("Destiny Bond");
+				rules.db = db ? db : "Passive";
+			});
+		} else {
+			rules.recoil = "Direct";
+			rules.suicide = "Direct";
+			rules.abilityitem = "Passive";
+			rules.selfteam = "None";
+			rules.db = "Passive";
+		}
+
+		let replayer = new ReplayTracker(msgParams, message, rules);
 		channel.send("Analyzing...");
 		await replayer.track(data);
 		console.log(`${link} has been analyzed!`);
@@ -531,10 +563,9 @@ bot.on("message", async (message) => {
 		let params = msgParams.split(" ");
 		let rule = params[0];
 		let category = "";
-		let result = `${params[1].charAt(0).toUpperCase()}${params[1].replace(
-			params[1].charAt(0),
-			""
-		).toLowerCase()}`;
+		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
+			.replace(params[1].charAt(0), "")
+			.toLowerCase()}`;
 		switch (rule) {
 			case "-hw":
 				category = "Healing Wish/Memento";
@@ -618,13 +649,16 @@ bot.on("message", async (message) => {
 
 							collector.stop();
 
-							await base("Custom Rules").create([
-								{
-									fields: fields,
-								},
-							], async (err2, records2) => {
-								if (err2) console.error(err2);
-							});
+							await base("Custom Rules").create(
+								[
+									{
+										fields: fields,
+									},
+								],
+								async (err2, records2) => {
+									if (err2) console.error(err2);
+								}
+							);
 
 							console.log(
 								`${leagueName}'s ${category} property has been set to ${result}!`

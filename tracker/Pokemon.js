@@ -3,6 +3,7 @@ class Pokemon {
         this.name = pokemonName;
         this.status = "n/a";
         this.statusInflictor = "";
+        this.statusType = ""; //Passive or Direct or undefined
         this.otherAffliction = {}; //Like Leech Seed and stuff
         this.causeOfDeath = "n/a";
         this.currentDirectKills = 0;
@@ -19,9 +20,10 @@ class Pokemon {
     }
 
     //If the pokemon gets poisoned, burned, etc.
-    statusEffect(statusInflicted, statusInflictor) {
+    statusEffect(statusInflicted, statusInflictor, statusType) {
         this.status = statusInflicted;
         this.statusInflictor = statusInflictor;
+        this.statusType = statusType;
     }
 
     //If the pokemon gets healed with healing bell, aromatherapy, etc.

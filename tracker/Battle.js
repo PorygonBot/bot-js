@@ -22,6 +22,7 @@ class Battle {
                 "Toxic Spikes": ""
             }
         }
+        this.history = [];
         this.weather = "";
         this.weatherInflictor = "";
         this.turns = 0;

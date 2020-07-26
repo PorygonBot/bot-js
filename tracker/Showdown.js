@@ -137,11 +137,16 @@ class Showdown {
 														recordName +
 														"player"
 												);
-												recordJson.players[
-													recordName === player1
-														? player1
-														: player2
-												].range = recordRange;
+												if (
+													recordName === player1 ||
+													recordName === player2
+												) {
+													recordJson.players[
+														recordName === player1
+															? player1
+															: player2
+													].range = recordRange;
+												}
 
 												resolve();
 											}
@@ -420,7 +425,9 @@ class Showdown {
 						line.startsWith(`|upkeep`) ||
 						line.startsWith(`|-resisted|`) ||
 						line.startsWith(`|-unboost|`) ||
-						line.startsWith(`|-boost|`)
+						line.startsWith(`|-boost|`) ||
+						line.startsWith(`|-activate|`) ||
+						line.startsWith(`|-singleturn|`)
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -434,7 +441,6 @@ class Showdown {
 							)
 						) {
 							let weather = parts[1];
-							console.log(line);
 							let inflictor;
 							try {
 								//Weather is caused by an ability
@@ -450,7 +456,7 @@ class Showdown {
 								if (
 									prevLine
 										.split("|")
-										.slice(1)[2]
+										.slice(1)[1]
 										.startsWith("p1a")
 								) {
 									inflictor = battle.p1a.name;
@@ -494,23 +500,41 @@ class Showdown {
 					else if (line.startsWith(`|-status|`)) {
 						let prevMoveLine = dataArr[dataArr.length - 2];
 						let prevMove = prevMoveLine.split("|").slice(1)[2];
+						let prevPrevMoveLine = dataArr[dataArr.length - 3];
+						let prevPrevMove = prevPrevMoveLine
+							.split("|")
+							.slice(1)[2];
 						console.log("prevmove: " + prevMove);
 						if (
-							prevMoveLine.startsWith(`|move|`) &&
-							(util.toxicMoves.includes(prevMove) ||
-								util.burnMoves.includes(prevMove))
+							(prevMoveLine.startsWith(`|move|`) &&
+								(util.toxicMoves.includes(prevMove) ||
+									util.burnMoves.includes(prevMove))) ||
+							(prevPrevMoveLine.startsWith(`|move|`) &&
+								(util.toxicMoves.includes(prevPrevMove) ||
+									util.burnMoves.includes(prevPrevMove)))
 						) {
 							//If status was caused by a move
 							if (
 								prevMoveLine
 									.split("|")
 									.slice(1)[1]
+									.startsWith("p1a") ||
+								prevPrevMoveLine
+									.split("|")
+									.slice(1)[1]
 									.startsWith("p1a")
 							) {
-								battle.p2a.statusEffect(parts[2], battle.p1a);
+								battle.p2a.statusEffect(
+									parts[2],
+									battle.p1a,
+									"Passive"
+								);
 							} else {
-								battle.p1a.statusEffect(parts[2], battle.p2a);
-								console.log(battle.p1a);
+								battle.p1a.statusEffect(
+									parts[2],
+									battle.p2a,
+									"Passive"
+								);
 							}
 						} else if (
 							line.includes("ability") &&
@@ -521,17 +545,33 @@ class Showdown {
 							//Ability status
 							let victimSide = parts[1].split(": ")[0];
 							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(parts[2], battle.p2a);
+								battle.p1a.statusEffect(
+									parts[2],
+									battle.p2a,
+									this.rules.abilityitem
+								);
 							} else {
-								battle.p2a.statusEffect(parts[2], battle.p1a);
+								battle.p2a.statusEffect(
+									parts[2],
+									battle.p1a,
+									this.rules.abilityitem
+								);
 							}
 						} else if (line.includes("item")) {
 							let item = parts[3].split(": ")[1];
 							let victimSide = parts[1].split(": ")[0];
 							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(parts[2], battle.p2a);
+								battle.p1a.statusEffect(
+									parts[2],
+									battle.p2a,
+									this.rules.abilityitem
+								);
 							} else {
-								battle.p2a.statusEffect(parts[2], battle.p1a);
+								battle.p2a.statusEffect(
+									parts[2],
+									battle.p1a,
+									this.rules.abilityitem
+								);
 							}
 						} else {
 							//If status wasn't caused by a move, but rather something like a hazard
@@ -714,7 +754,7 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
-									reason = move;
+									reason = `${move} (passive)`;
 								} else if (
 									move === "Hail" ||
 									move === "Sandstorm"
@@ -734,7 +774,7 @@ class Showdown {
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
-											this.rules.selfteam === "Passive"
+											true
 										);
 										if (killer) {
 											battle.p2Pokemon[killer].killed(
@@ -755,7 +795,7 @@ class Showdown {
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
-											this.rules.selfteam === "Passive"
+											true
 										);
 										if (killer) {
 											battle.p1Pokemon[killer].killed(
@@ -764,7 +804,7 @@ class Showdown {
 										}
 										victim = battle.p2a.name;
 									}
-									reason = move;
+									reason = `${move} (passive)`;
 								} else if (
 									move === "brn" ||
 									move === "psn" ||
@@ -785,7 +825,7 @@ class Showdown {
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
-											this.rules.selfteam === "Passive"
+											battle.p1a.statusType === "Passive"
 										);
 										if (killer) {
 											battle.p2Pokemon[killer].killed(
@@ -793,6 +833,11 @@ class Showdown {
 											);
 										}
 										victim = battle.p1a.name;
+										reason = `${move} (${
+											battle.p1a.statusType === "Passive"
+												? "passive"
+												: "direct"
+										})`;
 									} else if (victimSide === "p2a") {
 										killer =
 											battle.p2a.statusInflictor.name;
@@ -808,7 +853,7 @@ class Showdown {
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
-											this.rules.selfteam === "Passive"
+											battle.p2a.statusType === "Passive"
 										);
 										if (killer) {
 											battle.p1Pokemon[killer].killed(
@@ -816,8 +861,12 @@ class Showdown {
 											);
 										}
 										victim = battle.p2a.name;
+										reason = `${move} (${
+											battle.p2a.statusType === "Passive"
+												? "passive"
+												: "direct"
+										})`;
 									}
-									reason = move;
 								} else if (
 									util.recoilMoves.includes(move) ||
 									move === "Recoil"
@@ -840,7 +889,7 @@ class Showdown {
 										victim = battle.p1a.name;
 									} else {
 										if (this.rules.recoil !== "None")
-											killer = battle.p1a;
+											killer = battle.p1a.name;
 										else killer = undefined;
 
 										let deathJson = battle.p2a.died(
@@ -854,7 +903,11 @@ class Showdown {
 											);
 										victim = battle.p2a.name;
 									}
-									reason = "recoil";
+									reason = `recoil (${
+										this.rules.recoil === "Passive"
+											? "passive"
+											: "direct"
+									})`;
 								} else if (move.startsWith(`item: `)) {
 									let item = move.split(": ")[1];
 
@@ -891,7 +944,11 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
-									reason = item;
+									reason = `${item} (${
+										this.rules.abilityitem === "Passive"
+											? "passive"
+											: "direct"
+									})`;
 								} else if (move.includes(`ability`)) {
 									//Ability deaths
 									let ability = move.split(": ")[1];
@@ -922,7 +979,11 @@ class Showdown {
 										);
 										victim = battle.p2a.name;
 									}
-									reason = ability;
+									reason = `${ability} (${
+										this.rules.abilityitem === "Passive"
+											? "passive"
+											: "direct"
+									})`;
 								} else {
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
@@ -944,7 +1005,7 @@ class Showdown {
 											battle.p2a.otherAffliction[move]
 										].killed(deathJson);
 									}
-									reason = move;
+									reason = `${move} (passive)`;
 								}
 							} else if (
 								prevMove === "Future Sight" ||
@@ -970,9 +1031,10 @@ class Showdown {
 									battle.p1Pokemon[killer].killed(deathJson);
 									victim = battle.p2a.name;
 								}
-								reason = prevMove;
+								reason = `${prevMove} (passive)`;
 							} else {
 								//It's just a regular effing kill
+								prevMove = prevMoveLine.split("|").slice(1)[2];
 								if (
 									victimSide === "p1a" &&
 									!battle.p1a.isDead
@@ -998,9 +1060,12 @@ class Showdown {
 									killer = battle.p1a.name;
 									victim = battle.p2a.name;
 								}
-								reason = prevMove;
+								reason = `${prevMove} (direct)`;
 							}
 							console.log(
+								`${victim} was killed by ${killer} due to ${reason}.`
+							);
+							battle.history.push(
 								`${victim} was killed by ${killer} due to ${reason}.`
 							);
 						}
@@ -1028,6 +1093,9 @@ class Showdown {
 								console.log(
 									`${battle.p1a.name} was killed by ${battle.p2a.name} due to Destiny Bond`
 								);
+								battle.history.push(
+									`${battle.p1a.name} was killed by ${battle.p2a.name} due to Destiny Bond`
+								);
 							}
 							if (victimSide === "p2a") {
 								if (this.rules.db !== "None")
@@ -1039,6 +1107,9 @@ class Showdown {
 								);
 								battle.p1a.killed(deathJson);
 								console.log(
+									`${battle.p2a.name} was killed by ${battle.p1a.name} due to Destiny Bond`
+								);
+								battle.history.push(
 									`${battle.p2a.name} was killed by ${battle.p1a.name} due to Destiny Bond`
 								);
 							}
@@ -1053,21 +1124,7 @@ class Showdown {
 							let prevMove = prevParts[2];
 
 							let killer = "";
-							if (victimSide === "p1a") {
-								if (this.rules.suicide !== "None")
-									killer = battle.p2a.name;
-								else killer = undefined;
-								let deathJson = battle.p1a.died(
-									prevMove,
-									killer,
-									this.rules.suicide === "Passive"
-								);
-								if (killer) battle.p2a.killed(deathJson);
-								console.log(
-									`${battle.p1a.name} was killed by ${battle.p2a.name} due to ${prevMove}`
-								);
-							}
-							else if (victimSide === "p2a") {
+							if (victimSide === "p2a") {
 								if (this.rules.suicide !== "None")
 									killer = battle.p1a.name;
 								else killer = undefined;
@@ -1076,10 +1133,65 @@ class Showdown {
 									killer,
 									this.rules.suicide === "Passive"
 								);
-								if (killer) battle.p1a.killed(deathJson);
-								console.log(
-									`${battle.p2a.name} was killed by ${battle.p1a.name} due to ${prevMove}`
+								if (killer) {
+									battle.p1a.killed(deathJson);
+									console.log(
+										`${battle.p2a.name} was killed by ${
+											battle.p1a.name
+										} due to ${prevMove} (${
+											this.rules.suicide === "Passive"
+												? "passive"
+												: "direct"
+										})`
+									);
+									battle.history.push(
+										`${battle.p2a.name} was killed by ${
+											battle.p1a.name
+										} due to ${prevMove} (${
+											this.rules.suicide === "Passive"
+												? "passive"
+												: "direct"
+										})`
+									);
+								} else {
+									console.log(
+										`${battle.p2a.name} died to ${prevMove}.`
+									);
+								}
+							} else if (victimSide === "p1a") {
+								if (this.rules.suicide !== "None")
+									killer = battle.p2a.name;
+								else killer = undefined;
+								let deathJson = battle.p1a.died(
+									prevMove,
+									killer,
+									this.rules.suicide === "Passive"
 								);
+								if (killer) {
+									battle.p2a.killed(deathJson);
+									console.log(
+										`${battle.p1a.name} was killed by ${
+											battle.p2a.name
+										} due to ${prevMove} (${
+											this.rules.suicide === "Passive"
+												? "passive"
+												: "direct"
+										})`
+									);
+									battle.history.push(
+										`${battle.p1a.name} was killed by ${
+											battle.p2a.name
+										} due to ${prevMove} (${
+											this.rules.suicide === "Passive"
+												? "passive"
+												: "direct"
+										})`
+									);
+								} else {
+									console.log(
+										`${battle.p1a.name} died to ${prevMove}.`
+									);
+								}
 							}
 						} else {
 							//Regular kill if it wasn't picked up by the |-damage| statement
@@ -1090,7 +1202,11 @@ class Showdown {
 									false
 								);
 								battle.p2a.killed(deathJson);
+								console.log(prevLine);
 								console.log(
+									`${battle.p1a.name} was killed by ${battle.p2a.name}`
+								);
+								battle.history.push(
 									`${battle.p1a.name} was killed by ${battle.p2a.name}`
 								);
 							} else if (
@@ -1104,6 +1220,9 @@ class Showdown {
 								);
 								battle.p1a.killed(deathJson);
 								console.log(
+									`${battle.p2a.name} was killed by ${battle.p1a.name}`
+								);
+								battle.history.push(
 									`${battle.p2a.name} was killed by ${battle.p1a.name}`
 								);
 							}
@@ -1146,12 +1265,26 @@ class Showdown {
 					else if (line.startsWith("|queryresponse|savereplay")) {
 						let replayData = JSON.parse(data.substring(26));
 						battle.replay = await this.requestReplay(replayData);
+						await axios.post(
+							`https://kills.porygonbot.xyz/${
+								battle.replay.split("/")[3]
+							}`,
+							battle.history.join("<br>"),
+							{
+								headers: {
+									"Content-Length": 0,
+									"Content-Type": "text/plain",
+								},
+								responseType: "text",
+							}
+						);
 
 						let info = {
 							replay: battle.replay,
 							turns: battle.turns,
 							winner: battle.winner,
 							loser: battle.loser,
+							history: `https://kills.porygonbot.xyz/${battle.replay.split("/")[3]}`
 						};
 
 						//Creating the objects for kills and deaths
