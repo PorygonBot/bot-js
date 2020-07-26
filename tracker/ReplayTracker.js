@@ -293,7 +293,6 @@ class ReplayTracker {
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
 					let prevPrevMoveLine = dataArr[dataArr.length - 3];
 					let prevPrevMove = prevPrevMoveLine.split("|").slice(1)[2];
-					console.log("prevmove: " + prevMove);
 					if (
 						(prevMoveLine.startsWith(`|move|`) &&
 							(util.toxicMoves.includes(prevMove) ||
@@ -308,10 +307,12 @@ class ReplayTracker {
 								.split("|")
 								.slice(1)[1]
 								.startsWith("p1a") ||
-							prevPrevMoveLine
-								.split("|")
-								.slice(1)[1]
-								.startsWith("p1a")
+							(prevPrevMoveLine.split("|").slice(1)[1]
+								? prevPrevMoveLine
+										.split("|")
+										.slice(1)[1]
+										.startsWith("p1a")
+								: undefined)
 						) {
 							battle.p2a.statusEffect(
 								parts[2],
@@ -1018,7 +1019,7 @@ class ReplayTracker {
 						turns: battle.turns,
 						winner: battle.winner,
 						loser: battle.loser,
-						history: `https://kills.porygonbot.xyz/${this.battle}`
+						history: `https://kills.porygonbot.xyz/${this.battle}`,
 					};
 
 					//Creating the objects for kills and deaths
@@ -1048,9 +1049,7 @@ class ReplayTracker {
 					}
 
 					await axios.post(
-						`https://kills.porygonbot.xyz/${
-							this.battle
-						}`,
+						`https://kills.porygonbot.xyz/${this.battle}`,
 						battle.history.join("<br>"),
 						{
 							headers: {
