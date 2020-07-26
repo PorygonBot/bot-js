@@ -108,7 +108,7 @@ const findLeagueId = async (checkChannelId) => {
 };
 
 const findRulesId = async (checkChannelId) => {
-	let recordId;
+	let recordId = "";
 
 	await base("Custom Rules")
 		.select({
