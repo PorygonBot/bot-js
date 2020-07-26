@@ -56,10 +56,7 @@ const genMessage = (matchJson) => {
 			} kills and ${deathJson2[pokemon]} deaths. \n`;
 		}
 	}
-
-	//Spoiler tagging the stats
-	message1 = `||${message1}||`;
-	message2 = `||${message2}||`;
+	
 	return [message1, message2];
 };
 

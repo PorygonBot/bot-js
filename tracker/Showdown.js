@@ -520,10 +520,12 @@ class Showdown {
 									.split("|")
 									.slice(1)[1]
 									.startsWith("p1a") ||
-								prevPrevMoveLine
-									.split("|")
-									.slice(1)[1]
-									.startsWith("p1a")
+								(prevPrevMoveLine.split("|").slice(1)[1]
+									? prevPrevMoveLine
+											.split("|")
+											.slice(1)[1]
+											.startsWith("p1a")
+									: undefined)
 							) {
 								battle.p2a.statusEffect(
 									parts[2],
@@ -1301,7 +1303,9 @@ class Showdown {
 							turns: battle.turns,
 							winner: battle.winner,
 							loser: battle.loser,
-							history: `https://kills.porygonbot.xyz/${battle.replay.split("/")[3]}`
+							history: `https://kills.porygonbot.xyz/${
+								battle.replay.split("/")[3]
+							}`,
 						};
 
 						//Creating the objects for kills and deaths
