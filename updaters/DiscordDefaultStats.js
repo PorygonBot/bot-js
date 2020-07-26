@@ -18,7 +18,7 @@ class DiscordDefaultStats {
 
 		//finally sending players the info
 		this.channel.send(
-			`Battle complete!\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}`
+			`Battle complete!\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
 		);
 	}
 }

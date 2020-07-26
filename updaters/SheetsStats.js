@@ -257,7 +257,7 @@ class SheetsStats {
 		});
 
 		this.channel.send(
-			`Battle between \`${this.player1}\` and \`${this.player2}\` is complete and info has been updated!\nReplay: ${replay}`
+			`Battle between \`${this.player1}\` and \`${this.player2}\` is complete and info has been updated!\nReplay: ${replay}\n**History: **${info.history}`
 		);
 		return {
 			res1: res1,
