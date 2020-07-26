@@ -90,6 +90,13 @@ bot.on("message", async (message) => {
 
 						let db = await record.get("Destiny Bond");
 						rules.db = db ? db : "Passive";
+
+						let spoiler = await record.get("Spoiler");
+						rules.spoiler = spoiler
+							? spoiler === "True"
+								? true
+								: false
+							: true;
 					}
 				);
 			} else {
@@ -98,6 +105,7 @@ bot.on("message", async (message) => {
 				rules.abilityitem = "Passive";
 				rules.selfteam = "None";
 				rules.db = "Passive";
+				rules.spoiler = true;
 			}
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
@@ -541,6 +549,13 @@ bot.on("message", async (message) => {
 
 				let db = await record.get("Destiny Bond");
 				rules.db = db ? db : "Passive";
+
+				let spoiler = await record.get("Spoiler");
+				rules.spoiler = spoiler
+					? spoiler === "True"
+						? true
+						: false
+					: true;
 			});
 		} else {
 			rules.recoil = "Direct";
@@ -548,6 +563,7 @@ bot.on("message", async (message) => {
 			rules.abilityitem = "Passive";
 			rules.selfteam = "None";
 			rules.db = "Passive";
+			rules.spoiler = true;
 		}
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
@@ -586,9 +602,12 @@ bot.on("message", async (message) => {
 			case "-db":
 				category = "Destiny Bond";
 				break;
+			case "-spoiler":
+				category = "Spoiler";
+				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
 		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
