@@ -867,7 +867,7 @@ class Showdown {
 											battle.p2a.statusInflictor.name
 										].killed(deathJson);
 										console.log(
-											`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`
+											`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`,
 											killer,
 											battle.p2a.statusType === "Passive"
 										);
