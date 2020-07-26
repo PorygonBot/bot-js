@@ -222,7 +222,8 @@ class ReplayTracker {
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
 					line.startsWith(`|-activate|`) ||
-					line.startsWith(`|-singleturn|`)
+					line.startsWith(`|-singleturn|`) ||
+					line.startsWith(`|-crit|`)
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
 				}
