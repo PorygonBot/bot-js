@@ -687,6 +687,23 @@ bot.on("message", async (message) => {
 				);
 			}
 		}
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} tri-attack`)) {
+		let rand = Math.round(Math.random() * 5);
+		let m = await channel.send("Porygon used Tri-Attack!");
+		switch (rand) {
+			case 1:
+				return m.edit("Porygon used Tri-Attack! It burned the target!");
+			case 2:
+				return m.edit("Porygon used Tri-Attack! It froze the target!");
+			case 3:
+				return m.edit(
+					"Porygon used Tri-Attack! It paralyzed the target!"
+				);
+			default:
+				return m.edit(
+					"Porygon used Tri-Attack! No secondary effect on the target."
+				);
+		}
 	}
 });
 
