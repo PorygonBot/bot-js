@@ -125,7 +125,7 @@ bot.on("message", async (message) => {
 			.setThumbnail(bicon)
 			.setColor(0xffc0cb)
 			.addField(
-				'help [optional: "commands"]',
+				'help',
 				"How to use the bot, and lists the commands it has."
 			)
 			.addField(
@@ -151,6 +151,18 @@ bot.on("message", async (message) => {
 			.addField(
 				"mode",
 				"Command to get started with the bot in your server."
+			)
+			.addField(
+				"analyze [replay link]",
+				"Analyzes a given PS replay link."
+			)
+			.addField(
+				"rule",
+				"Command to see what custom rules are available for kill attributions while collecting stats."
+			)
+			.addField(
+				"tri-attack",
+				"kek"
 			);
 
 		return channel.send(helpEmbed);
