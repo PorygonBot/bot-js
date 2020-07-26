@@ -565,12 +565,6 @@ bot.on("message", async (message) => {
 		let rule = params[0];
 		let category = "";
 		switch (rule) {
-			case "-hw":
-				category = "Healing Wish/Memento";
-				break;
-			case "-memento":
-				category = "Healing Wish/Memento";
-				break;
 			case "-recoil":
 				category = "Recoil";
 				break;
@@ -594,7 +588,7 @@ bot.on("message", async (message) => {
 				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-hw or -memento: sets the kill rule of aHealing Wish or Memento death.\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
 		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
