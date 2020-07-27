@@ -293,6 +293,7 @@ class ReplayTracker {
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
 					let prevPrevMoveLine = dataArr[dataArr.length - 3];
 					let prevPrevMove = prevPrevMoveLine.split("|").slice(1)[2];
+					console.log("prevmove: " + prevMove);
 					if (
 						(prevMoveLine.startsWith(`|move|`) &&
 							(util.toxicMoves.includes(prevMove) ||
@@ -597,6 +598,14 @@ class ReplayTracker {
 									}
 									let deathJson = battle.p1a.died(
 										move,
+										battle.p1a.statusInflictor,
+										true
+									);
+									battle.p2Pokemon[
+										battle.p1a.statusInflictor.name
+									].killed(deathJson);
+									console.log(
+										`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`,
 										killer,
 										battle.p1a.statusType === "Passive"
 									);
@@ -624,6 +633,14 @@ class ReplayTracker {
 									}
 									let deathJson = battle.p2a.died(
 										move,
+										battle.p2a.statusInflictor,
+										true
+									);
+									battle.p1Pokemon[
+										battle.p2a.statusInflictor.name
+									].killed(deathJson);
+									console.log(
+										`${battle.p2a.name} was killed by ${battle.p2a.statusInflictor.name}`,
 										killer,
 										battle.p2a.statusType === "Passive"
 									);
@@ -1020,7 +1037,7 @@ class ReplayTracker {
 						winner: battle.winner,
 						loser: battle.loser,
 						history: `https://kills.porygonbot.xyz/${this.battle}`,
-						spoiler: this.rules.spoiler
+						spoiler: this.rules.spoiler,
 					};
 
 					//Creating the objects for kills and deaths
