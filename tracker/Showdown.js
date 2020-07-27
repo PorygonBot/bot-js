@@ -888,7 +888,7 @@ class Showdown {
 									}
 								} else if (
 									util.recoilMoves.includes(move) ||
-									move === "Recoil"
+									move.toLowerCase() === "recoil"
 								) {
 									//Recoil deaths
 									if (victimSide == "p1a") {
