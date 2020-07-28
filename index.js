@@ -97,6 +97,8 @@ bot.on("message", async (message) => {
 								? true
 								: false
 							: true;
+						let ping = await record.get("Ping");
+						rules.ping = ping ? ping : "";
 					}
 				);
 			} else {
@@ -106,6 +108,7 @@ bot.on("message", async (message) => {
 				rules.selfteam = "None";
 				rules.db = "Passive";
 				rules.spoiler = true;
+				rules.ping = "";
 			}
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
@@ -125,7 +128,7 @@ bot.on("message", async (message) => {
 			.setThumbnail(bicon)
 			.setColor(0xffc0cb)
 			.addField(
-				'help',
+				"help",
 				"How to use the bot, and lists the commands it has."
 			)
 			.addField(
@@ -160,10 +163,7 @@ bot.on("message", async (message) => {
 				"rule",
 				"Command to see what custom rules are available for kill attributions while collecting stats."
 			)
-			.addField(
-				"tri-attack",
-				"kek"
-			);
+			.addField("tri-attack", "kek");
 
 		return channel.send(helpEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} add`)) {
@@ -568,6 +568,8 @@ bot.on("message", async (message) => {
 						? true
 						: false
 					: true;
+				let ping = await record.get("Ping");
+				rules.ping = ping ? ping : "";
 			});
 		} else {
 			rules.recoil = "Direct";
@@ -576,6 +578,7 @@ bot.on("message", async (message) => {
 			rules.selfteam = "None";
 			rules.db = "Passive";
 			rules.spoiler = true;
+			rules.ping = "";
 		}
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
@@ -617,20 +620,26 @@ bot.on("message", async (message) => {
 			case "-spoiler":
 				category = "Spoiler";
 				break;
+			case "-ping":
+				category = "Ping";
+				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the bot @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
-		let result = `${params[1].charAt(0).toUpperCase()}${params[1]
-			.replace(params[1].charAt(0), "")
-			.toLowerCase()}`;
+		let result =
+			rule !== "-ping"
+				? `${params[1].charAt(0).toUpperCase()}${params[1]
+						.replace(params[1].charAt(0), "")
+						.toLowerCase()}`
+				: params[1];
 
 		// Updating the rule in the database for the league
 		let rulesId = await util.findRulesId(channel.id);
 		let leagueJson = await util.findLeagueId(channel.id);
 		let fields = { League: [leagueJson.id], "Channel ID": channel.id };
-		fields[category] = result;
+		fields[category] = result === "remove" ? "" : result;
 		if (rulesId) {
 			await base("Custom Rules").update([
 				{

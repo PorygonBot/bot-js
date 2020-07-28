@@ -225,7 +225,8 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send("Battle joined! Keeping track of stats now.");
+		this.message.channel.send(`Battle joined! Keeping track of stats now. ${this.rules.ping}`);
+		this.websocket.send(`${this.battle}|Battle joined! Keeping track of stats now.`);
 	}
 
 	async requestReplay(data) {
@@ -244,7 +245,6 @@ class Showdown {
 
 		console.log("Replay posted!");
 		let replay = `https://replay.pokemonshowdown.com/${data.id}`;
-		//console.log(`Response to replay: ${response.data}`);
 
 		return replay;
 	}
