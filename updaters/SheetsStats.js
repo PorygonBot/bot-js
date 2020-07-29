@@ -55,6 +55,7 @@ class SheetsStats {
 		let killJsonp2Separated = recordJson.players[this.player2].kills;
 		let deathJsonp2 = recordJson.players[this.player2].deaths;
 		let replay = recordJson.info.replay;
+		let history = recordJson.info.history;
 		let combinePD = recordJson.combinePD;
 		let killJsonp1 = {};
 		let killJsonp2 = {};
@@ -257,7 +258,7 @@ class SheetsStats {
 		});
 
 		this.channel.send(
-			`Battle between \`${this.player1}\` and \`${this.player2}\` is complete and info has been updated!\nReplay: ${replay}\n**History: **${info.history}`
+			`Battle between \`${this.player1}\` and \`${this.player2}\` is complete and info has been updated!\nReplay: ${replay}\n**History: **${history}`
 		);
 		return {
 			res1: res1,
