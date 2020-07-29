@@ -138,8 +138,8 @@ class Showdown {
 														"player"
 												);
 												if (
-													recordName === player1 ||
-													recordName === player2
+													recordName.toLowerCase() === player1.toLowerCase() ||
+													recordName.toLowerCase() === player2.toLowerCase()
 												) {
 													recordJson.players[
 														recordName === player1
