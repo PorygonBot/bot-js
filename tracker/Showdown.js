@@ -525,17 +525,17 @@ class Showdown {
 											.split("|")
 											.slice(1)[1]
 											.startsWith("p1a")
-									: undefined)
+									: false)
 							) {
-								battle.p2a.statusEffect(
+								battle.p1a.statusEffect(
 									parts[2],
-									battle.p1a,
+									battle.p2a.name,
 									"Passive"
 								);
 							} else {
-								battle.p1a.statusEffect(
+								battle.p2a.statusEffect(
 									parts[2],
-									battle.p2a,
+									battle.p1a.name,
 									"Passive"
 								);
 							}
@@ -815,7 +815,7 @@ class Showdown {
 								) {
 									if (victimSide === "p1a") {
 										killer =
-											battle.p1a.statusInflictor.name;
+											battle.p1a.statusInflictor;
 										if (
 											Object.keys(
 												battle.p1Pokemon
@@ -827,16 +827,8 @@ class Showdown {
 										}
 										let deathJson = battle.p1a.died(
 											move,
-											battle.p1a.statusInflictor,
-											true
-										);
-										battle.p2Pokemon[
-											battle.p1a.statusInflictor.name
-										].killed(deathJson);
-										console.log(
-											`${battle.p1a.name} was killed by ${battle.p1a.statusInflictor.name}`,
 											killer,
-											battle.p1a.statusType === "Passive"
+											true
 										);
 										if (killer) {
 											battle.p2Pokemon[killer].killed(
