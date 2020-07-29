@@ -527,17 +527,19 @@ class Showdown {
 											.startsWith("p1a")
 									: false)
 							) {
-								battle.p1a.statusEffect(
-									parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-							} else {
 								battle.p2a.statusEffect(
 									parts[2],
 									battle.p1a.name,
 									"Passive"
 								);
+								console.log(battle.p2a.statusInflictor);
+							} else {
+								battle.p1a.statusEffect(
+									parts[2],
+									battle.p2a.name,
+									"Passive"
+								);
+								console.log(battle.p1a.statusInflictor);
 							}
 						} else if (
 							line.includes("ability") &&
