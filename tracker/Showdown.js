@@ -550,15 +550,16 @@ class Showdown {
 							if (victimSide === "p1a") {
 								battle.p1a.statusEffect(
 									parts[2],
-									battle.p2a,
+									battle.p2a.name,
 									this.rules.abilityitem
 								);
 							} else {
 								battle.p2a.statusEffect(
 									parts[2],
-									battle.p1a,
+									battle.p1a.name,
 									this.rules.abilityitem
 								);
+								console.log(battle.p2a.statusInflictor);
 							}
 						} else if (line.includes("item")) {
 							let item = parts[3].split(": ")[1];
@@ -566,13 +567,13 @@ class Showdown {
 							if (victimSide === "p1a") {
 								battle.p1a.statusEffect(
 									parts[2],
-									battle.p2a,
+									battle.p2a.name,
 									this.rules.abilityitem
 								);
 							} else {
 								battle.p2a.statusEffect(
 									parts[2],
-									battle.p1a,
+									battle.p1a.name,
 									this.rules.abilityitem
 								);
 							}
@@ -855,7 +856,7 @@ class Showdown {
 										}
 										let deathJson = battle.p2a.died(
 											move,
-											battle.p2a.statusInflictor,
+											killer,
 											true
 										);
 										if (killer) {
