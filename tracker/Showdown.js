@@ -142,7 +142,7 @@ class Showdown {
 													recordName.toLowerCase() === player2.toLowerCase()
 												) {
 													recordJson.players[
-														recordName === player1
+														recordName.toLowerCase() === player1.toLowerCase()
 															? player1
 															: player2
 													].range = recordRange;
