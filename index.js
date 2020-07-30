@@ -99,6 +99,9 @@ bot.on("message", async (message) => {
 							: true;
 						let ping = await record.get("Ping");
 						rules.ping = ping ? ping : "";
+
+						let forfeit = await record.get("Forfeit");
+						rules.forfeit = forfeit ? forfeit : "None";
 					}
 				);
 			} else {
@@ -109,6 +112,7 @@ bot.on("message", async (message) => {
 				rules.db = "Passive";
 				rules.spoiler = true;
 				rules.ping = "";
+				rules.forfeit = "None";
 			}
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
@@ -570,6 +574,9 @@ bot.on("message", async (message) => {
 					: true;
 				let ping = await record.get("Ping");
 				rules.ping = ping ? ping : "";
+
+				let forfeit = await record.get("Forfeit");
+				rules.forfeit = forfeit ? forfeit : "None";
 			});
 		} else {
 			rules.recoil = "Direct";
@@ -579,6 +586,7 @@ bot.on("message", async (message) => {
 			rules.db = "Passive";
 			rules.spoiler = true;
 			rules.ping = "";
+			rules.forfeit = "None";
 		}
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
@@ -623,9 +631,12 @@ bot.on("message", async (message) => {
 			case "-ping":
 				category = "Ping";
 				break;
+			case "-forfeit":
+				category = "Forfeit";
+				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the bot @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n\n Ending the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the bot @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
 		let result =
@@ -739,7 +750,7 @@ bot.on("message", async (message) => {
 				);
 		}
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} conversion`)) {
-		let rand = Math.round(Math.random() * (17-0+1)+0);
+		let rand = Math.round(Math.random() * (17 - 0 + 1) + 0);
 		let type = "";
 		switch (rand) {
 			case 0:
@@ -797,7 +808,9 @@ bot.on("message", async (message) => {
 				type = "Water";
 				break;
 		}
-		return channel.send(`Porygon used Conversion! Porygon's type changed to ${type}!`);
+		return channel.send(
+			`Porygon used Conversion! Porygon's type changed to ${type}!`
+		);
 	}
 });
 

@@ -1235,6 +1235,40 @@ class Showdown {
 						}
 					}
 
+					//Messages sent by the server
+					else if (line.startsWith(`|-message|`)) {
+						let messageParts = parts[1].split(" ");
+						if (line.endsWith("forfeited.")) {
+							let forfeiter = messageParts[0];
+							if (this.rules.forfeit !== "None") {
+								if (forfeiter === battle.p1) {
+									let numDead;
+									for (let pokemon of Object.values(battle.p1Pokemon)) {
+										if (!pokemon.isDead) numDead++;
+									}
+									if (this.rules.forfeit === "Direct") {
+										battle.p2a.currentDirectKills += numDead;
+									}
+									else if (this.rules.forfeit === "Passive") {
+										battle.p2a.currentPassiveKills += numDead;
+									}
+								}
+								else {
+									let numDead = 0;
+									for (let pokemon of Object.values(battle.p2Pokemon)) {
+										if (!pokemon.isDead) numDead++;
+									}
+									if (this.rules.forfeit === "Direct") {
+										battle.p1a.currentDirectKills += numDead;
+									}
+									else if (this.rules.forfeit === "Passive") {
+										battle.p1a.currentPassiveKills += numDead;
+									}
+								}
+							}
+						}
+					}
+
 					//At the end of the match, when the winner is announced
 					else if (line.startsWith(`|win|`)) {
 						battle.winner = parts[1];
@@ -1249,6 +1283,7 @@ class Showdown {
 
 						//Giving mons their proper kills
 						//Team 1
+						battle.p1Pokemon[battle.p1a.name] = battle.p1a;
 						for (let pokemon of Object.values(battle.p1Pokemon)) {
 							battle.p1Pokemon[pokemon.name].directKills +=
 								pokemon.currentDirectKills;
@@ -1256,6 +1291,7 @@ class Showdown {
 								pokemon.currentPassiveKills;
 						}
 						//Team 2
+						battle.p2Pokemon[battle.p2a.name] = battle.p2a;
 						for (let pokemon of Object.values(battle.p2Pokemon)) {
 							battle.p2Pokemon[pokemon.name].directKills +=
 								pokemon.currentDirectKills;
