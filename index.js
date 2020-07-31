@@ -177,8 +177,8 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			channel.name.includes("live-links") ||
-			channel.name.includes("live-battles")
+			!channel.name.includes("live-links") ||
+			!channel.name.includes("live-battles")
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -253,8 +253,8 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			channel.name.includes("live-links") ||
-			channel.name.includes("live-battles")
+			!channel.name.includes("live-links") ||
+			!channel.name.includes("live-battles")
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -315,8 +315,8 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			channel.name.includes("live-links") ||
-			channel.name.includes("live-battles")
+			!channel.name.includes("live-links") ||
+			!channel.name.includes('live-battles')
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -395,8 +395,8 @@ bot.on("message", async (message) => {
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
 		if (
-			channel.name.includes("live-links") ||
-			channel.name.includes("live-battles")
+			!channel.name.includes("live-links") ||
+			!channel.name.includes("live-battles")
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -435,8 +435,8 @@ bot.on("message", async (message) => {
 		return await finalMessage.edit(listEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} clear`)) {
 		if (
-			channel.name.includes("live-links") ||
-			channel.name.includes("live-battles")
+			!channel.name.includes("live-links") ||
+			!channel.name.includes("live-battles")
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
