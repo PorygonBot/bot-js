@@ -176,7 +176,10 @@ bot.on("message", async (message) => {
 				":x: You're not a moderator. Ask a moderator to add this person for you."
 			);
 		}
-		if (!channels.includes(channel.id)) {
+		if (
+			channel.name.includes("live-links") ||
+			channel.name.includes("live-battles")
+		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
 			);
@@ -249,7 +252,10 @@ bot.on("message", async (message) => {
 				":x: You're not a moderator. Ask a moderator to remove this person for you."
 			);
 		}
-		if (!channels.includes(channel.id)) {
+		if (
+			channel.name.includes("live-links") ||
+			channel.name.includes("live-battles")
+		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
 			);
@@ -308,7 +314,10 @@ bot.on("message", async (message) => {
 				":x: You're not a moderator. Ask a moderator to edit this person for you."
 			);
 		}
-		if (!channels.includes(channel.id)) {
+		if (
+			channel.name.includes("live-links") ||
+			channel.name.includes("live-battles")
+		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
 			);
@@ -385,7 +394,10 @@ bot.on("message", async (message) => {
 			`Edited \`${oldName}\` to become \`${newName}\` in \`${leagueName}\ with \`${range}\` range!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
-		if (!channels.includes(channel.id)) {
+		if (
+			channel.name.includes("live-links") ||
+			channel.name.includes("live-battles")
+		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
 			);
@@ -422,6 +434,15 @@ bot.on("message", async (message) => {
 
 		return await finalMessage.edit(listEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} clear`)) {
+		if (
+			channel.name.includes("live-links") ||
+			channel.name.includes("live-battles")
+		) {
+			return channel.send(
+				":x: This is not a valid live-links channel. Try this command again in the proper channel."
+			);
+		}
+
 		//Finding the league that is being cleared
 		let leagueJson = await util.findLeagueId(channel.id);
 
