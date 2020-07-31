@@ -490,9 +490,9 @@ class Showdown {
 							let side = parts[3].split(": ")[0].split("a")[0];
 							console.log(side);
 							if (side.startsWith("p1")) {
-								battle.addHazard(side, move, battle.p2a);
+								battle.addHazard(side, move, battle.p2a.name);
 							} else {
-								battle.addHazard(side, move, battle.p1a);
+								battle.addHazard(side, move, battle.p1a.name);
 							}
 						}
 					}
