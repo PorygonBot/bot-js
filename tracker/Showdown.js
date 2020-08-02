@@ -138,11 +138,14 @@ class Showdown {
 														"player"
 												);
 												if (
-													recordName.toLowerCase() === player1.toLowerCase() ||
-													recordName.toLowerCase() === player2.toLowerCase()
+													recordName.toLowerCase() ===
+														player1.toLowerCase() ||
+													recordName.toLowerCase() ===
+														player2.toLowerCase()
 												) {
 													recordJson.players[
-														recordName.toLowerCase() === player1.toLowerCase()
+														recordName.toLowerCase() ===
+														player1.toLowerCase()
 															? player1
 															: player2
 													].range = recordRange;
@@ -225,8 +228,12 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send(`Battle joined! Keeping track of stats now. ${this.rules.ping}`);
-		this.websocket.send(`${this.battle}|Battle joined! Keeping track of stats now.`);
+		this.message.channel.send(
+			`Battle joined! Keeping track of stats now. ${this.rules.ping}`
+		);
+		this.websocket.send(
+			`${this.battle}|Battle joined! Keeping track of stats now.`
+		);
 	}
 
 	async requestReplay(data) {
@@ -736,8 +743,7 @@ class Showdown {
 								) {
 									//Hazards
 									if (victimSide === "p1a") {
-										killer =
-											battle.hazardsSet.p1[move].name;
+										killer = battle.hazardsSet.p1[move];
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
@@ -748,8 +754,7 @@ class Showdown {
 										);
 										victim = battle.p1a.name;
 									} else if (victimSide === "p2a") {
-										killer =
-											battle.hazardsSet.p2[move].name;
+										killer = battle.hazardsSet.p2[move];
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
@@ -817,8 +822,7 @@ class Showdown {
 									move === "tox"
 								) {
 									if (victimSide === "p1a") {
-										killer =
-											battle.p1a.statusInflictor;
+										killer = battle.p1a.statusInflictor;
 										if (
 											Object.keys(
 												battle.p1Pokemon
@@ -845,8 +849,7 @@ class Showdown {
 												: "direct"
 										})`;
 									} else if (victimSide === "p2a") {
-										killer =
-											battle.p2a.statusInflictor;
+										killer = battle.p2a.statusInflictor;
 										if (
 											Object.keys(
 												battle.p2Pokemon
@@ -1040,6 +1043,7 @@ class Showdown {
 								reason = `${prevMove} (passive)`;
 							} else {
 								//It's just a regular effing kill
+								console.log("yuooooooi");
 								prevMove = prevMoveLine.split("|").slice(1)[2];
 								if (
 									victimSide === "p1a" &&
@@ -1243,25 +1247,30 @@ class Showdown {
 							if (this.rules.forfeit !== "None") {
 								if (forfeiter === battle.p1) {
 									let numDead;
-									for (let pokemon of Object.values(battle.p1Pokemon)) {
+									for (let pokemon of Object.values(
+										battle.p1Pokemon
+									)) {
 										if (!pokemon.isDead) numDead++;
 									}
 									if (this.rules.forfeit === "Direct") {
 										battle.p2a.currentDirectKills += numDead;
-									}
-									else if (this.rules.forfeit === "Passive") {
+									} else if (
+										this.rules.forfeit === "Passive"
+									) {
 										battle.p2a.currentPassiveKills += numDead;
 									}
-								}
-								else {
+								} else {
 									let numDead = 0;
-									for (let pokemon of Object.values(battle.p2Pokemon)) {
+									for (let pokemon of Object.values(
+										battle.p2Pokemon
+									)) {
 										if (!pokemon.isDead) numDead++;
 									}
 									if (this.rules.forfeit === "Direct") {
 										battle.p1a.currentDirectKills += numDead;
-									}
-									else if (this.rules.forfeit === "Passive") {
+									} else if (
+										this.rules.forfeit === "Passive"
+									) {
 										battle.p1a.currentPassiveKills += numDead;
 									}
 								}
