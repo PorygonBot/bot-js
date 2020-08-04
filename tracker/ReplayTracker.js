@@ -21,7 +21,7 @@ const VIEW_NAME = "Grid view";
 class ReplayTracker {
 	constructor(replayLink, message, rules) {
 		this.link = replayLink;
-		this.battle = replayLink.split("/")[3];
+		this.battleLink = replayLink.split("/")[3];
 		this.message = message;
 		//Getting the custom rules for the battle
 		this.rules = rules;
@@ -90,7 +90,7 @@ class ReplayTracker {
 					if (parts[1] === "p2") {
 						//Initializes the battle as an object
 						battle = new Battle(
-							this.battle,
+							this.battleLink,
 							players[0],
 							players[1]
 						);
@@ -107,9 +107,9 @@ class ReplayTracker {
 				//At the beginning of every non-randoms match, a list of Pokemon show up.
 				//This code is to get all that
 				else if (line.startsWith(`|poke|`)) {
-					let pokemonName = parts[2].split(",")[0].split("-")[0];
-					//console.log(pokemonName);
-					let pokemon = new Pokemon(pokemonName); //Adding a pokemon to the list of pokemon in the battle
+					let realName = parts[2].split(",")[0];
+					let pokemonName = realName.split("-")[0];
+					let pokemon = new Pokemon(pokemonName, realName); //Adding a pokemon to the list of pokemon in the battle
 					if (parts[1] === "p1") {
 						//If the pokemon belongs to Player 1
 						battle.p1Pokemon[pokemonName] = pokemon;
@@ -130,7 +130,9 @@ class ReplayTracker {
 					line.startsWith(`|switch|`) ||
 					line.startsWith(`|drag|`)
 				) {
-					let replacer = parts[2].split(",")[0].split("-")[0];
+					let replacerRealName = parts[2].split(",")[0];
+					let replacer = replacerRealName.split("-")[0];
+					console.log(`${replacer}'s real name is ${replacerRealName}`);
 					if (parts[1].startsWith("p1")) {
 						//If Player 1's Pokemon get switched out
 						battle.p1a.hasSubstitute = false;
@@ -150,6 +152,7 @@ class ReplayTracker {
 							battle.p1Pokemon[oldPokemon.name] = oldPokemon;
 						}
 						battle.p1a = battle.p1Pokemon[replacer];
+						battle.p1a.realName = replacerRealName;
 						console.log(
 							`${oldPokemon.name} has been switched into ${battle.p1a.name}`
 						);
@@ -171,6 +174,7 @@ class ReplayTracker {
 							battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 						}
 						battle.p2a = battle.p2Pokemon[replacer];
+						battle.p2a.realName = replacerRealName;
 						console.log(
 							`${oldPokemon.name} has been switched into ${battle.p2a.name}`
 						);
@@ -226,6 +230,19 @@ class ReplayTracker {
 					line.startsWith(`|-crit|`)
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
+				}
+
+				else if (line.startsWith(`|detailschange|`)) {
+					if (parts[2].includes("Mega")) {
+						let side = parts[1].split(": ")[0];
+						let realName = parts[2].split(",")[0];
+						if (side === "p1a") {
+							battle.p1a.realName = realName;
+						}
+						else {
+							battle.p2a.realName = realName;
+						}
+					}
 				}
 
 				//If a weather condition is set
@@ -1062,7 +1079,7 @@ class ReplayTracker {
 						turns: battle.turns,
 						winner: battle.winner,
 						loser: battle.loser,
-						history: `https://kills.porygonbot.xyz/${this.battle}`,
+						history: `https://kills.porygonbot.xyz/${this.battleLink}`,
 						spoiler: this.rules.spoiler,
 					};
 
@@ -1071,11 +1088,11 @@ class ReplayTracker {
 					let killJsonp1 = {};
 					let deathJsonp1 = {};
 					for (let pokemonObj of Object.values(battle.p1Pokemon)) {
-						killJsonp1[pokemonObj.name] = {
+						killJsonp1[pokemonObj.realName] = {
 							direct: pokemonObj.directKills,
 							passive: pokemonObj.passiveKills,
 						};
-						deathJsonp1[pokemonObj.name] = pokemonObj.isDead
+						deathJsonp1[pokemonObj.realName] = pokemonObj.isDead
 							? 1
 							: 0;
 					}
@@ -1083,17 +1100,17 @@ class ReplayTracker {
 					let killJsonp2 = {};
 					let deathJsonp2 = {};
 					for (let pokemonObj of Object.values(battle.p2Pokemon)) {
-						killJsonp2[pokemonObj.name] = {
+						killJsonp2[pokemonObj.realName] = {
 							direct: pokemonObj.directKills,
 							passive: pokemonObj.passiveKills,
 						};
-						deathJsonp2[pokemonObj.name] = pokemonObj.isDead
+						deathJsonp2[pokemonObj.realName] = pokemonObj.isDead
 							? 1
 							: 0;
 					}
 
 					await axios.post(
-						`https://kills.porygonbot.xyz/${this.battle}`,
+						`https://kills.porygonbot.xyz/${this.battleLink}`,
 						battle.history.join("<br>"),
 						{
 							headers: {

@@ -1,6 +1,7 @@
 class Pokemon {
-    constructor(pokemonName) {
+    constructor(pokemonName, realName) {
         this.name = pokemonName;
+        this.realName = realName || pokemonName;
         this.status = "n/a";
         this.statusInflictor = "";
         this.statusType = ""; //Passive or Direct or undefined

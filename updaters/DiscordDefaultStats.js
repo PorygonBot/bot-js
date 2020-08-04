@@ -10,7 +10,7 @@ class DiscordDefaultStats {
 
 	async update(matchJson) {
 		let info = matchJson.info;
-		let messages = util.genMessage(matchJson);
+		let messages = info.csv ? util.genCSV(matchJson) : util.genMessage(matchJson);
 		let psPlayer1 = Object.keys(matchJson.players)[0];
 		let psPlayer2 = Object.keys(matchJson.players)[1];
 		let message1 = messages[0];

@@ -102,6 +102,9 @@ bot.on("message", async (message) => {
 
 						let forfeit = await record.get("Forfeit");
 						rules.forfeit = forfeit ? forfeit : "None";
+
+						let csv = await record.get("CSV");
+						rules.csv = csv ? csv : false;
 					}
 				);
 			} else {
@@ -113,6 +116,7 @@ bot.on("message", async (message) => {
 				rules.spoiler = true;
 				rules.ping = "";
 				rules.forfeit = "None";
+				rules.csv = false;
 			}
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
@@ -177,8 +181,10 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			!(channel.name.includes("live-links") ||
-			channel.name.includes("live-battles"))
+			!(
+				channel.name.includes("live-links") ||
+				channel.name.includes("live-battles")
+			)
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -253,8 +259,10 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			!(channel.name.includes("live-links") ||
-			channel.name.includes("live-battles"))
+			!(
+				channel.name.includes("live-links") ||
+				channel.name.includes("live-battles")
+			)
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -315,8 +323,10 @@ bot.on("message", async (message) => {
 			);
 		}
 		if (
-			!(channel.name.includes("live-links") ||
-			channel.name.includes("live-battles"))
+			!(
+				channel.name.includes("live-links") ||
+				channel.name.includes("live-battles")
+			)
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -395,8 +405,10 @@ bot.on("message", async (message) => {
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} list`)) {
 		if (
-			!(channel.name.includes("live-links") ||
-			channel.name.includes("live-battles"))
+			!(
+				channel.name.includes("live-links") ||
+				channel.name.includes("live-battles")
+			)
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -435,8 +447,10 @@ bot.on("message", async (message) => {
 		return await finalMessage.edit(listEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} clear`)) {
 		if (
-			!(channel.name.includes("live-links") ||
-			channel.name.includes("live-battles"))
+			!(
+				channel.name.includes("live-links") ||
+				channel.name.includes("live-battles")
+			)
 		) {
 			return channel.send(
 				":x: This is not a valid live-links channel. Try this command again in the proper channel."
@@ -598,6 +612,9 @@ bot.on("message", async (message) => {
 
 				let forfeit = await record.get("Forfeit");
 				rules.forfeit = forfeit ? forfeit : "None";
+
+				let csv = await record.get("CSV");
+				rules.csv = csv ? csv : false;
 			});
 		} else {
 			rules.recoil = "Direct";
@@ -608,6 +625,7 @@ bot.on("message", async (message) => {
 			rules.spoiler = true;
 			rules.ping = "";
 			rules.forfeit = "None";
+			rules.csv = false;
 		}
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
@@ -632,14 +650,10 @@ bot.on("message", async (message) => {
 				category = "Suicide";
 				break;
 			case "-ability":
-				category = "Ability/Item";
-				break;
 			case "-item":
 				category = "Ability/Item";
 				break;
 			case "-self":
-				category = "Self or Teammate";
-				break;
 			case "-team":
 				category = "Self or Teammate";
 				break;
@@ -655,9 +669,12 @@ bot.on("message", async (message) => {
 			case "-forfeit":
 				category = "Forfeit";
 				break;
+			case "-csv":
+				category = "CSV";
+				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the bot @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the bot @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n-csv: add true if you want the stats format to be in CSV form or false if you don't. Default is false.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
 		let result =
@@ -666,6 +683,10 @@ bot.on("message", async (message) => {
 						.replace(params[1].charAt(0), "")
 						.toLowerCase()}`
 				: params[1];
+		console.log(result);
+		//If the mode is csv
+		result = rule === "-csv" && result === "True";
+		console.log(result);
 
 		// Updating the rule in the database for the league
 		let rulesId = await util.findRulesId(channel.id);

@@ -319,9 +319,9 @@ class Showdown {
 					//At the beginning of every non-randoms match, a list of Pokemon show up.
 					//This code is to get all that
 					else if (line.startsWith(`|poke|`)) {
-						let pokemonName = parts[2].split(",")[0].split("-")[0];
-						//console.log(pokemonName);
-						let pokemon = new Pokemon(pokemonName); //Adding a pokemon to the list of pokemon in the battle
+						let realName = parts[2].split(",")[0];
+						let pokemonName = realName.split("-")[0];
+						let pokemon = new Pokemon(pokemonName, realName); //Adding a pokemon to the list of pokemon in the battle
 						if (parts[1] === "p1") {
 							//If the pokemon belongs to Player 1
 							battle.p1Pokemon[pokemonName] = pokemon;
@@ -342,10 +342,12 @@ class Showdown {
 						line.startsWith(`|switch|`) ||
 						line.startsWith(`|drag|`)
 					) {
-						let replacer = parts[2].split(",")[0].split("-")[0];
+						let replacerRealName = parts[2].split(",")[0];
+						let replacer = replacerRealName.split("-")[0];
 						if (parts[1].startsWith("p1")) {
 							//If Player 1's Pokemon get switched out
 							battle.p1a.hasSubstitute = false;
+							battle.p1a.realName = replacerRealName;
 							battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 							let oldPokemon = { name: "" };
 							if (battle.p1a.name !== "") {
@@ -369,6 +371,7 @@ class Showdown {
 							//If Player 2's Pokemon get switched out
 							battle.p2a.hasSubstitute = false;
 							battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
+							battle.p2a.realName = replacerRealName;
 							let oldPokemon = { name: "" };
 							if (battle.p2a.name !== "") {
 								let tempCurrentDirectKills =
@@ -1339,6 +1342,7 @@ class Showdown {
 								battle.replay.split("/")[3]
 							}`,
 							spoiler: this.rules.spoiler,
+							csv: this.rules.csv,
 						};
 
 						//Creating the objects for kills and deaths
@@ -1348,11 +1352,11 @@ class Showdown {
 						for (let pokemonObj of Object.values(
 							battle.p1Pokemon
 						)) {
-							killJsonp1[pokemonObj.name] = {
+							killJsonp1[pokemonObj.realName] = {
 								direct: pokemonObj.directKills,
 								passive: pokemonObj.passiveKills,
 							};
-							deathJsonp1[pokemonObj.name] = pokemonObj.isDead
+							deathJsonp1[pokemonObj.realName] = pokemonObj.isDead
 								? 1
 								: 0;
 						}
@@ -1362,11 +1366,11 @@ class Showdown {
 						for (let pokemonObj of Object.values(
 							battle.p2Pokemon
 						)) {
-							killJsonp2[pokemonObj.name] = {
+							killJsonp2[pokemonObj.realName] = {
 								direct: pokemonObj.directKills,
 								passive: pokemonObj.passiveKills,
 							};
-							deathJsonp2[pokemonObj.name] = pokemonObj.isDead
+							deathJsonp2[pokemonObj.realName] = pokemonObj.isDead
 								? 1
 								: 0;
 						}
