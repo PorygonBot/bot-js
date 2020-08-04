@@ -344,10 +344,12 @@ class Showdown {
 					) {
 						let replacerRealName = parts[2].split(",")[0];
 						let replacer = replacerRealName.split("-")[0];
+						console.log(
+							`${replacer}'s real name is ${replacerRealName}`
+						);
 						if (parts[1].startsWith("p1")) {
 							//If Player 1's Pokemon get switched out
 							battle.p1a.hasSubstitute = false;
-							battle.p1a.realName = replacerRealName;
 							battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
 							let oldPokemon = { name: "" };
 							if (battle.p1a.name !== "") {
@@ -364,6 +366,7 @@ class Showdown {
 								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
 							}
 							battle.p1a = battle.p1Pokemon[replacer];
+							battle.p1a.realName = replacerRealName;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
 							);
@@ -371,7 +374,6 @@ class Showdown {
 							//If Player 2's Pokemon get switched out
 							battle.p2a.hasSubstitute = false;
 							battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
-							battle.p2a.realName = replacerRealName;
 							let oldPokemon = { name: "" };
 							if (battle.p2a.name !== "") {
 								let tempCurrentDirectKills =
@@ -386,6 +388,7 @@ class Showdown {
 								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 							}
 							battle.p2a = battle.p2Pokemon[replacer];
+							battle.p2a.realName = replacerRealName;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
 							);
@@ -441,6 +444,16 @@ class Showdown {
 						line.startsWith(`|-crit|`)
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
+					} else if (line.startsWith(`|detailschange|`)) {
+						if (parts[2].includes("Mega")) {
+							let side = parts[1].split(": ")[0];
+							let realName = parts[2].split(",")[0];
+							if (side === "p1a") {
+								battle.p1a.realName = realName;
+							} else {
+								battle.p2a.realName = realName;
+							}
+						}
 					}
 
 					//If a weather condition is set
