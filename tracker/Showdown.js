@@ -180,9 +180,6 @@ class Showdown {
 
 				//Updating stats based on given method
 				switch (recordJson.system) {
-					case "Sheets":
-						await masser.update(recordJson);
-						break;
 					case "DM":
 						await dmer.update(recordJson);
 						break;
