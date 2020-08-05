@@ -178,6 +178,56 @@ const getPlayersIds = async (leagueId) => {
 	return recordsIds;
 };
 
+const getRules = async (rulesId) => {
+	let rules = {};
+	if (rulesId) {
+		await base("Custom Rules").find(rulesId, async (err, record) => {
+			if (err) console.error(err);
+			let recoil = await record.get("Recoil");
+			rules.recoil = recoil ? recoil : "Direct";
+
+			let suicide = await record.get("Suicide");
+			rules.suicide = suicide ? suicide : "Direct";
+
+			let abilityitem = await record.get("Ability/Item");
+			rules.abilityitem = abilityitem ? abilityitem : "Passive";
+
+			let selfteam = await record.get("Self or Teammate");
+			rules.selfteam = selfteam ? selfteam : "None";
+
+			let db = await record.get("Destiny Bond");
+			rules.db = db ? db : "Passive";
+
+			let spoiler = await record.get("Spoiler");
+			rules.spoiler = spoiler
+				? spoiler === "True"
+					? true
+					: false
+				: true;
+			let ping = await record.get("Ping");
+			rules.ping = ping ? ping : "";
+
+			let forfeit = await record.get("Forfeit");
+			rules.forfeit = forfeit ? forfeit : "None";
+
+			let csv = await record.get("CSV");
+			rules.csv = csv ? csv : false;
+		});
+	} else {
+		rules.recoil = "Direct";
+		rules.suicide = "Direct";
+		rules.abilityitem = "Passive";
+		rules.selfteam = "None";
+		rules.db = "Passive";
+		rules.spoiler = true;
+		rules.ping = "";
+		rules.forfeit = "None";
+		rules.csv = false;
+	}
+
+	return rules;
+}
+
 //Pokemon-related Constants
 const recoilMoves = [
 	"bravebird",
@@ -286,6 +336,7 @@ module.exports = {
 	findLeagueId,
 	findRulesId,
 	getPlayersIds,
+	getRules,
 	recoilMoves,
 	confusionMoves,
 	toxicMoves,

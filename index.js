@@ -68,56 +68,7 @@ bot.on("message", async (message) => {
 			channel.send("Joining the battle...");
 			//Getting the rules
 			let rulesId = await util.findRulesId(channel.id);
-			let rules = {};
-			if (rulesId) {
-				await base("Custom Rules").find(
-					rulesId,
-					async (err, record) => {
-						if (err) console.error(err);
-						let recoil = await record.get("Recoil");
-						rules.recoil = recoil ? recoil : "Direct";
-
-						let suicide = await record.get("Suicide");
-						rules.suicide = suicide ? suicide : "Direct";
-
-						let abilityitem = await record.get("Ability/Item");
-						rules.abilityitem = abilityitem
-							? abilityitem
-							: "Passive";
-
-						let selfteam = await record.get("Self or Teammate");
-						rules.selfteam = selfteam ? selfteam : "None";
-
-						let db = await record.get("Destiny Bond");
-						rules.db = db ? db : "Passive";
-
-						let spoiler = await record.get("Spoiler");
-						rules.spoiler = spoiler
-							? spoiler === "True"
-								? true
-								: false
-							: true;
-						let ping = await record.get("Ping");
-						rules.ping = ping ? ping : "";
-
-						let forfeit = await record.get("Forfeit");
-						rules.forfeit = forfeit ? forfeit : "None";
-
-						let csv = await record.get("CSV");
-						rules.csv = csv ? csv : false;
-					}
-				);
-			} else {
-				rules.recoil = "Direct";
-				rules.suicide = "Direct";
-				rules.abilityitem = "Passive";
-				rules.selfteam = "None";
-				rules.db = "Passive";
-				rules.spoiler = true;
-				rules.ping = "";
-				rules.forfeit = "None";
-				rules.csv = false;
-			}
+			let rules = await util.getRules(rulesId);
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
 			//Tracking the battle
@@ -582,56 +533,32 @@ bot.on("message", async (message) => {
 
 		//Getting the rules
 		let rulesId = await util.findRulesId(channel.id);
-		let rules = {};
-		if (rulesId) {
-			await base("Custom Rules").find(rulesId, async (err, record) => {
-				if (err) console.error(err);
-				let recoil = await record.get("Recoil");
-				rules.recoil = recoil ? recoil : "Direct";
-
-				let suicide = await record.get("Suicide");
-				rules.suicide = suicide ? suicide : "Direct";
-
-				let abilityitem = await record.get("Ability/Item");
-				rules.abilityitem = abilityitem ? abilityitem : "Passive";
-
-				let selfteam = await record.get("Self or Teammate");
-				rules.selfteam = selfteam ? selfteam : "None";
-
-				let db = await record.get("Destiny Bond");
-				rules.db = db ? db : "Passive";
-
-				let spoiler = await record.get("Spoiler");
-				rules.spoiler = spoiler
-					? spoiler === "True"
-						? true
-						: false
-					: true;
-				let ping = await record.get("Ping");
-				rules.ping = ping ? ping : "";
-
-				let forfeit = await record.get("Forfeit");
-				rules.forfeit = forfeit ? forfeit : "None";
-
-				let csv = await record.get("CSV");
-				rules.csv = csv ? csv : false;
-			});
-		} else {
-			rules.recoil = "Direct";
-			rules.suicide = "Direct";
-			rules.abilityitem = "Passive";
-			rules.selfteam = "None";
-			rules.db = "Passive";
-			rules.spoiler = true;
-			rules.ping = "";
-			rules.forfeit = "None";
-			rules.csv = false;
-		}
+		let rules = await util.getRules(rulesId);
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
 		channel.send("Analyzing...");
 		await replayer.track(data);
 		console.log(`${link} has been analyzed!`);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} rules`)) {
+		//Getting the rules
+		let rulesId = await util.findRulesId(channel.id);
+		let rules = await util.getRules(rulesId);
+		//Getting the league's info
+		let leagueJson = await util.findLeagueId(channel.id);
+		let leagueName = leagueJson.name;
+
+		let rulesEmbed = new Discord.RichEmbed()
+			.setTitle(`${leagueName}'s Rules`)
+			.setDescription(
+				`The rules that have been attributed to ${leagueName}.`
+			)
+			.setColor(0xffc0cb);
+
+		for (let rule of Object.keys(rules)) {
+			rulesEmbed.addField(rule, rules[rule] === "" ? "None" : rules[rule]);
+		}
+
+		return channel.send(rulesEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} rule`)) {
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
