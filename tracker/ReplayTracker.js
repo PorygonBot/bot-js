@@ -1,22 +1,10 @@
-const ws = require("ws");
 const axios = require("axios");
-const querystring = require("querystring");
 
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
 const util = require("../utils.js");
 
-const DiscordDMStats = require("../updaters/DiscordDMStats");
-const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
-const SheetsStats = require("../updaters/SheetsStats");
-
-const { username, password, airtable_key, base_id } = require("../config.json");
-const Airtable = require("airtable");
-const base = new Airtable({
-	apiKey: airtable_key,
-}).base(base_id);
-const VIEW_NAME = "Grid view";
 
 class ReplayTracker {
 	constructor(replayLink, message, rules) {
