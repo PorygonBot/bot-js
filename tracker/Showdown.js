@@ -10,7 +10,6 @@ const util = require("../utils.js");
 const DiscordDMStats = require("../updaters/DiscordDMStats");
 const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
-const SheetsStats = require("../updaters/SheetsStats");
 
 const { username, password, airtable_key, base_id } = require("../config.json");
 const Airtable = require("airtable");
