@@ -610,10 +610,10 @@ bot.on("message", async (message) => {
 						.replace(params[1].charAt(0), "")
 						.toLowerCase()}`
 				: params[1];
-		console.log(result);
 		//If the mode is csv
-		result = rule === "-csv" && result === "True";
-		console.log(result);
+		if (rule === "-csv") {
+			result = rule === "-csv" && result === "True";
+		}
 
 		// Updating the rule in the database for the league
 		let rulesId = await util.findRulesId(channel.id);
