@@ -170,12 +170,6 @@ class Showdown {
 				let dmer = new DiscordDMStats(this.message);
 				let channeler = new DiscordChannelStats(this.message);
 				let defaulter = new DiscordDefaultStats(this.message);
-				let masser = new SheetsStats(
-					recordJson.sheetId,
-					recordJson.players[player1],
-					recordJson.players[player2],
-					this.message
-				);
 
 				//Updating stats based on given method
 				switch (recordJson.system) {
