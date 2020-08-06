@@ -435,7 +435,6 @@ bot.on("message", async (message) => {
 		let mode;
 		let discordMode = msgParams.split(" ")[0];
 		let streamChannel = "";
-		let sheetId = "";
 		switch (discordMode) {
 			case "-c":
 				mode = "Channel";
@@ -447,13 +446,9 @@ bot.on("message", async (message) => {
 			case "-default":
 				mode = "";
 				break;
-			case "-s":
-				mode = "Sheets";
-				sheetId = msgParams.split(" ")[1].split("/")[5];
-				break;
 			default:
 				return channel.send(
-					"Need help? Here we go!\n```This command is used to either set up a new league or change the updating method of an existing league. To use the command, type this:\nporygon, use mode [either -c, -dm, -default, or -s] [optional extension] [optionally --combine] \n\n-c: match-results channel mode. This is where the bot will send your stats to a separate match-results channel. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode. This mode will DM the author of the original message that sent the live link with the stats. \n-s: google sheets mode. This updates your google sheet automatically for you. Make sure you link the sheet's url at the end of this message, and also give full editing perms to porygon-bot@real-porygon.iam.gserviceaccount.com (read the bottom of this message). \n-default: default mode. This will just send the stats in the same channel that the link was sent. \n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.\nAttach --combine at the end of your message if you would like passive and direct kills combined in your stats.\nAdd all of your players to the database with the appropriate range in your sheet (refer to #faq in Porygon).```"
+					"Need help? Here we go!\n```This command is used to either set up a new league or change the updating method of an existing league. To use the command, type this:\nporygon, use mode [either -c, -dm, or -default] [optional extension] [optionally --combine] \n\n-c: match-results channel mode. This is where the bot will send your stats to a separate match-results channel. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode. This mode will DM the author of the original message that sent the live link with the stats.\n-default: default mode. This will just send the stats in the same channel that the link was sent. \n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.\nAttach --combine at the end of your message if you would like passive and direct kills combined in your stats.```"
 				);
 		}
 
@@ -470,7 +465,6 @@ bot.on("message", async (message) => {
 							streamChannel.length - 1
 						),
 						"Stats System": mode,
-						"Sheet ID": sheetId,
 					},
 				},
 			]);
@@ -508,7 +502,6 @@ bot.on("message", async (message) => {
 								streamChannel.length - 1
 							),
 							"Stats System": mode,
-							"Sheet ID": sheetId,
 						},
 					},
 				]);
