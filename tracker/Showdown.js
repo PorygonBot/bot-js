@@ -333,9 +333,6 @@ class Showdown {
 					) {
 						let replacerRealName = parts[2].split(",")[0];
 						let replacer = replacerRealName.split("-")[0];
-						console.log(
-							`${replacer}'s real name is ${replacerRealName}`
-						);
 						if (parts[1].startsWith("p1")) {
 							//If Player 1's Pokemon get switched out
 							battle.p1a.hasSubstitute = false;
@@ -517,6 +514,8 @@ class Showdown {
 						let prevPrevMove = prevPrevMoveLine
 							.split("|")
 							.slice(1)[2];
+
+						let victimSide = parts[1].split(": ")[0];
 						if (
 							(prevMoveLine.startsWith(`|move|`) &&
 								(util.toxicMoves.includes(prevMove) ||
@@ -526,40 +525,18 @@ class Showdown {
 									util.burnMoves.includes(prevPrevMove)))
 						) {
 							//If status was caused by a move
-							if (
-								prevMoveLine
-									.split("|")
-									.slice(1)[1]
-									.startsWith("p1a") ||
-								(prevPrevMoveLine.split("|").slice(1)[1]
-									? prevPrevMoveLine
-											.split("|")
-											.slice(1)[1]
-											.startsWith("p1a")
-									: false)
-							) {
+							if (victimSide.startsWith("p1")) {
 								battle.p1a.statusEffect(
-									parts[2],
+									parts[2] === "tox" ? "psn" : parts[2],
 									battle.p2a.name,
 									"Passive"
 								);
 								console.log(
 									`${battle.p1a.statusInflictor} caused ${parts[2]} on ${battle.p1a.name}`
 								);
-							} else if (
-								prevMoveLine
-									.split("|")
-									.slice(1)[1]
-									.startsWith("p2a") ||
-								(prevPrevMoveLine.split("|").slice(1)[1]
-									? prevPrevMoveLine
-											.split("|")
-											.slice(1)[1]
-											.startsWith("p2a")
-									: false)
-							) {
+							} else if (victimSide.startsWith("p2")) {
 								battle.p2a.statusEffect(
-									parts[2],
+									parts[2] === "tox" ? "psn" : parts[2],
 									battle.p1a.name,
 									"Passive"
 								);
@@ -574,7 +551,6 @@ class Showdown {
 							)
 						) {
 							//Ability status
-							let victimSide = parts[1].split(": ")[0];
 							if (victimSide === "p1a") {
 								battle.p1a.statusEffect(
 									parts[2],
@@ -591,7 +567,6 @@ class Showdown {
 							}
 						} else if (line.includes("item")) {
 							let item = parts[3].split(": ")[1];
-							let victimSide = parts[1].split(": ")[0];
 							if (victimSide === "p1a") {
 								battle.p1a.statusEffect(
 									parts[2],
@@ -739,6 +714,7 @@ class Showdown {
 
 					//When a Pokemon is damaged, and possibly faints
 					else if (line.startsWith(`|-damage|`)) {
+						console.log("WHAT IS WRONG WITH ME");
 						if (parts[2].endsWith("fnt")) {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
@@ -840,8 +816,7 @@ class Showdown {
 									reason = `${move} (passive) (Turn ${battle.turn})`;
 								} else if (
 									move === "brn" ||
-									move === "psn" ||
-									move === "tox"
+									move === "psn"
 								) {
 									if (victimSide === "p1a") {
 										killer = battle.p1a.statusInflictor;

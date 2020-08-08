@@ -93,7 +93,6 @@ class ReplayTracker {
 						);
 					}
 				}
-
 				//At the beginning of every non-randoms match, a list of Pokemon show up.
 				//This code is to get all that
 				else if (line.startsWith(`|poke|`)) {
@@ -122,9 +121,6 @@ class ReplayTracker {
 				) {
 					let replacerRealName = parts[2].split(",")[0];
 					let replacer = replacerRealName.split("-")[0];
-					console.log(
-						`${replacer}'s real name is ${replacerRealName}`
-					);
 					if (parts[1].startsWith("p1")) {
 						//If Player 1's Pokemon get switched out
 						battle.p1a.hasSubstitute = false;
@@ -299,6 +295,8 @@ class ReplayTracker {
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
 					let prevPrevMoveLine = dataArr[dataArr.length - 3];
 					let prevPrevMove = prevPrevMoveLine.split("|").slice(1)[2];
+
+					let victimSide = parts[1].split(": ")[0];
 					if (
 						(prevMoveLine.startsWith(`|move|`) &&
 							(util.toxicMoves.includes(prevMove) ||
@@ -308,40 +306,18 @@ class ReplayTracker {
 								util.burnMoves.includes(prevPrevMove)))
 					) {
 						//If status was caused by a move
-						if (
-							prevMoveLine
-								.split("|")
-								.slice(1)[1]
-								.startsWith("p1a") ||
-							(prevPrevMoveLine.split("|").slice(1)[1]
-								? prevPrevMoveLine
-										.split("|")
-										.slice(1)[1]
-										.startsWith("p1a")
-								: false)
-						) {
+						if (victimSide.startsWith("p1")) {
 							battle.p1a.statusEffect(
-								parts[2],
+								parts[2] === "tox" ? "psn" : parts[2],
 								battle.p2a.name,
 								"Passive"
 							);
 							console.log(
 								`${battle.p1a.statusInflictor} caused ${parts[2]} on ${battle.p1a.name}`
 							);
-						} else if (
-							prevMoveLine
-								.split("|")
-								.slice(1)[1]
-								.startsWith("p2a") ||
-							(prevPrevMoveLine.split("|").slice(1)[1]
-								? prevPrevMoveLine
-										.split("|")
-										.slice(1)[1]
-										.startsWith("p2a")
-								: false)
-						) {
+						} else if (victimSide.startsWith("p2")) {
 							battle.p2a.statusEffect(
-								parts[2],
+								parts[2] === "tox" ? "psn" : parts[2],
 								battle.p1a.name,
 								"Passive"
 							);
@@ -356,7 +332,6 @@ class ReplayTracker {
 						)
 					) {
 						//Ability status
-						let victimSide = parts[1].split(": ")[0];
 						if (victimSide === "p1a") {
 							battle.p1a.statusEffect(
 								parts[2],
@@ -373,7 +348,6 @@ class ReplayTracker {
 						}
 					} else if (line.includes("item")) {
 						let item = parts[3].split(": ")[1];
-						let victimSide = parts[1].split(": ")[0];
 						if (victimSide === "p1a") {
 							battle.p1a.statusEffect(
 								parts[2],
@@ -608,11 +582,7 @@ class ReplayTracker {
 									victim = battle.p2a.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turn})`;
-							} else if (
-								move === "brn" ||
-								move === "psn" ||
-								move === "tox"
-							) {
+							} else if (move === "brn" || move === "psn") {
 								if (victimSide === "p1a") {
 									killer = battle.p1a.statusInflictor;
 									if (

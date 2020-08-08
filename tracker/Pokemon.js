@@ -31,6 +31,7 @@ class Pokemon {
     statusFix() {
         this.status = "n/a";
         this.statusInflictor = "";
+        this.statusType = "";
     }
 
     clearAfflictions() {
