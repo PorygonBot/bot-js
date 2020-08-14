@@ -213,7 +213,6 @@ class ReplayTracker {
 					line.startsWith(`|-resisted|`) ||
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
-					line.startsWith(`|-activate|`) ||
 					line.startsWith(`|-singleturn|`) ||
 					line.startsWith(`|-crit|`)
 				) {
@@ -264,6 +263,17 @@ class ReplayTracker {
 					//If the weather has been stopped
 					if (parts[1] === "none") {
 						battle.clearWeather();
+					}
+				}
+
+				//For moves like Infestation and Fire Spin
+				else if (line.startsWith(`|-activate|`)) {
+					let move = parts[2].split(": ")[1];
+					let victimSide = parts[1].split(": ")[0];
+					if (victimSide === "p1a") {
+						battle.p1a.otherAffliction[move] = battle.p2a.name;
+					} else {
+						battle.p2a.otherAffliction[move] = battle.p1a.name;
 					}
 				}
 
@@ -748,6 +758,7 @@ class ReplayTracker {
 										: "direct"
 								}) (Turn ${battle.turns})`;
 							} else {
+								move = move.split(": ")[1];
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									let deathJson = battle.p1a.died(

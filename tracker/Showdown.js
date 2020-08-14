@@ -455,7 +455,7 @@ class Showdown {
 							try {
 								//Weather is caused by an ability
 								let side = parts[3].split("a: ")[0];
-								if (side === "p1") {
+								if (side.includes("p1")) {
 									inflictor = battle.p1a.name;
 								} else {
 									inflictor = battle.p2a.name;
@@ -481,6 +481,17 @@ class Showdown {
 						//If the weather has been stopped
 						if (parts[1] === "none") {
 							battle.clearWeather();
+						}
+					}
+
+					//For moves like Infestation and Fire Spin
+					else if (line.startsWith(`|-activate|`)) {
+						let move = parts[2].split(": ")[1];
+						let victimSide = parts[1].split(": ")[0];
+						if (victimSide === "p1a") {
+							battle.p1a.otherAffliction[move] = battle.p2a.name;
+						} else {
+							battle.p2a.otherAffliction[move] = battle.p1a.name;
 						}
 					}
 
@@ -814,10 +825,7 @@ class Showdown {
 										victim = battle.p2a.name;
 									}
 									reason = `${move} (passive) (Turn ${battle.turn})`;
-								} else if (
-									move === "brn" ||
-									move === "psn"
-								) {
+								} else if (move === "brn" || move === "psn") {
 									if (victimSide === "p1a") {
 										killer = battle.p1a.statusInflictor;
 										if (
@@ -991,6 +999,7 @@ class Showdown {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								} else {
+									move = move.split(": ")[1];
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
 										let deathJson = battle.p1a.died(
