@@ -263,10 +263,17 @@ class Showdown {
 					const parts = line.split("|").slice(1); //The substring is because all lines start with | so the first element is always blank
 
 					//Checks first and foremost if the battle even exists
-					if (line.startsWith(`|noinit|nonexistent|`)) {
-						return this.message.channel.send(
-							":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
-						);
+					if (line.startsWith(`|noinit|`)) {
+						if (line.includes("nonexistent|")) {
+							return this.message.channel.send(
+								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
+							);
+						}
+						else if (line.includes("joinfailed")) {
+							return this.message.channel.send(
+								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
+							);
+						}
 					}
 
 					//Once the server connects, the bot logs in and joins the battle
