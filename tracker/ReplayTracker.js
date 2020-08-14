@@ -238,7 +238,7 @@ class ReplayTracker {
 						try {
 							//Weather is caused by an ability
 							let side = parts[3].split("a: ")[0];
-							if (side === "p1") {
+							if (side.includes("p1")) {
 								inflictor = battle.p1a.name;
 							} else {
 								inflictor = battle.p2a.name;
