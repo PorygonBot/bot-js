@@ -238,6 +238,7 @@ const recoilMoves = [
 	"highjumpkick",
 	"jumpkick",
 	"lightofruin",
+	"mindblown",
 	"shadowend",
 	"shadowrush",
 	"steelbeam",
