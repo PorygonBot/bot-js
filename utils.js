@@ -240,6 +240,7 @@ const recoilMoves = [
 	"lightofruin",
 	"shadowend",
 	"shadowrush",
+	"steelbeam",
 	"struggle",
 	"submission",
 	"takedown",
