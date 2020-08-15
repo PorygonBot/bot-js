@@ -432,7 +432,6 @@ class Showdown {
 						line.startsWith(`|-resisted|`) ||
 						line.startsWith(`|-unboost|`) ||
 						line.startsWith(`|-boost|`) ||
-						line.startsWith(`|-activate|`) ||
 						line.startsWith(`|-singleturn|`) ||
 						line.startsWith(`|-crit|`)
 					) {
