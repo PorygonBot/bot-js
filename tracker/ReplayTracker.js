@@ -1104,6 +1104,7 @@ class ReplayTracker {
 						loser: battle.loser,
 						history: `https://kills.porygonbot.xyz/${this.battleLink}`,
 						spoiler: this.rules.spoiler,
+						csv: this.rules.csv,
 					};
 
 					//Creating the objects for kills and deaths
