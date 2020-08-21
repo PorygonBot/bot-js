@@ -1106,6 +1106,7 @@ class ReplayTracker {
 						spoiler: this.rules.spoiler,
 						csv: this.rules.csv,
 					};
+					console.log(this.rules);
 
 					//Creating the objects for kills and deaths
 					//Player 1

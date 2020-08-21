@@ -219,7 +219,7 @@ class Showdown {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
 		this.message.channel.send(
-			`Battle joined! Keeping track of stats now. ${this.rules.ping}`
+			`Battle joined! Keeping track of stats now.`
 		);
 		this.websocket.send(
 			`${this.battle}|Battle joined! Keeping track of stats now.`
@@ -273,6 +273,9 @@ class Showdown {
 							return this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
 							);
+						}
+						else {
+							this.message.channel.send(this.rules.ping);
 						}
 					}
 

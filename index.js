@@ -527,6 +527,7 @@ bot.on("message", async (message) => {
 		//Getting the rules
 		let rulesId = await util.findRulesId(channel.id);
 		let rules = await util.getRules(rulesId);
+		console.log(rules);
 
 		let replayer = new ReplayTracker(msgParams, message, rules);
 		channel.send("Analyzing...");

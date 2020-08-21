@@ -179,51 +179,54 @@ const getPlayersIds = async (leagueId) => {
 };
 
 const getRules = async (rulesId) => {
-	let rules = {};
+	let rules = {
+		recoil: "Direct",
+		suicide: "Direct",
+		abilityitem: "Passive",
+		selfteam: "None",
+		db: "Passive",
+		spoiler: true,
+		ping: "",
+		forfeit: "None",
+		csv: false
+	};
 	if (rulesId) {
+		console.log("HEY I'M HERE")
 		await base("Custom Rules").find(rulesId, async (err, record) => {
 			if (err) console.error(err);
-			let recoil = await record.get("Recoil");
+			let recoil = record.fields["Recoil"];
 			rules.recoil = recoil ? recoil : "Direct";
 
-			let suicide = await record.get("Suicide");
+			let suicide = record.fields["Suicide"];
 			rules.suicide = suicide ? suicide : "Direct";
 
-			let abilityitem = await record.get("Ability/Item");
+			let abilityitem = record.fields["Ability/Item"];
 			rules.abilityitem = abilityitem ? abilityitem : "Passive";
 
-			let selfteam = await record.get("Self or Teammate");
+			let selfteam = record.fields["Self or Teammate"];
 			rules.selfteam = selfteam ? selfteam : "None";
 
-			let db = await record.get("Destiny Bond");
+			let db = record.fields["Destiny Bond"];
 			rules.db = db ? db : "Passive";
 
-			let spoiler = await record.get("Spoiler");
+			let spoiler = record.fields["Spoiler"];
 			rules.spoiler = spoiler
 				? spoiler === "True"
 					? true
 					: false
 				: true;
-			let ping = await record.get("Ping");
+			let ping = record.fields["Ping"];
 			rules.ping = ping ? ping : "";
 
-			let forfeit = await record.get("Forfeit");
+			let forfeit = record.fields["Forfeit"];
 			rules.forfeit = forfeit ? forfeit : "None";
 
-			let csv = await record.get("CSV");
+			let csv = record.fields["CSV"];
+			console.log(csv);
 			rules.csv = csv ? csv : false;
 		});
-	} else {
-		rules.recoil = "Direct";
-		rules.suicide = "Direct";
-		rules.abilityitem = "Passive";
-		rules.selfteam = "None";
-		rules.db = "Passive";
-		rules.spoiler = true;
-		rules.ping = "";
-		rules.forfeit = "None";
-		rules.csv = false;
 	}
+	console.log(rules);
 
 	return rules;
 }
