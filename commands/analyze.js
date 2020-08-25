@@ -17,7 +17,7 @@ module.exports =  {
 		let rules = await utils.getRules(rulesId);
 		console.log(rules);
 
-		let replayer = new ReplayTracker(msgParams, message, rules);
+		let replayer = new ReplayTracker(args[0], message, rules);
 		channel.send("Analyzing...");
 		await replayer.track(data);
 		console.log(`${link} has been analyzed!`);
