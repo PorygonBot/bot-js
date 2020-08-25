@@ -1302,8 +1302,8 @@ class Showdown {
 						if (line.endsWith("forfeited.")) {
 							let forfeiter = messageParts[0];
 							if (this.rules.forfeit !== "None") {
+								let numDead = 0;
 								if (forfeiter === battle.p1) {
-									let numDead;
 									for (let pokemon of Object.values(
 										battle.p1Pokemon
 									)) {
@@ -1317,7 +1317,6 @@ class Showdown {
 										battle.p2a.currentPassiveKills += numDead;
 									}
 								} else {
-									let numDead = 0;
 									for (let pokemon of Object.values(
 										battle.p2Pokemon
 									)) {

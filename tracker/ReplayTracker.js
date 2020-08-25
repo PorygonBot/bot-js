@@ -1037,10 +1037,11 @@ class ReplayTracker {
 				else if (line.startsWith(`|-message|`)) {
 					let messageParts = parts[1].split(" ");
 					if (line.endsWith("forfeited.")) {
+						console.log('forfeited!');
 						let forfeiter = messageParts[0];
 						if (this.rules.forfeit !== "None") {
+							let numDead = 0;
 							if (forfeiter === battle.p1) {
-								let numDead;
 								for (let pokemon of Object.values(
 									battle.p1Pokemon
 								)) {
@@ -1052,7 +1053,6 @@ class ReplayTracker {
 									battle.p2a.currentPassiveKills += numDead;
 								}
 							} else {
-								let numDead = 0;
 								for (let pokemon of Object.values(
 									battle.p2Pokemon
 								)) {
