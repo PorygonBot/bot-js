@@ -1,2 +1,5 @@
-*.json
 node_modules/
+.vscode
+.prettierrc
+.gitattributes
+.env
