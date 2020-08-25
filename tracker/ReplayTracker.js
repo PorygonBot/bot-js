@@ -1,9 +1,12 @@
-const axios = require("axios");
+//This is the tracker for replays
 
+//Importing all required modules
+const axios = require("axios");
+//Importing all tracking-related modules
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
-const util = require("../utils.js");
-
+const utils = require("../utils.js");
+//Importing all updating-related modules
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
 
 class ReplayTracker {
@@ -309,11 +312,11 @@ class ReplayTracker {
 					let victimSide = parts[1].split(": ")[0];
 					if (
 						(prevMoveLine.startsWith(`|move|`) &&
-							(util.toxicMoves.includes(prevMove) ||
-								util.burnMoves.includes(prevMove))) ||
+							(utils.toxicMoves.includes(prevMove) ||
+								utils.burnMoves.includes(prevMove))) ||
 						(prevPrevMoveLine.startsWith(`|move|`) &&
-							(util.toxicMoves.includes(prevPrevMove) ||
-								util.burnMoves.includes(prevPrevMove)))
+							(utils.toxicMoves.includes(prevPrevMove) ||
+								utils.burnMoves.includes(prevPrevMove)))
 					) {
 						//If status was caused by a move
 						if (victimSide.startsWith("p1")) {
@@ -337,7 +340,7 @@ class ReplayTracker {
 						}
 					} else if (
 						line.includes("ability") &&
-						util.statusAbility.includes(
+						utils.statusAbility.includes(
 							parts[3].split("ability: ")[1].split("|")[0]
 						)
 					) {
@@ -402,7 +405,7 @@ class ReplayTracker {
 						prevMove.startsWith(`|move|`) &&
 						(prevMove.split("|").slice(1)[2] ===
 							affliction.split("move: ")[1] ||
-						util.confusionMoves.includes(
+						utils.confusionMoves.includes(
 							prevMove.split("|").slice(1)[2]
 						) || //For confusion
 						affliction.includes("perish") || //For Perish Song
@@ -674,7 +677,7 @@ class ReplayTracker {
 									}) (Turn ${battle.turns})`;
 								}
 							} else if (
-								util.recoilMoves.includes(move) ||
+								utils.recoilMoves.includes(move) ||
 								move.toLowerCase() === "recoil"
 							) {
 								//Recoil deaths
@@ -1193,4 +1196,4 @@ class ReplayTracker {
 	}
 }
 
-module.exports = ReplayTracker;
+module.exports =  ReplayTracker;

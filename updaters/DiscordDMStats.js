@@ -36,4 +36,4 @@ class DiscordDMStats {
 	}
 }
 
-module.exports = DiscordDMStats;
+module.exports =  DiscordDMStats;

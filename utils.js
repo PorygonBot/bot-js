@@ -1,6 +1,7 @@
-const Airtable = require("airtable");
-//Getting config info
-const { token, airtable_key, base_id } = require("./config.json");
+const Airtable = require('airtable');
+require('dotenv').config();
+const airtable_key = process.env.AIRTABLE_KEY;
+const base_id = process.env.BASE_ID;
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
@@ -332,7 +333,7 @@ const burnMoves = [
 ];
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
-module.exports = {
+const util = {
 	getUser,
 	getChannel,
 	genMessage,
@@ -348,3 +349,5 @@ module.exports = {
 	burnMoves,
 	statusAbility,
 };
+
+module.exports =  util; 

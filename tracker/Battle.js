@@ -76,4 +76,4 @@ class Battle {
     }
 }
 
-module.exports = Battle;
+module.exports =  Battle;

@@ -43,4 +43,4 @@ class DiscordChannelStats {
 	}
 }
 
-module.exports = DiscordChannelStats;
+module.exports =  DiscordChannelStats;

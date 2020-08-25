@@ -1,18 +1,23 @@
 //This is the code for connecting to and keeping track of a showdown match
+//Importing all required modules
 const ws = require("ws");
 const axios = require("axios");
 const querystring = require("querystring");
-
+const Airtable = require("airtable");
+//Importing all tracking-related modules
 const Pokemon = require("./Pokemon");
 const Battle = require("./Battle");
-const util = require("../utils.js");
-
+const utils = require("../utils.js");
+//Importing all updating-related modules
 const DiscordDMStats = require("../updaters/DiscordDMStats");
 const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
+//Getting config vars frome env
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
+const airtable_key = process.env.AIRTABLE_KEY;
+const base_id = process.env.BASE_ID;
 
-const { username, password, airtable_key, base_id } = require("../config.json");
-const Airtable = require("airtable");
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
@@ -538,11 +543,11 @@ class Showdown {
 						let victimSide = parts[1].split(": ")[0];
 						if (
 							(prevMoveLine.startsWith(`|move|`) &&
-								(util.toxicMoves.includes(prevMove) ||
-									util.burnMoves.includes(prevMove))) ||
+								(utils.toxicMoves.includes(prevMove) ||
+									utils.burnMoves.includes(prevMove))) ||
 							(prevPrevMoveLine.startsWith(`|move|`) &&
-								(util.toxicMoves.includes(prevPrevMove) ||
-									util.burnMoves.includes(prevPrevMove)))
+								(utils.toxicMoves.includes(prevPrevMove) ||
+									utils.burnMoves.includes(prevPrevMove)))
 						) {
 							//If status was caused by a move
 							if (victimSide.startsWith("p1")) {
@@ -566,7 +571,7 @@ class Showdown {
 							}
 						} else if (
 							line.includes("ability") &&
-							util.statusAbility.includes(
+							utils.statusAbility.includes(
 								parts[3].split("ability: ")[1].split("|")[0]
 							)
 						) {
@@ -631,7 +636,7 @@ class Showdown {
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
 								affliction.split("move: ")[1] ||
-							util.confusionMoves.includes(
+							utils.confusionMoves.includes(
 								prevMove.split("|").slice(1)[2]
 							) || //For confusion
 							affliction.includes("perish") || //For Perish Song
@@ -918,7 +923,7 @@ class Showdown {
 										}) (Turn ${battle.turns})`;
 									}
 								} else if (
-									util.recoilMoves.includes(move) ||
+									utils.recoilMoves.includes(move) ||
 									move.toLowerCase() === "recoil"
 								) {
 									//Recoil deaths

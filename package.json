@@ -10,27 +10,24 @@
     "type": "git",
     "url": "bot"
   },
+  "type": "module",
   "keywords": [
     "porygon",
     "pokemon-showdown",
-    "discord",
-    "google-sheets"
+    "discord"
   ],
   "author": "harbar20",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "airtable": "^0.8.1",
     "axios": "^0.19.2",
-    "discord.js": "11.6.3",
+    "discord.js": "^11.6.4",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
-    "get-urls": "^9.2.0",
-    "googleapis": "^48.0.0",
+    "get-urls": "^9.2.1",
     "json": "^9.0.6",
-    "opn": "^6.0.0",
-    "path": "^0.12.7",
-    "ps-client": "^1.0.1",
     "querystring": "^0.2.0",
-    "ws": "^7.2.3"
+    "ws": "^7.3.1"
   }
 }

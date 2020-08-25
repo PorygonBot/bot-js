@@ -30,4 +30,4 @@ class DiscordDefaultStats {
 	}
 }
 
-module.exports = DiscordDefaultStats;
+module.exports =  DiscordDefaultStats;
