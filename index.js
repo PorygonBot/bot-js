@@ -100,7 +100,7 @@ client.on("message", async (message) => {
 	const commandName = args.shift().toLowerCase();
 
 	//Running commands as normal
-	if (!client.commands.has(commandName)) return;
+	if (!(client.commands.has(commandName) || msgStr.includes(prefix))) return;
 	const command = client.commands.get(commandName);
 	try {
 		await command.execute(message, args);
