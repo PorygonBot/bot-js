@@ -27,7 +27,6 @@ for (const file of commandFiles) {
 //When the client is connected and logged in to Discord
 client.on("ready", async () => {
 	console.log(`${client.user.username} is online!`);
-	
 	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {type: "Watching"})
 });
 
@@ -37,18 +36,13 @@ const base = new Airtable({
 
 //When the client joins a new server
 client.on("guildCreate", (guild) => {
-    client.user.setStatus('online')
-    client.user.setPresence({
-        game: {
-            name: `PS battles in ${client.guilds.size} servers.`,
-            type: "Watching"
-        }
-    });
+    client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {type: "Watching"})
 });
 
 //When the client leaves/gets kicked from a server
 client.on("guildDelete", (guild) => {
 	//TODO delete server from records
+	
 });
 
 //When a message is sent
