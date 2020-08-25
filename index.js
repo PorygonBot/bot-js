@@ -102,7 +102,7 @@ bot.on("message", async (message) => {
 				"rule",
 				"Command to see what custom rules are available for kill attributions while collecting stats."
 			)
-			.addField("tri-attack", "kek");
+			.addField("tri-attack", "kek")
 			.addField("conversion", "even more kek")
 
 		return channel.send(helpEmbed);
