@@ -27,10 +27,6 @@ const base = new Airtable({
 
 //When a message is sent
 bot.on("message", async (message) => {
-	bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, {
-		type: "watching",
-	});
-
 	let channel = message.channel;
 	let channels = await util.getChannels();
 
@@ -107,10 +103,16 @@ bot.on("message", async (message) => {
 				"rule",
 				"Command to see what custom rules are available for kill attributions while collecting stats."
 			)
-			.addField("rename", "Command to rename your league in the bot's database.")
-			.addField("delete", "Command to permanently delete your league from the database. THIS CANNOT BE UNDONE.")
+			.addField(
+				"rename",
+				"Command to rename your league in the bot's database."
+			)
+			.addField(
+				"delete",
+				"Command to permanently delete your league from the database. THIS CANNOT BE UNDONE."
+			)
 			.addField("tri-attack", "kek")
-			.addField("conversion", "even more kek")
+			.addField("conversion", "even more kek");
 
 		return channel.send(helpEmbed);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} mode`)) {
@@ -119,6 +121,9 @@ bot.on("message", async (message) => {
 				":x: You're not a moderator. Ask a moderator to set the mode of this league for you."
 			);
 		}
+		bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, {
+			type: "watching",
+		});
 
 		let mode;
 		let discordMode = msgParams.split(" ")[0];
@@ -237,7 +242,10 @@ bot.on("message", async (message) => {
 			.setColor(0xffc0cb);
 
 		for (let rule of Object.keys(rules)) {
-			rulesEmbed.addField(rule, rules[rule] === "" ? "None" : rules[rule]);
+			rulesEmbed.addField(
+				rule,
+				rules[rule] === "" ? "None" : rules[rule]
+			);
 		}
 
 		return channel.send(rulesEmbed);
@@ -474,18 +482,25 @@ bot.on("message", async (message) => {
 		const oldLeagueName = leagueJson.name;
 
 		//Updating the league's record with the new name
-		await base("Leagues").update([
-			{
-				id: leagueId,
-				fields: {
-					"Name": newName
-				}
+		await base("Leagues").update(
+			[
+				{
+					id: leagueId,
+					fields: {
+						Name: newName,
+					},
+				},
+			],
+			(err, records) => {
+				console.log(
+					`Changed this league's name from ${oldLeagueName} to ${newName}!`
+				);
 			}
-		], (err, records) => {
-			console.log(`Changed this league's name from ${oldLeagueName} to ${newName}!`)
-		});
+		);
 
-		return channel.send(`Changed this league's name from \`${oldLeagueName}\` to \`${newName}\`!`);
+		return channel.send(
+			`Changed this league's name from \`${oldLeagueName}\` to \`${newName}\`!`
+		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} delete`)) {
 		if (!channels.includes(channel.id)) {
 			return channel.send(":x: This is not a valid live-links channel.");
@@ -501,19 +516,33 @@ bot.on("message", async (message) => {
 		const collector = message.channel.createMessageCollector(filter, {
 			max: 3,
 		});
-		await channel.send(`Are you sure you want to delete \`${leagueJson.name}\` from the database? All your custom rules and modes will be deleted and cannot be undone (respond with "yes").`);
+		await channel.send(
+			`Are you sure you want to delete \`${leagueJson.name}\` from the database? All your custom rules and modes will be deleted and cannot be undone (respond with "yes").`
+		);
 		collector.on("collect", (m) => {
 			if (m.content.toLowerCase() === "yes") {
 				/* Deleting the rules record first. */
-				base("Custom Rules").destroy([rulesId], (err, deletedRecords) => {
-					console.log(`${leagueJson.name}'s custom rules have been deleted`);
-				});
+				base("Custom Rules").destroy(
+					[rulesId],
+					(err, deletedRecords) => {
+						console.log(
+							`${leagueJson.name}'s custom rules have been deleted`
+						);
+					}
+				);
 				/* Deleting the leagues record next. */
-				base("Leagues").destroy([leagueJson.id], (err, deletedRecords) => {
-					console.log(`${leagueJson.name}'s league has been deleted.`);
-				});
+				base("Leagues").destroy(
+					[leagueJson.id],
+					(err, deletedRecords) => {
+						console.log(
+							`${leagueJson.name}'s league has been deleted.`
+						);
+					}
+				);
 
-				channel.send(`\`${leagueJson.name}\`'s records have been deleted from the Porygon database permanently.`);
+				channel.send(
+					`\`${leagueJson.name}\`'s records have been deleted from the Porygon database permanently.`
+				);
 			}
 		});
 	}
