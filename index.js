@@ -9,6 +9,7 @@ const util = require("./utils.js");
 //Getting config info
 const { token, airtable_key, base_id } = require("./config.json");
 const { default: Axios } = require("axios");
+const utils = require("./utils.js");
 //Creating the bot
 const bot = new Discord.Client({ disableEveryone: true });
 
@@ -102,7 +103,7 @@ bot.on("message", async (message) => {
 				"rule",
 				"Command to see what custom rules are available for kill attributions while collecting stats."
 			)
-			.addField("tri-attack", "kek");
+			.addField("tri-attack", "kek")
 			.addField("conversion", "even more kek")
 
 		return channel.send(helpEmbed);
@@ -455,6 +456,53 @@ bot.on("message", async (message) => {
 		return channel.send(
 			`Porygon used Conversion! Porygon's type changed to ${type}!`
 		);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} rename`)) {
+		const newName = msgParams;
+
+		//Getting league info
+		const leagueJson = await utils.findLeagueId(channel.id);
+		const leagueId = leagueJson.id;
+		const oldLeagueName = leagueJson.name;
+
+		//Updating the league's record with the new name
+		await base("Leagues").update([
+			{
+				id: leagueId,
+				fields: {
+					"Name": newName
+				}
+			}
+		], (err, records) => {
+			console.log(`Changed this league's name from ${oldLeagueName} to ${newName}!`)
+		});
+
+		return channel.send(`Changed this league's name from \`${oldLeagueName}\` to \`${newName}\`!`);
+	} else if (msgStr.toLowerCase().startsWith(`${prefix} delete`)) {
+		//Getting league info
+		const leagueJson = await utils.findLeagueId(channel.id);
+		//Getting rules info
+		const rulesId = await utils.findRulesId(channel.id);
+
+		//Asking for confirmation
+		const filter = (m) => m.author === message.author;
+		const collector = message.channel.createMessageCollector(filter, {
+			max: 3,
+		});
+		await channel.send(`Are you sure you want to delete \`${leagueJson.name}\` from the database? All your custom rules and modes will be deleted and cannot be undone (respond with "yes").`);
+		collector.on("collect", (m) => {
+			if (m.content.toLowerCase() === "yes") {
+				/* Deleting the rules record first. */
+				base("Custom Rules").destroy([rulesId], (err, deletedRecords) => {
+					console.log(`${leagueJson.name}'s custom rules have been deleted`);
+				});
+				/* Deleting the leagues record next. */
+				base("Leagues").destroy([leagueJson.id], (err, deletedRecords) => {
+					console.log(`${leagueJson.name}'s league has been deleted.`);
+				});
+
+				channel.send(`\`${leagueJson.name}\`'s records have been deleted from the Porygon database permanently.`);
+			}
+		});
 	}
 });
 
