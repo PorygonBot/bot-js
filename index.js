@@ -27,6 +27,10 @@ const base = new Airtable({
 
 //When a message is sent
 bot.on("message", async (message) => {
+	bot.user.setActivity(`PS battles in ${bot.guilds.size} servers`, {
+		type: "watching",
+	});
+
 	let channel = message.channel;
 	let channels = await util.getChannels();
 
@@ -103,6 +107,8 @@ bot.on("message", async (message) => {
 				"rule",
 				"Command to see what custom rules are available for kill attributions while collecting stats."
 			)
+			.addField("rename", "Command to rename your league in the bot's database.")
+			.addField("delete", "Command to permanently delete your league from the database. THIS CANNOT BE UNDONE.")
 			.addField("tri-attack", "kek")
 			.addField("conversion", "even more kek")
 
@@ -457,6 +463,9 @@ bot.on("message", async (message) => {
 			`Porygon used Conversion! Porygon's type changed to ${type}!`
 		);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} rename`)) {
+		if (!channels.includes(channel.id)) {
+			return channel.send(":x: This is not a valid live-links channel.");
+		}
 		const newName = msgParams;
 
 		//Getting league info
@@ -478,6 +487,10 @@ bot.on("message", async (message) => {
 
 		return channel.send(`Changed this league's name from \`${oldLeagueName}\` to \`${newName}\`!`);
 	} else if (msgStr.toLowerCase().startsWith(`${prefix} delete`)) {
+		if (!channels.includes(channel.id)) {
+			return channel.send(":x: This is not a valid live-links channel.");
+		}
+
 		//Getting league info
 		const leagueJson = await utils.findLeagueId(channel.id);
 		//Getting rules info
