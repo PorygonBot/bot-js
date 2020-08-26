@@ -82,7 +82,7 @@ module.exports =  {
 						fields: {
 							Name: leagueName,
 							"Channel ID": channel.id,
-							"Combine P/D?": msgParams.includes("--combine"),
+							"Combine P/D?": message.content.includes("--combine"),
 							"Stream Channel ID": streamChannel.substring(
 								2,
 								streamChannel.length - 1
