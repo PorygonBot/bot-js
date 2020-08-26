@@ -97,16 +97,18 @@ client.on("message", async (message) => {
 
 	//Getting info from the message if it's not a live link
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
+	args.push(client);
 	const commandName = args.shift().toLowerCase();
 
 	//Running commands as normal
-	if (!(client.commands.has(commandName) || msgStr.includes(prefix))) return;
-	const command = client.commands.get(commandName);
-	try {
-		await command.execute(message, args);
-	} catch (error) {
-		console.error(error);
-		message.reply("There was an error trying to execute that command!");
+	if (client.commands.has(commandName.toLowerCase()) && msgStr.toLowerCase().startsWith(prefix)) {
+		const command = client.commands.get(commandName);
+		try {
+			await command.execute(message, args);
+		} catch (error) {
+			console.error(error);
+			message.reply("There was an error trying to execute that command!");
+		}
 	}
 });
 
