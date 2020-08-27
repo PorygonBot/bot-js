@@ -335,7 +335,7 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
-						if (battle.turns === 1) await this.message.channel.send(this.rules.ping);
+						if (battle.turns === 1 && this.rules.ping !== "") await this.message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
