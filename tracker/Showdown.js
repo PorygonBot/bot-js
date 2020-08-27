@@ -279,9 +279,6 @@ class Showdown {
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
 							);
 						}
-						else {
-							this.message.channel.send(this.rules.ping);
-						}
 					}
 
 					//Once the server connects, the bot logs in and joins the battle
@@ -338,6 +335,7 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
+						if (battle.turns === 1) await message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
