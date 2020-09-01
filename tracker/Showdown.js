@@ -223,9 +223,7 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send(
-			`Battle joined! Keeping track of stats now.`
-		);
+		this.message.channel.send(`Battle joined! Keeping track of stats now.`);
 		this.websocket.send(
 			`${this.battle}|Battle joined! Keeping track of stats now.`
 		);
@@ -273,8 +271,7 @@ class Showdown {
 							return this.message.channel.send(
 								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
 							);
-						}
-						else if (line.includes("joinfailed")) {
+						} else if (line.includes("joinfailed")) {
 							return this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
 							);
@@ -505,6 +502,7 @@ class Showdown {
 						} else {
 							battle.p2a.otherAffliction[move] = battle.p1a.name;
 						}
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Checks for certain specific moves: hazards, statuses, etc.
@@ -634,11 +632,11 @@ class Showdown {
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
 								affliction.split("move: ")[1] ||
-							utils.confusionMoves.includes(
-								prevMove.split("|").slice(1)[2]
-							) || //For confusion
-							affliction.includes("perish") || //For Perish Song
-							affliction === "Curse" || //For Curse
+								utils.confusionMoves.includes(
+									prevMove.split("|").slice(1)[2]
+								) || //For confusion
+								affliction.includes("perish") || //For Perish Song
+								affliction === "Curse" || //For Curse
 								affliction === "Nightmare") //For Nightmare
 						) {
 							let move = affliction.split("move: ")[1]
@@ -729,6 +727,8 @@ class Showdown {
 					else if (line.startsWith(`|-end|`)) {
 						let historyLine =
 							battle.history[battle.history.length - 1];
+						//If no one has died yet
+						historyLine = historyLine || "";
 						if (
 							line.endsWith("Illusion") &&
 							historyLine.includes(battle.turns.toString())
@@ -764,7 +764,6 @@ class Showdown {
 
 					//When a Pokemon is damaged, and possibly faints
 					else if (line.startsWith(`|-damage|`)) {
-						console.log("WHAT IS WRONG WITH ME");
 						if (parts[2].endsWith("fnt")) {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
@@ -1038,7 +1037,7 @@ class Showdown {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								} else {
-									move = move.split(": ")[1];
+									//move = move.split(": ")[1];
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
 										let deathJson = battle.p1a.died(

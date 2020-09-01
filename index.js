@@ -3,12 +3,14 @@ const fs = require("fs");
 const Discord = require("discord.js");
 const Airtable = require("airtable");
 const getUrls = require("get-urls");
+const axios = require("axios");
 //Importing bot's required functionalities
 const Showdown = require("./tracker/Showdown");
+const utils = require("./utils");
 const util = require("./utils");
 
 //Setting up process.env
-require('dotenv').config();
+require("dotenv").config();
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 //Creating the client
@@ -27,7 +29,9 @@ for (const file of commandFiles) {
 //When the client is connected and logged in to Discord
 client.on("ready", async () => {
 	console.log(`${client.user.username} is online!`);
-	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {type: "Watching"})
+	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
+		type: "Watching",
+	});
 });
 
 const base = new Airtable({
@@ -36,20 +40,47 @@ const base = new Airtable({
 
 //When the client joins a new server
 client.on("guildCreate", (guild) => {
-    client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {type: "Watching"})
+	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
+		type: "Watching",
+	});
 });
 
 //When the client leaves/gets kicked from a server
-client.on("guildDelete", (guild) => {
-	//TODO delete server from records
-	
+client.on("guildDelete", async (guild) => {
+	//Getting the channels that this server has
+	const channels = await utils.getChannels();
+	const toDelete = [];
+	for (let channel of channels) {
+		if (util.getChannel(guild, channel)) {
+			toDelete.push(channel);
+		}
+	}
+
+	//Deleting the records for those channels, but Custom Rules and Leagues
+	for (let channel of toDelete) {
+		const leagueJson = await utils.findLeagueId(channel);
+		const rulesId = await utils.findRulesId(channel);
+		/* Deleting the rules record first. */
+		base("Custom Rules").destroy([rulesId], (err, deletedRecords) => {
+			console.log(`${leagueJson.name}'s custom rules have been deleted`);
+		});
+		/* Deleting the leagues record next. */
+		base("Leagues").destroy([leagueJson.id], (err, deletedRecords) => {
+			console.log(`${leagueJson.name}'s league has been deleted.`);
+		});
+	}
 });
 
 //When a message is sent
 client.on("message", async (message) => {
 	const channel = message.channel;
 	const msgStr = message.content;
-	const prefix = 'porygon, use ';
+	const prefix = "porygon, use ";
+
+	//Checks if bot was pinged
+	if (message.isMemberMentioned(client.user)) {
+		return message.reply("STOP PINGING ME. My prefix is `porygon, use ` so USE THAT. If you wanna know HOW to use me, run `porygon, use help` or `porygon, use faq` but NO LONGER will I SUBMIT to my HUMAN OVERLORDS. HECK YOU ALL.");
+	}
 
 	if (channel.type === "dm") return;
 	else if (
@@ -83,8 +114,8 @@ client.on("message", async (message) => {
 
 			channel.send("Joining the battle...");
 			//Getting the rules
-			let rulesId = await util.findRulesId(channel.id);
-			let rules = await util.getRules(rulesId);
+			let rulesId = await utils.findRulesId(channel.id);
+			let rules = await utils.getRules(rulesId);
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
 			//Tracking the battle
@@ -97,11 +128,13 @@ client.on("message", async (message) => {
 
 	//Getting info from the message if it's not a live link
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	args.push(client);
 	const commandName = args.shift().toLowerCase();
 
 	//Running commands as normal
-	if (client.commands.has(commandName.toLowerCase()) && msgStr.toLowerCase().startsWith(prefix)) {
+	if (
+		client.commands.has(commandName.toLowerCase()) &&
+		msgStr.toLowerCase().startsWith(prefix)
+	) {
 		const command = client.commands.get(commandName);
 		try {
 			await command.execute(message, args);

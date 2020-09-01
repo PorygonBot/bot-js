@@ -11,10 +11,6 @@ module.exports =  {
     description: "Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
     async execute(message, args) {
 		const channel = message.channel;
-        const channels = await utils.getChannels();
-        if (!channels.includes(channel.id)) {
-			return channel.send(":x: This is not a valid live-links channel.");
-		}
 
         if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(

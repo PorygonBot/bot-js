@@ -278,6 +278,7 @@ class ReplayTracker {
 					} else {
 						battle.p2a.otherAffliction[move] = battle.p1a.name;
 					}
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Checks for certain specific moves: hazards, statuses, etc.
@@ -494,6 +495,8 @@ class ReplayTracker {
 				//Mostly used for Illusion cuz frick Zoroark
 				else if (line.startsWith(`|-end|`)) {
 					let historyLine = battle.history[battle.history.length - 1];
+					//If no one has died yet
+					historyLine = historyLine || "";
 					if (
 						line.endsWith("Illusion") &&
 						historyLine.includes(battle.turns.toString())
@@ -786,7 +789,7 @@ class ReplayTracker {
 										: "direct"
 								}) (Turn ${battle.turns})`;
 							} else {
-								move = move.split(": ")[1];
+								//move = move.split(": ")[1];
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									let deathJson = battle.p1a.died(
@@ -809,6 +812,8 @@ class ReplayTracker {
 										battle.p2a.otherAffliction[move],
 										true
 									);
+									console.log(battle.p2a.otherAffliction);
+									console.log(line);
 									battle.p1Pokemon[
 										battle.p2a.otherAffliction[move]
 									].killed(deathJson);
