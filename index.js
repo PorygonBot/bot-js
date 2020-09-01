@@ -77,6 +77,11 @@ client.on("message", async (message) => {
 	const msgStr = message.content;
 	const prefix = "porygon, use ";
 
+	//Checks if bot was pinged
+	if (message.isMemberMentioned(client.user)) {
+		return message.reply("STOP PINGING ME. My prefix is `porygon, use ` so USE THAT. If you wanna know HOW to use me, run `porygon, use help` or `porygon, use faq` but NO LONGER will I SUBMIT to my HUMAN OVERLORDS. HECK YOU ALL.");
+	}
+
 	if (channel.type === "dm") return;
 	else if (
 		channel.name.includes("live-links") ||
