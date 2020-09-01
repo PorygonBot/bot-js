@@ -278,6 +278,7 @@ class ReplayTracker {
 					} else {
 						battle.p2a.otherAffliction[move] = battle.p1a.name;
 					}
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Checks for certain specific moves: hazards, statuses, etc.
