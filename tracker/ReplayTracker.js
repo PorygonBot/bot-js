@@ -786,7 +786,7 @@ class ReplayTracker {
 										: "direct"
 								}) (Turn ${battle.turns})`;
 							} else {
-								move = move.split(": ")[1];
+								//move = move.split(": ")[1];
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									let deathJson = battle.p1a.died(
@@ -809,6 +809,8 @@ class ReplayTracker {
 										battle.p2a.otherAffliction[move],
 										true
 									);
+									console.log(battle.p2a.otherAffliction);
+									console.log(line);
 									battle.p1Pokemon[
 										battle.p2a.otherAffliction[move]
 									].killed(deathJson);

@@ -764,7 +764,6 @@ class Showdown {
 
 					//When a Pokemon is damaged, and possibly faints
 					else if (line.startsWith(`|-damage|`)) {
-						console.log("WHAT IS WRONG WITH ME");
 						if (parts[2].endsWith("fnt")) {
 							//A pokemon has fainted
 							let victimSide = parts[1].split(": ")[0];
@@ -1038,7 +1037,7 @@ class Showdown {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								} else {
-									move = move.split(": ")[1];
+									//move = move.split(": ")[1];
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
 										let deathJson = battle.p1a.died(
