@@ -223,9 +223,7 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send(
-			`Battle joined! Keeping track of stats now.`
-		);
+		this.message.channel.send(`Battle joined! Keeping track of stats now.`);
 		this.websocket.send(
 			`${this.battle}|Battle joined! Keeping track of stats now.`
 		);
@@ -273,8 +271,7 @@ class Showdown {
 							return this.message.channel.send(
 								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
 							);
-						}
-						else if (line.includes("joinfailed")) {
+						} else if (line.includes("joinfailed")) {
 							return this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
 							);
@@ -335,7 +332,8 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
-						if (battle.turns === 1) await message.channel.send(this.rules.ping);
+						if (battle.turns === 1)
+							await message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
@@ -635,11 +633,11 @@ class Showdown {
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
 								affliction.split("move: ")[1] ||
-							utils.confusionMoves.includes(
-								prevMove.split("|").slice(1)[2]
-							) || //For confusion
-							affliction.includes("perish") || //For Perish Song
-							affliction === "Curse" || //For Curse
+								utils.confusionMoves.includes(
+									prevMove.split("|").slice(1)[2]
+								) || //For confusion
+								affliction.includes("perish") || //For Perish Song
+								affliction === "Curse" || //For Curse
 								affliction === "Nightmare") //For Nightmare
 						) {
 							let move = affliction.split("move: ")[1]
@@ -730,6 +728,8 @@ class Showdown {
 					else if (line.startsWith(`|-end|`)) {
 						let historyLine =
 							battle.history[battle.history.length - 1];
+						//If no one has died yet
+						historyLine = historyLine || "";
 						if (
 							line.endsWith("Illusion") &&
 							historyLine.includes(battle.turns.toString())
