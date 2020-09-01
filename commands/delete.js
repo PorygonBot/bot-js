@@ -15,9 +15,6 @@ module.exports =  {
         if (!channels.includes(channel.id)) {
 			return channel.send(":x: This is not a valid live-links channel.");
 		}
-        if (!channels.includes(channel.id)) {
-			return channel.send(":x: This is not a valid live-links channel.");
-		}
 
 		//Getting league info
 		const leagueJson = await utils.findLeagueId(channel.id);
@@ -32,7 +29,7 @@ module.exports =  {
 		await channel.send(
 			`Are you sure you want to delete \`${leagueJson.name}\` from the database? All your custom rules and modes will be deleted and cannot be undone (respond with "yes").`
 		);
-		collector.on("collect", (m) => {
+		collector.on("collect", async (m) => {
 			if (m.content.toLowerCase() === "yes") {
 				/* Deleting the rules record first. */
 				base("Custom Rules").destroy(

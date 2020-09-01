@@ -15,7 +15,7 @@ module.exports =  {
         if (!channels.includes(channel.id)) {
 			return channel.send(":x: This is not a valid live-links channel.");
 		}
-		const newName = args.slice(0, args.length-1).join(" ");
+		const newName = args.join(" ");
 
 		//Getting league info
 		const leagueJson = await utils.findLeagueId(channel.id);
