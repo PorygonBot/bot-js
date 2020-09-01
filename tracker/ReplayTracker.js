@@ -1193,7 +1193,7 @@ class ReplayTracker {
 			}
 		} catch (e) {
 			this.message.channel.send(
-				`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's general channel and **@harbar20#9389**.\n**Error:**\`\`\`${e}\`\`\``
+				`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n**Error:**\`\`\`${e}\`\`\``
 			);
 			console.error(e);
 		}
