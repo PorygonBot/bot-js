@@ -1381,7 +1381,9 @@ class Showdown {
 								},
 								responseType: "text",
 							}
-						);
+						).catch((e) => {
+							return;
+						});
 
 						let info = {
 							replay: battle.replay,

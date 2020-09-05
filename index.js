@@ -140,4 +140,8 @@ client.on("message", async (message) => {
 	}
 });
 
+process.on("unhandledrejection", (error) => {
+	console.error("Unhandled Rejection has occured! Error: ", error);
+});
+
 client.login(process.env.TOKEN);
