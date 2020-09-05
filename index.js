@@ -31,9 +31,14 @@ try {
 //When the client is connected and logged in to Discord
 client.on("ready", async () => {
 	console.log(`${client.user.username} is online!`);
-	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
-		type: "Watching",
-	});
+	client.user
+		.setActivity(`PS Battles in ${client.guilds.cache.size} servers.`, {
+			type: "WATCHING",
+		})
+		.then((presence) =>
+			console.log(`Activity set to ${presence.activities[0].name}`)
+		)
+		.catch(console.error);
 });
 
 const base = new Airtable({
@@ -147,4 +152,3 @@ client.login(process.env.TOKEN).catch(console.error);
 } catch (e) {
     console.error(e);
 }
-
