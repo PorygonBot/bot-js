@@ -26,7 +26,6 @@ for (const file of commandFiles) {
 	client.commands.set(command.name, command);
 }
 
-try {
 	//When the client is connected and logged in to Discord
 	client.on("ready", async () => {
 		console.log(`${client.user.username} is online!`);
@@ -158,7 +157,4 @@ try {
 		}
 	});
 
-	client.login(process.env.TOKEN).catch(console.error);
-} catch (e) {
-	console.error(e);
-}
+	client.login(process.env.TOKEN)

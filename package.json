@@ -10,7 +10,6 @@
     "type": "git",
     "url": "bot"
   },
-  "type": "module",
   "keywords": [
     "porygon",
     "pokemon-showdown",
