@@ -1151,7 +1151,9 @@ class ReplayTracker {
 							},
 							responseType: "text",
 						}
-					);
+					).catch((e) => {
+						return;
+					});;
 
 					if (
 						battle.winner.endsWith("p1") &&
