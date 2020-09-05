@@ -113,6 +113,8 @@ const getChannels = async () => {
 				let channelId = await record.get("Channel ID");
 				channels.push(channelId);
 			});
+		}).catch((e) => {
+			console.error(e);
 		});
 
 	return channels;
@@ -135,6 +137,8 @@ const findLeagueId = async (checkChannelId) => {
 					leagueName = await leagueRecord.get("Name");
 				}
 			}
+		}).catch((e) => {
+			console.error(e);
 		});
 
 	let leagueJson = {
@@ -160,6 +164,8 @@ const findRulesId = async (checkChannelId) => {
 					recordId = leagueRecord.id;
 				}
 			}
+		}).catch((e) => {
+			console.error(e);
 		});
 
 	return recordId;
@@ -172,6 +178,8 @@ const getPlayersIds = async (leagueId) => {
 
 			recordIds = record.get("Players");
 			resolve(recordIds);
+		}).catch((e) => {
+			console.error(e);
 		});
 	});
 
@@ -225,6 +233,8 @@ const getRules = async (rulesId) => {
 			let csv = record.fields["CSV"];
 			console.log(csv);
 			rules.csv = csv ? csv : false;
+		}).catch((e) => {
+			console.error(e);
 		});
 	}
 	console.log(rules);
