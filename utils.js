@@ -233,9 +233,7 @@ const getRules = async (rulesId) => {
 			let csv = record.fields["CSV"];
 			console.log(csv);
 			rules.csv = csv ? csv : false;
-		}).catch((e) => {
-			console.error(e);
-		});
+		})
 	}
 	console.log(rules);
 
