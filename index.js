@@ -26,6 +26,8 @@ for (const file of commandFiles) {
 	client.commands.set(command.name, command);
 }
 
+try {
+
 //When the client is connected and logged in to Discord
 client.on("ready", async () => {
 	console.log(`${client.user.username} is online!`);
@@ -140,8 +142,9 @@ client.on("message", async (message) => {
 	}
 });
 
-process.on("unhandledrejection", (error) => {
-	console.error("Unhandled Rejection has occured! Error: ", error);
-});
+client.login(process.env.TOKEN).catch(console.error);
 
-client.login(process.env.TOKEN);
+} catch (e) {
+    console.error(e);
+}
+
