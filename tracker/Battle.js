@@ -29,8 +29,12 @@ class Battle {
         this.replay = "";
         this.winner = "";
         this.loser = "";
+        //Player 1's pokemon
         this.p1a = new Pokemon("");
+        this.p1b = new Pokemon("");
+        //Ploayer 2's pokemon
         this.p2a = new Pokemon("");
+        this.p2b = new Pokemon("");
     }
 
     addHazard(side, hazard, hazardInflictor) {

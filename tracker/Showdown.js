@@ -332,7 +332,8 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
-						if (battle.turns === 1 && this.rules.ping !== "") await this.message.channel.send(this.rules.ping);
+						if (battle.turns === 1 && this.rules.ping !== "")
+							await this.message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
@@ -343,7 +344,7 @@ class Showdown {
 					) {
 						let replacerRealName = parts[2].split(",")[0];
 						let replacer = replacerRealName.split("-")[0];
-						if (parts[1].startsWith("p1")) {
+						if (parts[1].startsWith("p1a")) {
 							//If Player 1's Pokemon get switched out
 							battle.p1a.hasSubstitute = false;
 							battle.p1a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
@@ -366,7 +367,30 @@ class Showdown {
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
 							);
-						} else if (parts[1].startsWith("p2")) {
+						} else if (parts[1].startsWith("p1b")) {
+							//If Player 1's Pokemon get switched out
+							battle.p1b.hasSubstitute = false;
+							battle.p1b.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
+							let oldPokemon = { name: "" };
+							if (battle.p1b.name !== "") {
+								let tempCurrentDirectKills =
+									battle.p1b.currentDirectKills;
+								let tempCurrentPassiveKills =
+									battle.p1b.currentPassiveKills;
+								battle.p1b.currentDirectKills = 0;
+								battle.p1b.currentPassiveKills = 0;
+								battle.p1b.directKills += tempCurrentDirectKills;
+								battle.p1b.passiveKills += tempCurrentPassiveKills;
+								oldPokemon = battle.p1b;
+
+								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+							}
+							battle.p1b = battle.p1Pokemon[replacer];
+							battle.p1b.realName = replacerRealName;
+							console.log(
+								`${oldPokemon.name} has been switched into ${battle.p1b.name}`
+							);
+						} else if (parts[1].startsWith("p2a")) {
 							//If Player 2's Pokemon get switched out
 							battle.p2a.hasSubstitute = false;
 							battle.p2a.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
@@ -387,6 +411,29 @@ class Showdown {
 							battle.p2a.realName = replacerRealName;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+							);
+						} else if (parts[1].startsWith("p2b")) {
+							//If Player 1's Pokemon get switched out
+							battle.p2b.hasSubstitute = false;
+							battle.p2b.clearAfflictions(); //Clears all afflictions of the pokemon that switches out, like confusion
+							let oldPokemon = { name: "" };
+							if (battle.p2b.name !== "") {
+								let tempCurrentDirectKills =
+									battle.p2b.currentDirectKills;
+								let tempCurrentPassiveKills =
+									battle.p2b.currentPassiveKills;
+								battle.p2b.currentDirectKills = 0;
+								battle.p2b.currentPassiveKills = 0;
+								battle.p2b.directKills += tempCurrentDirectKills;
+								battle.p2b.passiveKills += tempCurrentPassiveKills;
+								oldPokemon = battle.p2b;
+
+								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+							}
+							battle.p2b = battle.p1Pokemon[replacer];
+							battle.p2b.realName = replacerRealName;
+							console.log(
+								`${oldPokemon.name} has been switched into ${battle.p2b.name}`
 							);
 						}
 					}
@@ -1369,21 +1416,23 @@ class Showdown {
 					else if (line.startsWith("|queryresponse|savereplay")) {
 						let replayData = JSON.parse(data.substring(26));
 						battle.replay = await this.requestReplay(replayData);
-						await axios.post(
-							`https://kills.porygonbot.xyz/${
-								battle.replay.split("/")[3]
-							}`,
-							battle.history.join("<br>"),
-							{
-								headers: {
-									"Content-Length": 0,
-									"Content-Type": "text/plain",
-								},
-								responseType: "text",
-							}
-						).catch((e) => {
-							return;
-						});
+						await axios
+							.post(
+								`https://kills.porygonbot.xyz/${
+									battle.replay.split("/")[3]
+								}`,
+								battle.history.join("<br>"),
+								{
+									headers: {
+										"Content-Length": 0,
+										"Content-Type": "text/plain",
+									},
+									responseType: "text",
+								}
+							)
+							.catch((e) => {
+								return;
+							});
 
 						let info = {
 							replay: battle.replay,
