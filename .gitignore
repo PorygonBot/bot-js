@@ -3,4 +3,3 @@ node_modules/
 .prettierrc
 .gitattributes
 .env
-mynew_key*
