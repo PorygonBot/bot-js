@@ -19,7 +19,7 @@ const getUser = (server, usernameWithDisc) => {
 };
 
 const getChannel = (server, channelID) => {
-	return server.channels.get(channelID);
+	return server.channels.cache.get(channelID);
 };
 
 const genMessage = (matchJson) => {
