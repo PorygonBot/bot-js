@@ -1,5 +1,5 @@
-const Airtable = require('airtable');;
-const utils = require('../../utils');;
+const Airtable = require('airtable');
+const utils = require('../../utils');
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 const base = new Airtable({
