@@ -1,6 +1,6 @@
 const { Client, Guild } = require("discord.js");
-const utils = require("./utils");
-const util = require("./utils");
+const utils = require("../../utils");
+const util = require("../../utils");
 
 // You should move this to be all in one file, 
 // so you can call on one method, instead of
