@@ -1,6 +1,7 @@
 const { Client, Message } = require("discord.js");
 const getUrls = require("get-urls");
 const Showdown = require("../../tracker/Showdown");
+const utils  = require('../../utils');
 /**
  * When a message is sent
  * @param {Client} client 
