@@ -1,4 +1,5 @@
 const { Client, Guild } = require("discord.js");
+const Airtable = require('airtable');
 const utils = require("../../utils");
 const util = require("../../utils");
 
@@ -15,7 +16,7 @@ const base = new Airtable({
  * @param {Client} client 
  * @param {Guild} guild 
  */
-module.exports = (client, guild) => {
+module.exports = async (client, guild) => {
 	//Getting the channels that this server has
 	const channels = await utils.getChannels();
 	const toDelete = [];
