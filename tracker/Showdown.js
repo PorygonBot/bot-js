@@ -544,24 +544,31 @@ class Showdown {
 							let inflictor;
 							try {
 								//Weather is caused by an ability
-								let side = parts[3].split("a: ")[0];
-								if (side.includes("p1")) {
+								let side = parts[3].split(": ")[0];
+								if (side === "p1a") {
 									inflictor = battle.p1a.name;
-								} else {
+								} else if (side === "p1b") {
+									inflictor = battle.p1b.name;
+								} else if (side === "p2a") {
 									inflictor = battle.p2a.name;
+								} else if (side === "p2b") {
+									inflictor = battle.p2b.name;
 								}
 							} catch (e) {
 								//Weather is caused by a move
 								let prevLine = dataArr[dataArr.length - 2];
-								if (
-									prevLine
-										.split("|")
-										.slice(1)[1]
-										.startsWith("p1a")
-								) {
+								let side = prevLine
+									.split("|")
+									.slice(1)[1]
+									.split(": ")[0];
+								if (side === "p1a") {
 									inflictor = battle.p1a.name;
-								} else {
+								} else if (side === "p1b") {
+									inflictor = battle.p1b.name;
+								} else if (side === "p2a") {
 									inflictor = battle.p2a.name;
+								} else if (side === "p2b") {
+									inflictor = battle.p2b.name;
 								}
 							}
 							console.log(`${inflictor} caused ${weather}.`);
@@ -578,10 +585,37 @@ class Showdown {
 					else if (line.startsWith(`|-activate|`)) {
 						let move = parts[2].split(": ")[1];
 						let victimSide = parts[1].split(": ")[0];
+						let inflictorSide = parts[3]
+							.split(" ")[1]
+							.split(":")[0];
 						if (victimSide === "p1a") {
-							battle.p1a.otherAffliction[move] = battle.p2a.name;
-						} else {
-							battle.p2a.otherAffliction[move] = battle.p1a.name;
+							if (inflictorSide === "p2a")
+								battle.p1a.otherAffliction[move] =
+									battle.p2a.name;
+							else
+								battle.p1a.otherAffliction[move] =
+									battle.p2b.name;
+						} else if (victimSide === "p1b") {
+							if (inflictorSide === "p2a")
+								battle.p1b.otherAffliction[move] =
+									battle.p2a.name;
+							else
+								battle.p1b.otherAffliction[move] =
+									battle.p2b.name;
+						} else if (victimSide === "p2a") {
+							if (inflictorSide === "p1a")
+								battle.p2a.otherAffliction[move] =
+									battle.p1a.name;
+							else
+								battle.p2a.otherAffliction[move] =
+									battle.p1b.name;
+						} else if (victimSide === "p2b") {
+							if (inflictorSide === "p1a")
+								battle.p2b.otherAffliction[move] =
+									battle.p1a.name;
+							else
+								battle.p2b.otherAffliction[move] =
+									battle.p1b.name;
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
