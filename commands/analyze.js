@@ -5,6 +5,7 @@ const ReplayTracker = require('../tracker/ReplayTracker');
 module.exports =  {
     name: "analyze",
     description: "Analyze replays instead of live links.",
+    aliases: ['analyse'],
     async execute(message, args) {
         const channel = message.channel;
         
