@@ -588,6 +588,7 @@ class Showdown {
 						let inflictorSide = parts[3]
 							.split(" ")[1]
 							.split(":")[0];
+
 						if (victimSide === "p1a") {
 							if (inflictorSide === "p2a")
 								battle.p1a.otherAffliction[move] =
@@ -631,14 +632,18 @@ class Showdown {
 							move === "Toxic Spikes"
 						) {
 							//Hazards
-							//This would be true if there were already Rocks in the field
-							let side = parts[3].split(": ")[0].split("a")[0];
-							console.log(side);
-							if (side.startsWith("p1")) {
-								battle.addHazard(side, move, battle.p2a.name);
-							} else {
-								battle.addHazard(side, move, battle.p1a.name);
-							}
+							//The pokemon that inflicted the hazards
+							let inflictorSide = parts[1].split(": ")[0];
+
+							//Very inefficient, I know
+							if (inflictorSide === "p1a")
+								battle.addHazard("p2", move, battle.p1a.name);
+							else if (inflictorSide === "p1b")
+								battle.addHazard("p2", move, battle.p1b.name);
+							else if (inflictorSide === "p2a")
+								battle.addHazard("p1", move, battle.p2a.name);
+							else if (inflictorSide === "p2b")
+								battle.addHazard("p1", move, battle.p2b.name);
 						}
 					}
 
