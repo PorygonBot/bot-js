@@ -457,20 +457,50 @@ class Showdown {
 							console.log(
 								`${oldPokemon.name} has been replaced by ${battle.p1a.name}`
 							);
-						} else {
+						} else if (side === "p1b") {
+							let tempCurrentDirectKills =
+								battle.p1b.currentDirectKills;
+							let tempCurrentPassiveKills =
+								battle.p1b.currentPassiveKills;
+							battle.p1b.currentDirectKills = 0;
+							battle.p1b.currentPassiveKills = 0;
+							let oldPokemon = battle.p1b;
+							battle.p1b = battle.p1Pokemon[replacer];
+							battle.p1b.currentDirectKills += tempCurrentDirectKills;
+							battle.p1b.currentPassiveKills += tempCurrentPassiveKills;
+
+							console.log(
+								`${oldPokemon.name} has been replaced by ${battle.p1b.name}`
+							);
+						} else if (side === "p2a") {
 							let tempCurrentDirectKills =
 								battle.p2a.currentDirectKills;
 							let tempCurrentPassiveKills =
 								battle.p2a.currentPassiveKills;
 							battle.p2a.currentDirectKills = 0;
 							battle.p2a.currentPassiveKills = 0;
-							let oldPokemon = battle.p2a;
-							battle.p2a = battle.p2Pokemon[replacer];
+							let oldPokemon = battle.p1a;
+							battle.p2a = battle.p1Pokemon[replacer];
 							battle.p2a.currentDirectKills += tempCurrentDirectKills;
 							battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
 
 							console.log(
 								`${oldPokemon.name} has been replaced by ${battle.p2a.name}`
+							);
+						} else if (side === "p2b") {
+							let tempCurrentDirectKills =
+								battle.p2b.currentDirectKills;
+							let tempCurrentPassiveKills =
+								battle.p2b.currentPassiveKills;
+							battle.p2b.currentDirectKills = 0;
+							battle.p2b.currentPassiveKills = 0;
+							let oldPokemon = battle.p2b;
+							battle.p2b = battle.p1Pokemon[replacer];
+							battle.p2b.currentDirectKills += tempCurrentDirectKills;
+							battle.p2b.currentPassiveKills += tempCurrentPassiveKills;
+
+							console.log(
+								`${oldPokemon.name} has been replaced by ${battle.p2b.name}`
 							);
 						}
 					}
@@ -492,8 +522,12 @@ class Showdown {
 							let realName = parts[2].split(",")[0];
 							if (side === "p1a") {
 								battle.p1a.realName = realName;
-							} else {
+							} else if (side === "p1b") {
+								battle.p1b.realName = realName;
+							} else if (side === "p2a") {
 								battle.p2a.realName = realName;
+							} else if (side === "p2b") {
+								battle.p2b.realName = realName;
 							}
 						}
 					}
