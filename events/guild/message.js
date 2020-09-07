@@ -1,6 +1,7 @@
 const { Client, Message } = require("discord.js");
 const getUrls = require("get-urls");
 const Showdown = require("../../tracker/Showdown");
+const utils  = require('../../utils');
 /**
  * When a message is sent
  * @param {Client} client 
@@ -54,7 +55,9 @@ module.exports = async (client, message) => {
 			});
 		}
 	}
-
+	// Checks if the Message contains the Prefix at the start.
+	if(message.content.startsWith(prefix))
+	{
 	//Getting info from the message if it's not a live link
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const commandName = args.shift().toLowerCase();
@@ -69,5 +72,6 @@ module.exports = async (client, message) => {
 	} catch(error) {
 		console.error(error);
 		message.reply("There was an error trying to execute that command!");
+	}
 	}
 }
