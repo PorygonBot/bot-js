@@ -29,30 +29,12 @@ class Battle {
         this.replay = "";
         this.winner = "";
         this.loser = "";
+        //Player 1's pokemon
         this.p1a = new Pokemon("");
+        this.p1b = new Pokemon("");
+        //Ploayer 2's pokemon
         this.p2a = new Pokemon("");
-    }
-
-    findPokemonByNickname(nickname, side) {
-        let pokemonList = [];
-        if (side === "p1") {
-            for (let pokemon of Object.values(this.p1Pokemon)) {
-                console.log(pokemon.nickname)
-                if (pokemon.nickname === nickname) {
-                    pokemonList.push(pokemon);
-                }
-            }
-        }
-        else {
-            for (let pokemon of Object.values(this.p2Pokemon)) {
-                console.log(pokemon.nickname)
-                if (pokemon.nickname === nickname) {
-                    pokemonList.push(pokemon);
-                }
-            }
-        }
-
-        return pokemonList;
+        this.p2b = new Pokemon("");
     }
 
     addHazard(side, hazard, hazardInflictor) {
