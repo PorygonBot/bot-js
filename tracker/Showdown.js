@@ -584,39 +584,41 @@ class Showdown {
 					//For moves like Infestation and Fire Spin
 					else if (line.startsWith(`|-activate|`)) {
 						let move = parts[2].split(": ")[1];
-						let victimSide = parts[1].split(": ")[0];
-						let inflictorSide = parts[3]
-							.split(" ")[1]
-							.split(":")[0];
+						if (!(move === "Protect" || parts[2].includes("ability") || parts[2].includes("item"))) {
+							let victimSide = parts[1].split(": ")[0];
+							let inflictorSide = parts[3]
+								.split(" ")[1]
+								.split(":")[0];
 
-						if (victimSide === "p1a") {
-							if (inflictorSide === "p2a")
-								battle.p1a.otherAffliction[move] =
-									battle.p2a.name;
-							else
-								battle.p1a.otherAffliction[move] =
-									battle.p2b.name;
-						} else if (victimSide === "p1b") {
-							if (inflictorSide === "p2a")
-								battle.p1b.otherAffliction[move] =
-									battle.p2a.name;
-							else
-								battle.p1b.otherAffliction[move] =
-									battle.p2b.name;
-						} else if (victimSide === "p2a") {
-							if (inflictorSide === "p1a")
-								battle.p2a.otherAffliction[move] =
-									battle.p1a.name;
-							else
-								battle.p2a.otherAffliction[move] =
-									battle.p1b.name;
-						} else if (victimSide === "p2b") {
-							if (inflictorSide === "p1a")
-								battle.p2b.otherAffliction[move] =
-									battle.p1a.name;
-							else
-								battle.p2b.otherAffliction[move] =
-									battle.p1b.name;
+							if (victimSide === "p1a") {
+								if (inflictorSide === "p2a")
+									battle.p1a.otherAffliction[move] =
+										battle.p2a.name;
+								else
+									battle.p1a.otherAffliction[move] =
+										battle.p2b.name;
+							} else if (victimSide === "p1b") {
+								if (inflictorSide === "p2a")
+									battle.p1b.otherAffliction[move] =
+										battle.p2a.name;
+								else
+									battle.p1b.otherAffliction[move] =
+										battle.p2b.name;
+							} else if (victimSide === "p2a") {
+								if (inflictorSide === "p1a")
+									battle.p2a.otherAffliction[move] =
+										battle.p1a.name;
+								else
+									battle.p2a.otherAffliction[move] =
+										battle.p1b.name;
+							} else if (victimSide === "p2b") {
+								if (inflictorSide === "p1a")
+									battle.p2b.otherAffliction[move] =
+										battle.p1a.name;
+								else
+									battle.p2b.otherAffliction[move] =
+										battle.p1b.name;
+							}
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
