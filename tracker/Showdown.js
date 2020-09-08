@@ -657,6 +657,10 @@ class Showdown {
 							.slice(1)[2];
 
 						let victimSide = parts[1].split(": ")[0];
+						let inflictor = "";
+						let victim = "";
+
+						//If status was caused by a move
 						if (
 							(prevMoveLine.startsWith(`|move|`) &&
 								(utils.toxicMoves.includes(prevMove) ||
@@ -665,76 +669,192 @@ class Showdown {
 								(utils.toxicMoves.includes(prevPrevMove) ||
 									utils.burnMoves.includes(prevPrevMove)))
 						) {
-							//If status was caused by a move
-							if (victimSide.startsWith("p1")) {
-								battle.p1a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-								console.log(
-									`${battle.p1a.statusInflictor} caused ${parts[2]} on ${battle.p1a.name}`
-								);
-							} else if (victimSide.startsWith("p2")) {
-								battle.p2a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1a.name,
-									"Passive"
-								);
-								console.log(
-									`${battle.p2a.statusInflictor} caused ${parts[2]} on ${battle.p2a.name}`
-								);
+							//Getting the pokemon side that inflicted the status
+							let inflictorSide =
+								prevMoveLine.startsWith(`|move|`) &&
+								(utils.toxicMoves.includes(prevMove) ||
+									utils.burnMoves.includes(prevMove))
+									? prevMoveLine
+											.split("|")
+											.slice(1)[1]
+											.split(": ")[0]
+									: prevPrevMoveLine
+											.split("|")
+											.slice(1)[1]
+											.split(": ")[0];
+
+							if (inflictorSide === "p1a") {
+								if (victimSide === "p2a") {
+									battle.p2a.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p1a.name,
+										"Passive"
+									);
+									inflictor = battle.p1a.name;
+									victim = battle.p2a.name;
+								} else if (victimSide === "p2b") {
+									battle.p2b.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p1a.name,
+										"Passive"
+									);
+									inflictor = battle.p1a.name;
+									victim = battle.p2b.name;
+								}
+							} else if (inflictorSide === "p1b") {
+								if (victimSide === "p2a") {
+									battle.p2a.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p1b.name,
+										"Passive"
+									);
+									inflictor = battle.p1b.name;
+									victim = battle.p2a.name;
+								} else if (victimSide === "p2b") {
+									battle.p2b.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p1b.name,
+										"Passive"
+									);
+									inflictor = battle.p1b.name;
+									victim = battle.p2b.name;
+								}
+							} else if (inflictorSide === "p2a") {
+								if (victimSide === "p1a") {
+									battle.p1a.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p2a.name,
+										"Passive"
+									);
+									inflictor = battle.p2a.name;
+									victim = battle.p1a.name;
+								} else if (victimSide === "p1b") {
+									battle.p1b.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p2a.name,
+										"Passive"
+									);
+									inflictor = battle.p2a.name;
+									victim = battle.p1b.name;
+								}
+							} else if (inflictorSide === "p2b") {
+								if (victimSide === "p1a") {
+									battle.p1a.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p2b.name,
+										"Passive"
+									);
+									inflictor = battle.p2b.name;
+									victim = battle.p1a.name;
+								} else if (victimSide === "p1b") {
+									battle.p1b.statusEffect(
+										parts[2] === "tox" ? "psn" : parts[2],
+										battle.p2b.name,
+										"Passive"
+									);
+									inflictor = battle.p2b.name;
+									victim = battle.p1b.name;
+								}
 							}
 						} else if (
-							line.includes("ability") &&
-							utils.statusAbility.includes(
-								parts[3].split("ability: ")[1].split("|")[0]
-							)
+							(line.includes("ability") &&
+								utils.statusAbility.includes(
+									parts[3].split("ability: ")[1].split("|")[0]
+								)) ||
+							line.includes("item")
 						) {
 							//Ability status
+							let inflictorSide = parts[4]
+								.split("[of]")[1]
+								.split(": ")[0];
 							if (victimSide === "p1a") {
+								if (inflictorSide === "p2a")
+									inflictor = battle.p2a.name;
+								else if (inflictorSide === "p2b")
+									inflictor = battle.p2b.name;
+
+								victim = battle.p1a.name;
 								battle.p1a.statusEffect(
 									parts[2],
-									battle.p2a.name,
+									inflictor,
 									this.rules.abilityitem
 								);
-							} else {
+							} else if (victimSide === "p1b") {
+								if (inflictorSide === "p2a")
+									inflictor = battle.p2a.name;
+								else if (inflictorSide === "p2b")
+									inflictor = battle.p2b.name;
+
+								victim = battle.p1b.name;
+								battle.p1b.statusEffect(
+									parts[2],
+									inflictor,
+									this.rules.abilityitem
+								);
+							} else if (victimSide === "p2a") {
+								if (inflictorSide === "p1a")
+									inflictor = battle.p1a.name;
+								else if (inflictorSide === "p1b")
+									inflictor = battle.p2b.name;
+
+								victim = battle.p2a.name;
 								battle.p2a.statusEffect(
 									parts[2],
-									battle.p1a.name,
-									this.rules.abilityitem
+									inflictor,
+									this.rules.abilityItem
 								);
-								console.log(battle.p2a.statusInflictor);
-							}
-						} else if (line.includes("item")) {
-							let item = parts[3].split(": ")[1];
-							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(
+							} else if (victimSide === "p2b") {
+								if (inflictorSide === "p1a")
+									inflictor = battle.p1a.name;
+								else if (inflictorSide === "p1b")
+									inflictor = battle.p2b.name;
+
+								victim = battle.p2b.name;
+								battle.p2b.statusEffect(
 									parts[2],
-									battle.p2a.name,
-									this.rules.abilityitem
-								);
-							} else {
-								battle.p2a.statusEffect(
-									parts[2],
-									battle.p1a.name,
-									this.rules.abilityitem
+									inflictor,
+									this.rules.abilityItem
 								);
 							}
 						} else {
-							//If status wasn't caused by a move, but rather something like a hazard
+							//If status wasn't caused by a move, but rather Toxic Spikes
 							if (parts[1].split(": ")[0] === "p1a") {
+								victim = battle.p1a.name;
+								inflictor = battle.hazardsSet.p1["Toxic Spikes"]
 								battle.p1a.statusEffect(
 									parts[2],
-									battle.hazardsSet.p1["Toxic Spikes"]
+									inflictor,
+									"Passive"
 								);
-							} else {
+							} else if (parts[1].split(": ")[0] === "p1b") {
+								victim = battle.p1b.name;
+								inflictor = battle.hazardsSet.p1["Toxic Spikes"]
+								battle.p1b.statusEffect(
+									parts[2],
+									inflictor,
+									"Passive"
+								);
+							} else if (parts[1].split(": ")[0] === "p2a") {
+								victim = battle.p2a.name;
+								inflictor = battle.hazardsSet.p2["Toxic Spikes"]
 								battle.p2a.statusEffect(
 									parts[2],
-									battle.hazardsSet.p2["Toxic Spikes"]
+									inflictor,
+									"Passive"
+								);
+							} else if (parts[1].split(": ")[0] === "p2b") {
+								victim = battle.p2b.name;
+								inflictor = battle.hazardsSet.p2["Toxic Spikes"]
+								battle.p2b.statusEffect(
+									parts[2],
+									inflictor,
+									"Passive"
 								);
 							}
 						}
+						console.log(
+							`${inflictor} caused ${parts[2]} on ${victim}.`
+						);
 					}
 
 					//If a hazard ends on a side
@@ -1157,7 +1277,9 @@ class Showdown {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								} else {
-									//move = move.split(": ")[1];
+									move = move.includes("move: ")
+										? move.split(": ")[1]
+										: move;
 									//Affliction-caused deaths
 									if (victimSide === "p1a") {
 										let deathJson = battle.p1a.died(
