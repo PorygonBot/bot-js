@@ -430,7 +430,7 @@ class Showdown {
 
 								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
 							}
-							battle.p2b = battle.p1Pokemon[replacer];
+							battle.p2b = battle.p2Pokemon[replacer];
 							battle.p2b.realName = replacerRealName;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2b.name}`
@@ -1898,46 +1898,74 @@ class Showdown {
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								if (killerSide === "p2a") {
 									killer = battle.p2a.name;
-								}
-								else if (killerSide === 'p2b') {
-									killer = battle.p2b.name
+								} else if (killerSide === "p2b") {
+									killer = battle.p2b.name;
 								}
 								victim = battle.p1a.name;
-								let deathJson = battle.p1a.died("faint", killer, false);
+								let deathJson = battle.p1a.died(
+									"faint",
+									killer,
+									false
+								);
 								battle.p2Pokemon[killer].killed(deathJson);
-							} else if (victimSide === "p1b" && !battle.p1b.isDead) {
+							} else if (
+								victimSide === "p1b" &&
+								!battle.p1b.isDead
+							) {
 								if (killerSide === "p2a") {
 									killer = battle.p2a.name;
-								}
-								else if (killerSide === 'p2b') {
-									killer = battle.p2b.name
+								} else if (killerSide === "p2b") {
+									killer = battle.p2b.name;
 								}
 								victim = battle.p1b.name;
-								let deathJson = battle.p1b.died("faint", killer, false);
+								let deathJson = battle.p1b.died(
+									"faint",
+									killer,
+									false
+								);
 								battle.p2Pokemon[killer].killed(deathJson);
-							} else if (victimSide === "p2a" && !battle.p2a.isDead) {
+							} else if (
+								victimSide === "p2a" &&
+								!battle.p2a.isDead
+							) {
 								if (killerSide === "p1a") {
 									killer = battle.p1a.name;
-								}
-								else if (killerSide === 'p1b') {
-									killer = battle.p1b.name
+								} else if (killerSide === "p1b") {
+									killer = battle.p1b.name;
 								}
 								victim = battle.p2a.name;
-								let deathJson = battle.p2a.died("faint", killer, false);
+								let deathJson = battle.p2a.died(
+									"faint",
+									killer,
+									false
+								);
 								battle.p1Pokemon[killer].killed(deathJson);
-							} else if (victimSide === "p2b" && !battle.p2b.isDead) {
+							} else if (
+								victimSide === "p2b" &&
+								!battle.p2b.isDead
+							) {
 								if (killerSide === "p1a") {
 									killer = battle.p1a.name;
-								}
-								else if (killerSide === 'p1b') {
-									killer = battle.p1b.name
+								} else if (killerSide === "p1b") {
+									killer = battle.p1b.name;
 								}
 								victim = battle.p2b.name;
-								let deathJson = battle.p2b.died("faint", killer, false);
+								let deathJson = battle.p2b.died(
+									"faint",
+									killer,
+									false
+								);
 								battle.p1Pokemon[killer].killed(deathJson);
 							}
-							console.log(`${victim} was killed by ${killer} (Turn ${battle.turns}).`);
-							battle.history.push(`${victim} was killed by ${killer} (Turn ${battle.turns}).`);
+
+							if (killer && victim) {
+								console.log(
+									`${victim} was killed by ${killer} (Turn ${battle.turns}).`
+								);
+								battle.history.push(
+									`${victim} was killed by ${killer} (Turn ${battle.turns}).`
+								);
+							}
 						}
 					}
 
