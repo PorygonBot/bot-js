@@ -789,7 +789,7 @@ class ReplayTracker {
 										: "direct"
 								}) (Turn ${battle.turns})`;
 							} else {
-								//move = move.split(": ")[1];
+								move = move.includes("move: ") ? move.split(": ")[1] : move;
 								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									let deathJson = battle.p1a.died(
