@@ -209,7 +209,7 @@ class ReplayTracker {
 							battle.p2b.passiveKills += tempCurrentPassiveKills;
 							oldPokemon = battle.p2b;
 
-							battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+							battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 						}
 						battle.p2b = battle.p2Pokemon[replacer];
 						battle.p2b.realName = replacerRealName;

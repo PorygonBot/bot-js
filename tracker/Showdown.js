@@ -427,7 +427,7 @@ class Showdown {
 								battle.p2b.passiveKills += tempCurrentPassiveKills;
 								oldPokemon = battle.p2b;
 
-								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
+								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 							}
 							battle.p2b = battle.p2Pokemon[replacer];
 							battle.p2b.realName = replacerRealName;
@@ -502,6 +502,7 @@ class Showdown {
 								`${oldPokemon.name} has been replaced by ${battle.p2b.name}`
 							);
 						}
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Removes the |-supereffective| or  |upkeep part of realdata if it exists
@@ -1084,6 +1085,7 @@ class Showdown {
 							}
 							battle.history.splice(battle.history.length - 1, 1);
 						}
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//If a pokemon's status is cured
@@ -1908,7 +1910,6 @@ class Showdown {
 							//Regular kill if it wasn't picked up by the |-damage| statement
 							let killer;
 							let victim;
-							console.log(prevLine);
 							let killerSide = prevParts[1].split(": ")[0];
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								if (killerSide === "p2a") {
@@ -1954,6 +1955,9 @@ class Showdown {
 									killer,
 									false
 								);
+								console.log(killerSide);
+								console.log(prevLine);
+
 								battle.p1Pokemon[killer].killed(deathJson);
 							} else if (
 								victimSide === "p2b" &&
