@@ -284,6 +284,7 @@ class ReplayTracker {
 							`${oldPokemon.name} has been replaced by ${battle.p2b.name}`
 						);
 					}
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Removes the |-supereffective| or  |upkeep part of realdata if it exists
@@ -834,6 +835,7 @@ class ReplayTracker {
 						}
 						battle.history.splice(battle.history.length - 1, 1);
 					}
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//If a pokemon's status is cured
@@ -1624,7 +1626,6 @@ class ReplayTracker {
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
 						let victim;
-						console.log(prevLine);
 						let killerSide = prevParts[1].split(": ")[0];
 						if (victimSide === "p1a" && !battle.p1a.isDead) {
 							if (killerSide === "p2a") {
@@ -1664,6 +1665,9 @@ class ReplayTracker {
 								killer,
 								false
 							);
+							console.log(killerSide);
+							console.log(prevLine);
+
 							battle.p1Pokemon[killer].killed(deathJson);
 						} else if (victimSide === "p2b" && !battle.p2b.isDead) {
 							if (killerSide === "p1a") {

@@ -1,11 +1,11 @@
 const { Client, Message } = require("discord.js");
 const getUrls = require("get-urls");
 const Showdown = require("../../tracker/Showdown");
-const utils  = require('../../utils');
+const utils = require("../../utils");
 /**
  * When a message is sent
- * @param {Client} client 
- * @param {Message} message 
+ * @param {Client} client
+ * @param {Message} message
  */
 module.exports = async (client, message) => {
 	const channel = message.channel;
@@ -56,22 +56,25 @@ module.exports = async (client, message) => {
 		}
 	}
 	// Checks if the Message contains the Prefix at the start.
-	if(message.content.startsWith(prefix))
-	{
-	//Getting info from the message if it's not a live link
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	const commandName = args.shift().toLowerCase();
+	if (message.content.toLowerCase().startsWith(prefix)) {
+		//Getting info from the message if it's not a live link
+		const args = message.content.slice(prefix.length).trim().split(/ +/);
+		const commandName = args.shift().toLowerCase();
 
-	//Running commands as normal
-	const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-	
-	if(!command) return;
+		//Running commands as normal
+		const command =
+			client.commands.get(commandName) ||
+			client.commands.find(
+				(cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+			);
 
-	try {
-		await command.execute(message, args);
-	} catch(error) {
-		console.error(error);
-		message.reply("There was an error trying to execute that command!");
+		if (!command) return;
+
+		try {
+			await command.execute(message, args);
+		} catch (error) {
+			console.error(error);
+			message.reply("There was an error trying to execute that command!");
+		}
 	}
-	}
-}
+};
