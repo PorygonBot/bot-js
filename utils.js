@@ -341,6 +341,13 @@ const burnMoves = [
 ];
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
+const badActivateMoves = [
+	"Protect",
+	"Aromatherapy",
+	"Sticky Web",
+	"Substitute"
+]
+
 const util = {
 	getUser,
 	getChannel,
@@ -356,6 +363,7 @@ const util = {
 	toxicMoves,
 	burnMoves,
 	statusAbility,
+	badActivateMoves
 };
 
 module.exports =  util; 

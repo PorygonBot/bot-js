@@ -68,7 +68,6 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -261,8 +260,8 @@ class ReplayTracker {
 							battle.p2a.currentPassiveKills;
 						battle.p2a.currentDirectKills = 0;
 						battle.p2a.currentPassiveKills = 0;
-						let oldPokemon = battle.p1a;
-						battle.p2a = battle.p1Pokemon[replacer];
+						let oldPokemon = battle.p2a;
+						battle.p2a = battle.p2Pokemon[replacer];
 						battle.p2a.currentDirectKills += tempCurrentDirectKills;
 						battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
 
@@ -295,7 +294,8 @@ class ReplayTracker {
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
 					line.startsWith(`|-singleturn|`) ||
-					line.startsWith(`|-crit|`)
+					line.startsWith(`|-crit|`) ||
+					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
 				} else if (line.startsWith(`|detailschange|`)) {
@@ -360,10 +360,12 @@ class ReplayTracker {
 
 				//For moves like Infestation and Fire Spin
 				else if (line.startsWith(`|-activate|`)) {
-					let move = parts[2].split(": ")[1];
+					let move = parts[2].includes("move")
+						? parts[2].split(": ")[1]
+						: parts[2];
 					if (
 						!(
-							move === "Protect" ||
+							utils.badActivateMoves.includes(move) ||
 							parts[2].includes("ability") ||
 							parts[2].includes("item")
 						)
@@ -547,14 +549,15 @@ class ReplayTracker {
 						line.includes("item")
 					) {
 						//Ability status
-						let inflictorSide = parts[4]
-							.split("[of]")[1]
-							.split(": ")[0];
+						let inflictorSide = line.includes("item")
+							? victimSide
+							: parts[4].split("[of]")[1].split(": ")[0];
 						if (victimSide === "p1a") {
 							if (inflictorSide === "p2a")
 								inflictor = battle.p2a.name;
 							else if (inflictorSide === "p2b")
 								inflictor = battle.p2b.name;
+							else inflictor = battle.p1a.name;
 
 							victim = battle.p1a.name;
 							battle.p1a.statusEffect(
@@ -567,6 +570,7 @@ class ReplayTracker {
 								inflictor = battle.p2a.name;
 							else if (inflictorSide === "p2b")
 								inflictor = battle.p2b.name;
+							else inflictor = battle.p1b.name;
 
 							victim = battle.p1b.name;
 							battle.p1b.statusEffect(
@@ -579,6 +583,7 @@ class ReplayTracker {
 								inflictor = battle.p1a.name;
 							else if (inflictorSide === "p1b")
 								inflictor = battle.p2b.name;
+							else inflictor = battle.p2a.name;
 
 							victim = battle.p2a.name;
 							battle.p2a.statusEffect(
@@ -591,6 +596,7 @@ class ReplayTracker {
 								inflictor = battle.p1a.name;
 							else if (inflictorSide === "p1b")
 								inflictor = battle.p2b.name;
+							else inflictor = battle.p2b.name;
 
 							victim = battle.p2b.name;
 							battle.p2b.statusEffect(
@@ -1618,6 +1624,7 @@ class ReplayTracker {
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
 						let victim;
+						console.log(prevLine);
 						let killerSide = prevParts[1].split(": ")[0];
 						if (victimSide === "p1a" && !battle.p1a.isDead) {
 							if (killerSide === "p2a") {
