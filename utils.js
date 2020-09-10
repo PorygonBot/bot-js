@@ -346,7 +346,8 @@ const badActivateMoves = [
 	"Aromatherapy",
 	"Sticky Web",
 	"Substitute",
-	"Max Guard"
+	"Max Guard",
+	"Destiny Bond"
 ]
 
 const util = {
