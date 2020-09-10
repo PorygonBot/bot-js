@@ -296,6 +296,8 @@ class ReplayTracker {
 					line.startsWith(`|-boost|`) ||
 					line.startsWith(`|-singleturn|`) ||
 					line.startsWith(`|-crit|`) ||
+					line.startsWith("|debug|") ||
+					line.startsWith("|-enditem|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);

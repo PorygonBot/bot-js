@@ -514,6 +514,8 @@ class Showdown {
 						line.startsWith(`|-boost|`) ||
 						line.startsWith(`|-singleturn|`) ||
 						line.startsWith(`|-crit|`) ||
+						line.startsWith("|debug|") ||
+						line.startsWith("|-enditem|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
@@ -546,13 +548,13 @@ class Showdown {
 							try {
 								//Weather is caused by an ability
 								let side = parts[3].split(": ")[0];
-								if (side === "p1a") {
+								if (side.includes("p1a")) {
 									inflictor = battle.p1a.name;
-								} else if (side === "p1b") {
+								} else if (side.includes("p1b")) {
 									inflictor = battle.p1b.name;
-								} else if (side === "p2a") {
+								} else if (side.includes("p2a")) {
 									inflictor = battle.p2a.name;
-								} else if (side === "p2b") {
+								} else if (side.includes("p2b")) {
 									inflictor = battle.p2b.name;
 								}
 							} catch (e) {
@@ -562,13 +564,13 @@ class Showdown {
 									.split("|")
 									.slice(1)[1]
 									.split(": ")[0];
-								if (side === "p1a") {
+								if (side.includes("p1a")) {
 									inflictor = battle.p1a.name;
-								} else if (side === "p1b") {
+								} else if (side.includes("p1b")) {
 									inflictor = battle.p1b.name;
-								} else if (side === "p2a") {
+								} else if (side.includes("p2a")) {
 									inflictor = battle.p2a.name;
-								} else if (side === "p2b") {
+								} else if (side.includes("p2b")) {
 									inflictor = battle.p2b.name;
 								}
 							}
@@ -629,7 +631,8 @@ class Showdown {
 										battle.p1b.name;
 							}
 						}
-						dataArr.splice(dataArr.length - 1, 1);
+						if (move !== "Destiny Bond")
+							dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Checks for certain specific moves: hazards, statuses, etc.
