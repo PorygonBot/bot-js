@@ -349,7 +349,12 @@ const badActivateMoves = [
 	"Max Guard",
 	"Destiny Bond",
 	"Heal Bell",
-	"confusion"
+	"confusion",
+	"Poltergeist",
+	"Pursuit",
+	"Electric Terrain",
+	"Struggle",
+	"Hyperspace Fury"
 ]
 
 const util = {
