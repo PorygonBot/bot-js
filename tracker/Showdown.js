@@ -2131,7 +2131,7 @@ class Showdown {
 								battle.replay.split("/")[3]
 							}`,
 							spoiler: this.rules.spoiler,
-							csv: this.rules.csv,
+							format: this.rules.format,
 						};
 
 						//Creating the objects for kills and deaths

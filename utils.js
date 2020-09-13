@@ -100,6 +100,45 @@ const genCSV = (matchJson) => {
 	return [message1, message2];
 };
 
+const genSheets = (matchJson) => {
+	//retrieving info from the json object
+	let psPlayer1 = Object.keys(matchJson.players)[0];
+	let psPlayer2 = Object.keys(matchJson.players)[1];
+	let killJson1 = matchJson.players[psPlayer1].kills;
+	let deathJson1 = matchJson.players[psPlayer1].deaths;
+	let killJson2 = matchJson.players[psPlayer2].kills;
+	let deathJson2 = matchJson.players[psPlayer2].deaths;
+	let combinePD = matchJson.combinePD;
+
+	let message1 = "";
+	let message2 = "";
+
+	//Drafting the message to be sent to the users\
+	if (!combinePD) {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon} ${killJson1[pokemon].direct} ${killJson1[pokemon].passive} ${deathJson1[pokemon]}\n`;
+		}
+
+		for (let pokemon of Object.keys(killJson2)) {
+			message2 += `${pokemon} ${killJson2[pokemon].direct} ${killJson2[pokemon].passive} ${deathJson2[pokemon]}\n`;
+		}
+	} else {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon} ${
+				killJson1[pokemon].direct + killJson1[pokemon].passive
+			} ${deathJson1[pokemon]}\n`;
+		}
+
+		for (let pokemon of Object.keys(killJson2)) {
+			message2 += `${pokemon} ${
+				killJson2[pokemon].direct + killJson2[pokemon].passive
+			} ${deathJson2[pokemon]}\n`;
+		}
+	}
+
+	return [message1, message2];
+};
+
 const getChannels = async () => {
 	let channels = [];
 	await base("Leagues")
@@ -197,7 +236,7 @@ const getRules = async (rulesId) => {
 		spoiler: true,
 		ping: "",
 		forfeit: "None",
-		csv: false
+		format: ""
 	};
 	if (rulesId) {
 		console.log("HEY I'M HERE")
@@ -230,12 +269,10 @@ const getRules = async (rulesId) => {
 			let forfeit = record.fields["Forfeit"];
 			rules.forfeit = forfeit ? forfeit : "None";
 
-			let csv = record.fields["CSV"];
-			console.log(csv);
-			rules.csv = csv ? csv : false;
+			let format = record.fields["Format"];
+			rules.csv = format ? format : "Default";
 		})
 	}
-	console.log(rules);
 
 	return rules;
 }
@@ -362,6 +399,7 @@ const util = {
 	getChannel,
 	genMessage,
 	genCSV,
+	genSheets,
 	getChannels,
 	findLeagueId,
 	findRulesId,

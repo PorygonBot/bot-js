@@ -47,12 +47,12 @@ module.exports =  {
 			case "-forfeit":
 				category = "Forfeit";
 				break;
-			case "-csv":
-				category = "CSV";
+			case "-format":
+				category = "Format";
 				break;
 			default:
 				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the client @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n-csv: add true if you want the stats format to be in CSV form or false if you don't. Default is false.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
+					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the client @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n-format: add csv if you want the stats format to be in CSV form, sheets if you don't, default if you want the default. Default is false.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
 				);
 		}
 		let result =
@@ -61,10 +61,6 @@ module.exports =  {
 						.replace(args[1].charAt(0), "")
 						.toLowerCase()}`
 				: args[1];
-		//If the mode is csv
-		if (rule === "-csv") {
-			result = rule === "-csv" && result === "True";
-		}
 
 		// Updating the rule in the database for the league
 		let rulesId = await utils.findRulesId(channel.id);

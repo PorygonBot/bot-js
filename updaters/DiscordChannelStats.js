@@ -10,7 +10,12 @@ class DiscordChannelStats {
 
 	async update(matchJson) {
 		let info = matchJson.info;
-		let messages = info.csv ? util.genCSV(matchJson) : util.genMessage(matchJson);
+
+		let messages = [];
+		if (info.format === "Csv") messages = utils.genCSV();
+		else if (info.format === "Sheets") messages = utils.genSheets();
+		else messages = utils.genMessage();
+
 		let psPlayer1 = Object.keys(matchJson.players)[0];
 		let psPlayer2 = Object.keys(matchJson.players)[1];
 		let message1 = messages[0];
