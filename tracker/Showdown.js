@@ -2169,8 +2169,9 @@ class Showdown {
 				}
 			} catch (e) {
 				this.message.channel.send(
-					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n**Error:**\`\`\`${e}\`\`\``
+					`:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.\n**Error:**\`\`\`${e}\`\`\``
 				);
+				this.websocket.send(`/leave ${this.battle}`);
 				console.error(e);
 			}
 		});
