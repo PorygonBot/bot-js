@@ -14,9 +14,9 @@ class DiscordDMStats {
 		let info = matchJson.info;
 		
 		let messages = [];
-		if (info.format === "Csv") messages = utils.genCSV();
-		else if (info.format === "Sheets") messages = utils.genSheets();
-		else messages = utils.genMessage();
+		if (info.format === "Csv") messages = utils.genCSV(matchJson);
+		else if (info.format === "Sheets") messages = utils.genSheets(matchJson);
+		else messages = utils.genMessage(matchJson);
 
 		let psPlayer1 = Object.keys(matchJson.players)[0];
 		let psPlayer2 = Object.keys(matchJson.players)[1];
