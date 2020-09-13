@@ -2168,6 +2168,17 @@ class Showdown {
 							battle.winner.endsWith("p1") &&
 							battle.loser.endsWith("p2")
 						) {
+							info.result = `${battle.p1} won ${
+								Object.values(battle.p1Pokemon).length -
+								Object.values(battle.p1Pokemon).filter(
+									(pokemon) => pokemon.isDead
+								).length
+							}-${
+								Object.values(battle.p2Pokemon).length -
+								Object.values(battle.p2Pokemon).filter(
+									(pokemon) => pokemon.isDead
+								).length
+							}`;
 							await this.endscript(
 								battle.winner,
 								killJsonp1,
@@ -2181,6 +2192,17 @@ class Showdown {
 							battle.winner.endsWith("p2") &&
 							battle.loser.endsWith("p1")
 						) {
+							info.result = `${battle.p2} won ${
+								Object.values(battle.p2Pokemon).length -
+								Object.values(battle.p2Pokemon).filter(
+									(pokemon) => pokemon.isDead
+								).length
+							}-${
+								Object.values(battle.p1Pokemon).length -
+								Object.values(battle.p1Pokemon).filter(
+									(pokemon) => pokemon.isDead
+								).length
+							}`;
 							await this.endscript(
 								battle.winner,
 								killJsonp2,

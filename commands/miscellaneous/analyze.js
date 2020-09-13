@@ -3,7 +3,8 @@ const utils = require('../../utils');
 const ReplayTracker = require('../../tracker/ReplayTracker');
 
 module.exports =  {
-    name: "analyze",
+	name: "analyze",
+	aliases: ['analyse'],
     description: "Analyze replays instead of live links.",
     async execute(message, args) {
         const channel = message.channel;

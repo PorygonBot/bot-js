@@ -24,12 +24,12 @@ class DiscordDefaultStats {
 		//finally sending players the info
 		if (info.spoiler) {
 			this.channel.send(
-				`||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+				`**Result: ** ||${info.result}||\n\n||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
 			);
 		}
 		else {
 			this.channel.send(
-				`**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
+				`**Result: ** ||${info.result}||\n\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
 			);
 		}
 	}
