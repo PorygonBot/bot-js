@@ -6,10 +6,6 @@ module.exports =  {
     description: "Gets a list of the custom kill rules that a league has set.",
     async execute(message, args) {
 		const channel = message.channel;
-		const channels = await utils.getChannels();
-        if (!channels.includes(channel.id)) {
-			return channel.send(":x: This is not a valid live-links channel.");
-		}
         
         //Getting the rules
 		let rulesId = await utils.findRulesId(channel.id);
