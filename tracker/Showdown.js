@@ -437,6 +437,32 @@ class Showdown {
 						}
 					}
 
+					//Ally Switch and stuff
+					else if (line.startsWith("|swap|")) {
+						let userSide = parts[1].split(": ")[0];
+						if (userSide.startsWith("p1")) {
+							let temp = battle.p1a;
+							battle.p1a = battle.p1b;
+							battle.p1b = temp;
+
+							console.log(
+								`${battle.p1a} has switched with ${
+									battle.p1b
+								} due to ${parts[3].split(": ")[1]}`
+							);
+						} else if (userSide.startsWith("p2")) {
+							let temp = battle.p2a;
+							battle.p2a = battle.p2b;
+							battle.p2b = temp;
+
+							console.log(
+								`${battle.p2a} has switched with ${
+									battle.p2b
+								} due to ${parts[3].split(": ")[1]}`
+							);
+						}
+					}
+
 					//If Zoroark replaces the pokemon due to Illusion
 					else if (line.startsWith(`|replace|`)) {
 						let side = parts[1].split(": ")[0];
@@ -1817,15 +1843,17 @@ class Showdown {
 							prevLine.startsWith(`|move|`) &&
 							(prevLine.includes("Self-Destruct") ||
 								prevLine.includes("Explosion") ||
+								prevLine.includes("Misty Explosion") ||
 								prevLine.includes("Memento") ||
-								prevLine.includes("Healing Wish"))
+								prevLine.includes("Healing Wish") ||
+								prevLine.includes("Final Gambit"))
 						) {
 							let prevMove = prevParts[2];
 
 							let killer = "";
 							let victim;
 							let killerSide = prevParts[1].split(": ")[0];
-							if (victimSide === "p2a") {
+							if (victimSide === "p2a" && !battle.p2a.isDead) {
 								victim = battle.p2a.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p1a")
@@ -1842,7 +1870,10 @@ class Showdown {
 								if (killer) {
 									battle.p1Pokemon[killer].killed(deathJson);
 								}
-							} else if (victimSide === "p2b") {
+							} else if (
+								victimSide === "p2b" &&
+								!battle.p2b.isDead
+							) {
 								victim = battle.p2b.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p1a")
@@ -1859,7 +1890,10 @@ class Showdown {
 								if (killer) {
 									battle.p1Pokemon[killer].killed(deathJson);
 								}
-							} else if (victimSide === "p1a") {
+							} else if (
+								victimSide === "p1a" &&
+								!battle.p1a.isDead
+							) {
 								victim = battle.p1a.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p2a")
@@ -1876,7 +1910,10 @@ class Showdown {
 								if (killer) {
 									battle.p2Pokemon[killer].killed(deathJson);
 								}
-							} else if (victimSide === "p1b") {
+							} else if (
+								victimSide === "p1b" &&
+								!battle.p1b.isDead
+							) {
 								victim = battle.p1b.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p2a")
@@ -1958,8 +1995,6 @@ class Showdown {
 									killer,
 									false
 								);
-								console.log(killerSide);
-								console.log(prevLine);
 
 								battle.p1Pokemon[killer].killed(deathJson);
 							} else if (
@@ -1989,6 +2024,8 @@ class Showdown {
 								);
 							}
 						}
+
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Messages sent by the server
