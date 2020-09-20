@@ -864,7 +864,8 @@ class ReplayTracker {
 						}
 						battle.history.splice(battle.history.length - 1, 1);
 					}
-					dataArr.splice(dataArr.length - 1, 1);
+					if (!line.endsWith('Future Sight'))
+						dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//If a pokemon's status is cured

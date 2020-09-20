@@ -391,7 +391,9 @@ const badActivateMoves = [
 	"Pursuit",
 	"Electric Terrain",
 	"Struggle",
-	"Hyperspace Fury"
+	"Hyperspace Fury",
+	"trapped",
+	"Endure"
 ]
 
 const util = {
