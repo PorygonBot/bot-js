@@ -676,6 +676,24 @@ class ReplayTracker {
 					);
 				}
 
+				else if (line.startsWith('|-sidestart|')) {
+					let prevLine = dataArr[dataArr.length - 2];
+					let prevParts = prevLine.split("|").slice(1);
+					let inflictorSide = prevParts[1].split(": ")[0];
+					let inflictor = "";
+
+					if (inflictorSide === "p1a")
+						inflictor = battle.p1a.name;
+					else if (inflictorSide === "p1b")
+						inflictor = battle.p1b.name;
+					else if (inflictorSide === "p2a")
+						inflictor = battle.p2a.name;
+					else if (inflictorSide === "p2b")
+						inflictor = battle.p2b.name;
+
+					battle.addHazard(parts[1].split(": ")[0], parts[2], inflictor);
+				}
+
 				//If a hazard ends on a side
 				else if (line.startsWith(`|-sideend|`)) {
 					let side = parts[1].split(": ")[0];
@@ -904,7 +922,7 @@ class ReplayTracker {
 						if (parts[3] && parts[3].includes("[from]")) {
 							//It's a special death, not a normal one.
 							let move = parts[3].split("[from] ")[1];
-							if (move === "Stealth Rock" || move === "Spikes") {
+							if (utils.hazardMoves.includes(move)) {
 								//Hazards
 								if (victimSide === "p1a") {
 									killer = battle.hazardsSet.p1[move];

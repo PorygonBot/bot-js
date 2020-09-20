@@ -393,7 +393,17 @@ const badActivateMoves = [
 	"Struggle",
 	"Hyperspace Fury",
 	"trapped",
-	"Endure"
+	"Endure",
+	"Psychic Terrain"
+];
+
+const hazardMoves = [
+	"Stealth Rock",
+	"Spikes",
+	"G-Max Volcalith",
+	"G-Max Vineslash",
+	"G-Max Wildfire",
+	"G-Max Cannonaide",
 ]
 
 const util = {
@@ -412,7 +422,8 @@ const util = {
 	toxicMoves,
 	burnMoves,
 	statusAbility,
-	badActivateMoves
+	badActivateMoves,
+	hazardMoves
 };
 
 module.exports =  util; 
