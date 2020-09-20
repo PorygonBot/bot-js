@@ -674,16 +674,13 @@ class ReplayTracker {
 					console.log(
 						`${inflictor} caused ${parts[2]} on ${victim}.`
 					);
-				}
-
-				else if (line.startsWith('|-sidestart|')) {
+				} else if (line.startsWith("|-sidestart|")) {
 					let prevLine = dataArr[dataArr.length - 2];
 					let prevParts = prevLine.split("|").slice(1);
 					let inflictorSide = prevParts[1].split(": ")[0];
 					let inflictor = "";
 
-					if (inflictorSide === "p1a")
-						inflictor = battle.p1a.name;
+					if (inflictorSide === "p1a") inflictor = battle.p1a.name;
 					else if (inflictorSide === "p1b")
 						inflictor = battle.p1b.name;
 					else if (inflictorSide === "p2a")
@@ -691,7 +688,11 @@ class ReplayTracker {
 					else if (inflictorSide === "p2b")
 						inflictor = battle.p2b.name;
 
-					battle.addHazard(parts[1].split(": ")[0], parts[2], inflictor);
+					battle.addHazard(
+						parts[1].split(": ")[0],
+						parts[2],
+						inflictor
+					);
 				}
 
 				//If a hazard ends on a side
@@ -882,7 +883,7 @@ class ReplayTracker {
 						}
 						battle.history.splice(battle.history.length - 1, 1);
 					}
-					if (!line.endsWith('Future Sight'))
+					if (!line.endsWith("Future Sight"))
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -1575,14 +1576,14 @@ class ReplayTracker {
 							`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
 						);
 					} else if (
-						prevLine.startsWith(`|move|`) &&
-						(prevLine.includes("Self-Destruct") ||
-							prevLine.includes("Explosion") ||
-							prevLine.includes("Misty Explosion") ||
-							prevLine.includes("Memento") ||
-							prevLine.includes("Healing Wish") ||
-							prevLine.includes("Final Gambit")) ||
-							prevLine.includes("Curse")
+						(prevLine.startsWith(`|move|`) &&
+							(prevLine.includes("Self-Destruct") ||
+								prevLine.includes("Explosion") ||
+								prevLine.includes("Misty Explosion") ||
+								prevLine.includes("Memento") ||
+								prevLine.includes("Healing Wish") ||
+								prevLine.includes("Final Gambit"))) ||
+						prevLine.includes("Curse")
 					) {
 						let prevMove = prevParts[2];
 						console.log("Curse BABY");
@@ -1679,7 +1680,7 @@ class ReplayTracker {
 						let killer;
 						let victim;
 						let killerSide = prevParts[1].split(": ")[0];
-						console.log("Curse BABYBABYBABY")
+						console.log("Curse BABYBABYBABY");
 						if (victimSide === "p1a" && !battle.p1a.isDead) {
 							if (killerSide === "p2a") {
 								killer = battle.p2a.name;

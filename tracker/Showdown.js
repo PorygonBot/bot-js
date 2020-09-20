@@ -903,6 +903,26 @@ class Showdown {
 						console.log(
 							`${inflictor} caused ${parts[2]} on ${victim}.`
 						);
+					} else if (line.startsWith("|-sidestart|")) {
+						let prevLine = dataArr[dataArr.length - 2];
+						let prevParts = prevLine.split("|").slice(1);
+						let inflictorSide = prevParts[1].split(": ")[0];
+						let inflictor = "";
+
+						if (inflictorSide === "p1a")
+							inflictor = battle.p1a.name;
+						else if (inflictorSide === "p1b")
+							inflictor = battle.p1b.name;
+						else if (inflictorSide === "p2a")
+							inflictor = battle.p2a.name;
+						else if (inflictorSide === "p2b")
+							inflictor = battle.p2b.name;
+
+						battle.addHazard(
+							parts[1].split(": ")[0],
+							parts[2],
+							inflictor
+						);
 					}
 
 					//If a hazard ends on a side
@@ -1114,7 +1134,8 @@ class Showdown {
 							}
 							battle.history.splice(battle.history.length - 1, 1);
 						}
-						dataArr.splice(dataArr.length - 1, 1);
+						if (!line.endsWith("Future Sight"))
+							dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//If a pokemon's status is cured
@@ -1153,10 +1174,7 @@ class Showdown {
 							if (parts[3] && parts[3].includes("[from]")) {
 								//It's a special death, not a normal one.
 								let move = parts[3].split("[from] ")[1];
-								if (
-									move === "Stealth Rock" ||
-									move === "Spikes"
-								) {
+								if (utils.hazardMoves.includes(move)) {
 									//Hazards
 									if (victimSide === "p1a") {
 										killer = battle.hazardsSet.p1[move];
@@ -1840,15 +1858,17 @@ class Showdown {
 								`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
 							);
 						} else if (
-							prevLine.startsWith(`|move|`) &&
-							(prevLine.includes("Self-Destruct") ||
-								prevLine.includes("Explosion") ||
-								prevLine.includes("Misty Explosion") ||
-								prevLine.includes("Memento") ||
-								prevLine.includes("Healing Wish") ||
-								prevLine.includes("Final Gambit"))
+							(prevLine.startsWith(`|move|`) &&
+								(prevLine.includes("Self-Destruct") ||
+									prevLine.includes("Explosion") ||
+									prevLine.includes("Misty Explosion") ||
+									prevLine.includes("Memento") ||
+									prevLine.includes("Healing Wish") ||
+									prevLine.includes("Final Gambit"))) ||
+							prevLine.includes("Curse")
 						) {
 							let prevMove = prevParts[2];
+							console.log("Curse BABY");
 
 							let killer = "";
 							let victim;
@@ -1951,6 +1971,7 @@ class Showdown {
 							let killer;
 							let victim;
 							let killerSide = prevParts[1].split(": ")[0];
+							console.log("Curse BABYBABYBABY");
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								if (killerSide === "p2a") {
 									killer = battle.p2a.name;
