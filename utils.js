@@ -270,7 +270,7 @@ const getRules = async (rulesId) => {
 			rules.forfeit = forfeit ? forfeit : "None";
 
 			let format = record.fields["Format"];
-			rules.csv = format ? format : "Default";
+			rules.format = format ? format : "Default";
 		})
 	}
 
@@ -391,7 +391,19 @@ const badActivateMoves = [
 	"Pursuit",
 	"Electric Terrain",
 	"Struggle",
-	"Hyperspace Fury"
+	"Hyperspace Fury",
+	"trapped",
+	"Endure",
+	"Psychic Terrain"
+];
+
+const hazardMoves = [
+	"Stealth Rock",
+	"Spikes",
+	"G-Max Volcalith",
+	"G-Max Vineslash",
+	"G-Max Wildfire",
+	"G-Max Cannonaide",
 ]
 
 const util = {
@@ -410,7 +422,8 @@ const util = {
 	toxicMoves,
 	burnMoves,
 	statusAbility,
-	badActivateMoves
+	badActivateMoves,
+	hazardMoves
 };
 
 module.exports =  util; 
