@@ -1563,9 +1563,11 @@ class ReplayTracker {
 							prevLine.includes("Misty Explosion") ||
 							prevLine.includes("Memento") ||
 							prevLine.includes("Healing Wish") ||
-							prevLine.includes("Final Gambit"))
+							prevLine.includes("Final Gambit")) ||
+							prevLine.includes("Curse")
 					) {
 						let prevMove = prevParts[2];
+						console.log("Curse BABY");
 
 						let killer = "";
 						let victim;
@@ -1659,6 +1661,7 @@ class ReplayTracker {
 						let killer;
 						let victim;
 						let killerSide = prevParts[1].split(": ")[0];
+						console.log("Curse BABYBABYBABY")
 						if (victimSide === "p1a" && !battle.p1a.isDead) {
 							if (killerSide === "p2a") {
 								killer = battle.p2a.name;
