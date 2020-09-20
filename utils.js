@@ -270,7 +270,7 @@ const getRules = async (rulesId) => {
 			rules.forfeit = forfeit ? forfeit : "None";
 
 			let format = record.fields["Format"];
-			rules.csv = format ? format : "Default";
+			rules.format = format ? format : "Default";
 		})
 	}
 
