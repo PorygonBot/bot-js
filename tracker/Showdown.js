@@ -42,6 +42,10 @@ class Showdown {
 				break;
 			case "Dawn":
 				ip = "oppai.azure.lol:80";
+				break;
+			case "Drafthub":
+				ip = "128.199.170.203:8000";
+				break;
 		}
 		this.server = `ws://${ip}/showdown/websocket`;
 
