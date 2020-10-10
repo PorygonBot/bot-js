@@ -5,7 +5,7 @@ module.exports = {
 	description:
 		"An FAQ regarding setup of the bot and about the bot in general.",
 	execute(message, args) {
-		const faqEmbed = new Discord.RichEmbed()
+		const faqEmbed = new Discord.MessageEmbed()
 			.setColor("#fc03d7")
 			.setTitle("Porygon FAQ")
 			.setURL(

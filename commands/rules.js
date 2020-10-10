@@ -14,7 +14,7 @@ module.exports =  {
 		let leagueJson = await utils.findLeagueId(channel.id);
 		let leagueName = leagueJson.name;
 
-		let rulesEmbed = new Discord.RichEmbed()
+		let rulesEmbed = new Discord.MessageEmbed()
 			.setTitle(`${leagueName}'s Rules`)
 			.setDescription(
 				`The rules that have been attributed to ${leagueName}.`
