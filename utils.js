@@ -1,5 +1,5 @@
-const Airtable = require('airtable');
-require('dotenv').config();
+const Airtable = require("airtable");
+require("dotenv").config();
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 const base = new Airtable({
@@ -152,7 +152,8 @@ const getChannels = async () => {
 				let channelId = await record.get("Channel ID");
 				channels.push(channelId);
 			});
-		}).catch((e) => {
+		})
+		.catch((e) => {
 			console.error(e);
 		});
 
@@ -176,7 +177,8 @@ const findLeagueId = async (checkChannelId) => {
 					leagueName = await leagueRecord.get("Name");
 				}
 			}
-		}).catch((e) => {
+		})
+		.catch((e) => {
 			console.error(e);
 		});
 
@@ -203,7 +205,8 @@ const findRulesId = async (checkChannelId) => {
 					recordId = leagueRecord.id;
 				}
 			}
-		}).catch((e) => {
+		})
+		.catch((e) => {
 			console.error(e);
 		});
 
@@ -212,14 +215,16 @@ const findRulesId = async (checkChannelId) => {
 
 const getPlayersIds = async (leagueId) => {
 	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues").find(leagueId, (err, record) => {
-			if (err) reject(err);
+		base("Leagues")
+			.find(leagueId, (err, record) => {
+				if (err) reject(err);
 
-			recordIds = record.get("Players");
-			resolve(recordIds);
-		}).catch((e) => {
-			console.error(e);
-		});
+				recordIds = record.get("Players");
+				resolve(recordIds);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
 	});
 
 	if (!recordsIds) return [];
@@ -236,10 +241,10 @@ const getRules = async (rulesId) => {
 		spoiler: true,
 		ping: "",
 		forfeit: "None",
-		format: ""
+		format: "",
 	};
 	if (rulesId) {
-		console.log("HEY I'M HERE")
+		console.log("HEY I'M HERE");
 		await base("Custom Rules").find(rulesId, async (err, record) => {
 			if (err) console.error(err);
 			let recoil = record.fields["Recoil"];
@@ -271,11 +276,11 @@ const getRules = async (rulesId) => {
 
 			let format = record.fields["Format"];
 			rules.format = format ? format : "Default";
-		})
+		});
 	}
 
 	return rules;
-}
+};
 
 //Pokemon-related Constants
 const recoilMoves = [
@@ -394,7 +399,7 @@ const badActivateMoves = [
 	"Hyperspace Fury",
 	"trapped",
 	"Endure",
-	"Psychic Terrain"
+	"Psychic Terrain",
 ];
 
 const hazardMoves = [
@@ -404,7 +409,50 @@ const hazardMoves = [
 	"G-Max Vineslash",
 	"G-Max Wildfire",
 	"G-Max Cannonaide",
-]
+];
+
+const quirkyMessages = {
+	start: [
+		"ghlf :)",
+		"Porygon has digitalized into the match... booting up... successfully calibrating stats!",
+		"I hope I win!",
+		"y'all suck",
+		"y'all are stupid",
+		"This game looks fun!",
+		"You got this!",
+		"I'm here now, the battle can get started!",
+	],
+	middle: {
+		team: {
+			rain: ["Ugh, a rain team.", "Oh goodness. A rain team. What fun."],
+			stall: [
+				"Get this stall match out of my face you despicable humans.",
+				"Ugh, this is gonna be a long one.",
+			],
+			porygon: ["Pfft, no Porygon on your team? Amateurs.", "Porygon ❤️"],
+			boltund: ["DIE BOLTUND DIE!!"],
+			airballoon: ["ppppfffffffbbbbsshshttttpppstttt"],
+		},
+		battle: {
+			crit: [
+				"HAX",
+				"It's a crit!",
+				"A crit? You must be on RNGesus' nice list!",
+				"feelsbadman",
+				"I poured blood, sweat, and tears in rng manipulating for that critical hit to happen in that exact moment. Get rekt, kid.",
+			],
+			hax: [
+				"HAX",
+				"Haha. Keep trying, loser.",
+				"feelsbadman",
+				"[pokemon] WAS PUNISHED BY THE HAX GODS!",
+			],
+			stall: ["Ugh this is taking too long."],
+			onemon: ["Finish him."],
+		},
+	},
+	after: ["gg wp :)", "You'll do better next time..."],
+};
 
 const util = {
 	getUser,
@@ -423,7 +471,8 @@ const util = {
 	burnMoves,
 	statusAbility,
 	badActivateMoves,
-	hazardMoves
+	hazardMoves,
+	quirkyMessages,
 };
 
-module.exports =  util; 
+module.exports = util;
