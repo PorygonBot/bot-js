@@ -400,6 +400,7 @@ const badActivateMoves = [
 	"trapped",
 	"Endure",
 	"Psychic Terrain",
+	"Misty Terrain"
 ];
 
 const hazardMoves = [
