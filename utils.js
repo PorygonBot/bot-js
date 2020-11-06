@@ -232,7 +232,45 @@ const getPlayersIds = async (leagueId) => {
 };
 
 const getRules = async (rulesId) => {
-	let rules = {
+	if (rulesId) {
+		return await new Promise((resolve, reject) => {
+			base("Custom Rules").find(rulesId, async (err, record) => {
+				if (err) reject(err);
+
+				let rules = {};
+
+				let recoil = await record.get("Recoil");
+				rules.recoil = recoil ? recoil : "Direct";
+
+				let suicide = await record.get("Suicide");
+				rules.suicide = suicide ? suicide : "Direct";
+
+				let abilityitem = await record.get("Ability/Item");
+				rules.abilityitem = abilityitem ? abilityitem : "Passive";
+
+				let selfteam = await record.get("Self or Teammate");
+				rules.selfteam = selfteam ? selfteam : "None";
+
+				let db = await record.get("Destiny Bond");
+				rules.db = db ? db : "Passive";
+
+				let spoiler = await record.get("Spoiler");
+				rules.spoiler = spoiler === "True" ? true : false;
+
+				let ping = await record.get("Ping");
+				rules.ping = ping ? ping : "";
+
+				let forfeit = await record.get("Forfeit");
+				rules.forfeit = forfeit ? forfeit : "None";
+
+				let format = await record.get("Format");
+				rules.format = format ? format : "Default";
+
+				resolve(rules);
+			});
+		});
+	}
+	return {
 		recoil: "Direct",
 		suicide: "Direct",
 		abilityitem: "Passive",
@@ -243,43 +281,6 @@ const getRules = async (rulesId) => {
 		forfeit: "None",
 		format: "",
 	};
-	if (rulesId) {
-		console.log("HEY I'M HERE");
-		await base("Custom Rules").find(rulesId, async (err, record) => {
-			if (err) console.error(err);
-			let recoil = record.fields["Recoil"];
-			rules.recoil = recoil ? recoil : "Direct";
-
-			let suicide = record.fields["Suicide"];
-			rules.suicide = suicide ? suicide : "Direct";
-
-			let abilityitem = record.fields["Ability/Item"];
-			rules.abilityitem = abilityitem ? abilityitem : "Passive";
-
-			let selfteam = record.fields["Self or Teammate"];
-			rules.selfteam = selfteam ? selfteam : "None";
-
-			let db = record.fields["Destiny Bond"];
-			rules.db = db ? db : "Passive";
-
-			let spoiler = record.fields["Spoiler"];
-			rules.spoiler = spoiler
-				? spoiler === "True"
-					? true
-					: false
-				: true;
-			let ping = record.fields["Ping"];
-			rules.ping = ping ? ping : "";
-
-			let forfeit = record.fields["Forfeit"];
-			rules.forfeit = forfeit ? forfeit : "None";
-
-			let format = record.fields["Format"];
-			rules.format = format ? format : "Default";
-		});
-	}
-
-	return rules;
 };
 
 //Pokemon-related Constants
@@ -400,7 +401,7 @@ const badActivateMoves = [
 	"trapped",
 	"Endure",
 	"Psychic Terrain",
-	"Misty Terrain"
+	"Misty Terrain",
 ];
 
 const hazardMoves = [
@@ -426,9 +427,15 @@ const quirkyMessages = {
 	],
 	middle: {
 		team: {
-			rain: ["Ugh, a rain team.", "Oh goodness. A rain team. What fun."],
+			rain: [
+				"Ugh, a rain team.",
+				"Oh goodness. A rain team. What fun.",
+				"I’m singing in the rain",
+				"I set fire to the rain",
+				"Rain drops keep falling on my head",
+			],
 			porygon: ["Pfft, no Porygon on your team? Amateurs.", "Porygon ❤️"],
-			noporygon: ["Ripoff"],
+			notporygon: ["Pfft, Porygon ripoff."],
 			boltund: ["DIE BOLTUND DIE!!"],
 			airballoon: ["ppppfffffffbbbbsshshttttpppstttt"],
 		},
@@ -453,6 +460,10 @@ const quirkyMessages = {
 	after: ["gg wp :)", "You'll do better next time..."],
 };
 
+const randomElement = (list) => {
+	return list[Math.random() * list.length];
+};
+
 const util = {
 	getUser,
 	getChannel,
@@ -472,5 +483,6 @@ const util = {
 	badActivateMoves,
 	hazardMoves,
 	quirkyMessages,
+	randomElement,
 };
 module.exports = util;

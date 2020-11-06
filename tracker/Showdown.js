@@ -227,9 +227,11 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send(`Battle joined! Keeping track of stats now.`).catch(e => console.error(e));
+		this.message.channel
+			.send(`Battle joined! Keeping track of stats now.`)
+			.catch((e) => console.error(e));
 		this.websocket.send(
-			`${this.battle}|Battle joined! Keeping track of stats now.`
+			`${this.battle}|${utils.randomElement(utils.hazardMoves.start)}`
 		);
 	}
 
@@ -330,6 +332,27 @@ class Showdown {
 							//If the pokemon belongs to Player 2
 							battle.p2Pokemon[pokemonName] = pokemon;
 						}
+
+						//Quirky messages!
+						//Rain
+						if (
+							(pokemonName === "Seismitoad" ||
+							pokemonName === "Zapdos" ||
+							pokemonName === "Barraskewda" ||
+							pokemonName === "Kingdra" ||
+							pokemonName === "Pelipper" ||
+							pokemonName === "Politoed" ||
+							pokemonName === "Armaldo" ||
+							pokemonName === "Ludicolo" ||
+							pokemonName === "Scizor" ||
+							pokemonName === "Beartic") && Math.random() >= 0.75
+						) {
+							this.websocket.send(
+								`${this.battle}|${utils.randomElement(
+									utils.hazardMoves.middle.team.rain
+								)}`
+							);
+						}
 					}
 
 					//Increments the total number of turns at the beginning of every new turn
@@ -367,6 +390,7 @@ class Showdown {
 							}
 							battle.p1a = battle.p1Pokemon[replacer];
 							battle.p1a.realName = replacerRealName;
+							battle.p1Pokemon[battle.p1a.realName] = battle.p1a;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
 							);
@@ -390,6 +414,7 @@ class Showdown {
 							}
 							battle.p1b = battle.p1Pokemon[replacer];
 							battle.p1b.realName = replacerRealName;
+							battle.p1Pokemon[battle.p1b.realName] = battle.p1b;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p1b.name}`
 							);
@@ -412,6 +437,7 @@ class Showdown {
 							}
 							battle.p2a = battle.p2Pokemon[replacer];
 							battle.p2a.realName = replacerRealName;
+							battle.p2Pokemon[battle.p2a.realName] = battle.p2a;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
 							);
@@ -435,6 +461,7 @@ class Showdown {
 							}
 							battle.p2b = battle.p2Pokemon[replacer];
 							battle.p2b.realName = replacerRealName;
+							battle.p2Pokemon[battle.p2b.realName] = battle.p2b;
 							console.log(
 								`${oldPokemon.name} has been switched into ${battle.p2b.name}`
 							);
@@ -546,6 +573,8 @@ class Showdown {
 						line.startsWith(`|-crit|`) ||
 						line.startsWith("|debug|") ||
 						line.startsWith("|-enditem|") ||
+						line.startsWith("|-fieldstart|") ||
+						line.startsWith("|-zbroken|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
@@ -735,7 +764,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p1a.name;
-									victim = battle.p2a.name;
+									victim =
+										battle.p2a.realName || battle.p2a.name;
 								} else if (victimSide === "p2b") {
 									battle.p2b.statusEffect(
 										parts[2] === "tox" ? "psn" : parts[2],
@@ -743,7 +773,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p1a.name;
-									victim = battle.p2b.name;
+									victim =
+										battle.p2b.realName || battle.p2b.name;
 								}
 							} else if (inflictorSide === "p1b") {
 								if (victimSide === "p2a") {
@@ -753,7 +784,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p1b.name;
-									victim = battle.p2a.name;
+									victim =
+										battle.p2a.realName || battle.p2a.name;
 								} else if (victimSide === "p2b") {
 									battle.p2b.statusEffect(
 										parts[2] === "tox" ? "psn" : parts[2],
@@ -761,7 +793,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p1b.name;
-									victim = battle.p2b.name;
+									victim =
+										battle.p2a.realName || battle.p2b.name;
 								}
 							} else if (inflictorSide === "p2a") {
 								if (victimSide === "p1a") {
@@ -771,7 +804,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p2a.name;
-									victim = battle.p1a.name;
+									victim =
+										battle.p1a.realName || battle.p1a.name;
 								} else if (victimSide === "p1b") {
 									battle.p1b.statusEffect(
 										parts[2] === "tox" ? "psn" : parts[2],
@@ -779,7 +813,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p2a.name;
-									victim = battle.p1b.name;
+									victim =
+										battle.p1b.realName || battle.p1b.name;
 								}
 							} else if (inflictorSide === "p2b") {
 								if (victimSide === "p1a") {
@@ -789,7 +824,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p2b.name;
-									victim = battle.p1a.name;
+									victim =
+										battle.p1a.realName || battle.p1a.name;
 								} else if (victimSide === "p1b") {
 									battle.p1b.statusEffect(
 										parts[2] === "tox" ? "psn" : parts[2],
@@ -797,7 +833,8 @@ class Showdown {
 										"Passive"
 									);
 									inflictor = battle.p2b.name;
-									victim = battle.p1b.name;
+									victim =
+										battle.p1b.realName || battle.p1b.name;
 								}
 							}
 						} else if (
@@ -818,7 +855,7 @@ class Showdown {
 									inflictor = battle.p2b.name;
 								else inflictor = battle.p1a.name;
 
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								battle.p1a.statusEffect(
 									parts[2],
 									inflictor,
@@ -831,7 +868,7 @@ class Showdown {
 									inflictor = battle.p2b.name;
 								else inflictor = battle.p1b.name;
 
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								battle.p1b.statusEffect(
 									parts[2],
 									inflictor,
@@ -844,7 +881,7 @@ class Showdown {
 									inflictor = battle.p2b.name;
 								else inflictor = battle.p2a.name;
 
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								battle.p2a.statusEffect(
 									parts[2],
 									inflictor,
@@ -857,7 +894,7 @@ class Showdown {
 									inflictor = battle.p2b.name;
 								else inflictor = battle.p2b.name;
 
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								battle.p2b.statusEffect(
 									parts[2],
 									inflictor,
@@ -867,7 +904,7 @@ class Showdown {
 						} else {
 							//If status wasn't caused by a move, but rather Toxic Spikes
 							if (parts[1].split(": ")[0] === "p1a") {
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								inflictor =
 									battle.hazardsSet.p1["Toxic Spikes"];
 								battle.p1a.statusEffect(
@@ -876,7 +913,7 @@ class Showdown {
 									"Passive"
 								);
 							} else if (parts[1].split(": ")[0] === "p1b") {
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								inflictor =
 									battle.hazardsSet.p1["Toxic Spikes"];
 								battle.p1b.statusEffect(
@@ -885,7 +922,7 @@ class Showdown {
 									"Passive"
 								);
 							} else if (parts[1].split(": ")[0] === "p2a") {
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								inflictor =
 									battle.hazardsSet.p2["Toxic Spikes"];
 								battle.p2a.statusEffect(
@@ -894,7 +931,7 @@ class Showdown {
 									"Passive"
 								);
 							} else if (parts[1].split(": ")[0] === "p2b") {
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								inflictor =
 									battle.hazardsSet.p2["Toxic Spikes"];
 								battle.p2b.statusEffect(
@@ -988,7 +1025,8 @@ class Showdown {
 									battle.p1a.otherAffliction[
 										move
 									] = afflictor;
-									victim = battle.p1a.name;
+									victim =
+										battle.p1a.realName || battle.p1a.name;
 								} else if (side === "p1b") {
 									if (afflictorSide === "p2a")
 										afflictor = battle.p2a.name;
@@ -997,7 +1035,8 @@ class Showdown {
 									battle.p1b.otherAffliction[
 										move
 									] = afflictor;
-									victim = battle.p1b.name;
+									victim =
+										battle.p1b.realName || battle.p1b.name;
 								} else if (side === "p2a") {
 									if (afflictorSide === "p1a")
 										afflictor = battle.p1a.name;
@@ -1006,7 +1045,8 @@ class Showdown {
 									battle.p2a.otherAffliction[
 										move
 									] = afflictor;
-									victim = battle.p2a.name;
+									victim =
+										battle.p2a.realName || battle.p2a.name;
 								} else if (side === "p2b") {
 									if (afflictorSide === "p1a")
 										afflictor = battle.p1a.name;
@@ -1015,7 +1055,8 @@ class Showdown {
 									battle.p2b.otherAffliction[
 										move
 									] = afflictor;
-									victim = battle.p2b.name;
+									victim =
+										battle.p2b.realName || battle.p2b.name;
 								}
 								console.log(
 									`Started ${move} on ${victim} by ${afflictor}`
@@ -1029,7 +1070,7 @@ class Showdown {
 							if (side === "p1a") {
 								afflictor =
 									battle.p1a.otherAffliction["perish3"];
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								let deathJson = battle.p1a.died(
 									affliction,
 									afflictor,
@@ -1039,7 +1080,7 @@ class Showdown {
 							} else if (side === "p1b") {
 								afflictor =
 									battle.p1b.otherAffliction["perish3"];
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								let deathJson = battle.p1b.died(
 									affliction,
 									afflictor,
@@ -1049,7 +1090,7 @@ class Showdown {
 							} else if (side === "p2a") {
 								afflictor =
 									battle.p2a.otherAffliction["perish3"];
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								let deathJson = battle.p2a.died(
 									affliction,
 									afflictor,
@@ -1059,7 +1100,7 @@ class Showdown {
 							} else if (side === "p2b") {
 								afflictor =
 									battle.p2b.otherAffliction["perish3"];
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								let deathJson = battle.p2b.died(
 									affliction,
 									afflictor,
@@ -1190,7 +1231,9 @@ class Showdown {
 										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 									} else if (victimSide === "p1b") {
 										killer = battle.hazardsSet.p1[move];
 										let deathJson = battle.p1b.died(
@@ -1201,7 +1244,9 @@ class Showdown {
 										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p1b.name;
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
 									} else if (victimSide === "p2a") {
 										killer = battle.hazardsSet.p2[move];
 										let deathJson = battle.p2a.died(
@@ -1212,7 +1257,9 @@ class Showdown {
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 									} else if (victimSide === "p2b") {
 										killer = battle.hazardsSet.p2[move];
 										let deathJson = battle.p2b.died(
@@ -1223,7 +1270,9 @@ class Showdown {
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p2b.name;
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 									}
 									reason = `${move} (passive) (Turn ${battle.turns})`;
 								} else if (
@@ -1252,7 +1301,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 									} else if (victimSide === "p1b") {
 										if (
 											Object.keys(
@@ -1273,7 +1324,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 									} else if (victimSide === "p2a") {
 										if (
 											Object.keys(
@@ -1294,7 +1347,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 									} else if (victimSide === "p2b") {
 										if (
 											Object.keys(
@@ -1315,7 +1370,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 									}
 									reason = `${move} (passive) (Turn ${battle.turn})`;
 								} else if (move === "brn" || move === "psn") {
@@ -1340,7 +1397,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 										reason = `${move} (${
 											battle.p1a.statusType === "Passive"
 												? "passive"
@@ -1367,7 +1426,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p1b.name;
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
 										reason = `${move} (${
 											battle.p1b.statusType === "Passive"
 												? "passive"
@@ -1394,7 +1455,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 										reason = `${move} (${
 											battle.p2a.statusType === "Passive"
 												? "passive"
@@ -1421,7 +1484,9 @@ class Showdown {
 												deathJson
 											);
 										}
-										victim = battle.p2b.name;
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 										reason = `${move} (${
 											battle.p2b.statusType === "Passive"
 												? "passive"
@@ -1447,7 +1512,9 @@ class Showdown {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 									} else if (victimSide == "p1b") {
 										if (this.rules.recoil !== "None")
 											killer = battle.p2b.name;
@@ -1462,7 +1529,9 @@ class Showdown {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
-										victim = battle.p1b.name;
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
 									} else if (victimSide === "p2a") {
 										if (this.rules.recoil !== "None")
 											killer = battle.p1a.name;
@@ -1477,7 +1546,9 @@ class Showdown {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 									} else if (victimSide === "p2b") {
 										if (this.rules.recoil !== "None")
 											killer = battle.p1b.name;
@@ -1492,7 +1563,9 @@ class Showdown {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
-										victim = battle.p2b.name;
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 									}
 									reason = `recoil (${
 										this.rules.recoil === "Passive"
@@ -1520,7 +1593,9 @@ class Showdown {
 										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 									} else if (
 										victimSide === "p1b" &&
 										!battle.p1b.isDead
@@ -1536,7 +1611,9 @@ class Showdown {
 										battle.p2Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p1b.name;
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
 									} else if (
 										victimSide === "p2a" &&
 										!battle.p2a.isDead
@@ -1552,7 +1629,9 @@ class Showdown {
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 									} else if (
 										victimSide === "p2b" &&
 										!battle.p2b.isDead
@@ -1568,7 +1647,9 @@ class Showdown {
 										battle.p1Pokemon[killer].killed(
 											deathJson
 										);
-										victim = battle.p2b.name;
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 									}
 									reason = `${item} (${
 										this.rules.abilityitem === "Passive"
@@ -1583,7 +1664,9 @@ class Showdown {
 									if (victimSide === "p1a") {
 										killer =
 											battle.p1a.otherAffliction[move];
-										victim = battle.p1a.name;
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
 
 										let deathJson = battle.p1a.died(
 											move,
@@ -1596,7 +1679,9 @@ class Showdown {
 									} else if (victimSide === "p1b") {
 										killer =
 											battle.p1b.otherAffliction[move];
-										victim = battle.p1b.name;
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
 
 										let deathJson = battle.p1b.died(
 											move,
@@ -1609,7 +1694,9 @@ class Showdown {
 									} else if (victimSide === "p2a") {
 										killer =
 											battle.p2a.otherAffliction[move];
-										victim = battle.p2a.name;
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
 
 										let deathJson = battle.p2a.died(
 											move,
@@ -1622,7 +1709,9 @@ class Showdown {
 									} else if (victimSide === "p2b") {
 										killer =
 											battle.p2b.otherAffliction[move];
-										victim = battle.p2b.name;
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 
 										let deathJson = battle.p2b.died(
 											move,
@@ -1648,7 +1737,8 @@ class Showdown {
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
-									victim = battle.p1a.name;
+									victim =
+										battle.p1a.realName || battle.p1a.name;
 								} else if (victimSide === "p1b") {
 									killer = battle.hazardsSet.p1[prevMove];
 									let deathJson = battle.p1b.died(
@@ -1657,7 +1747,8 @@ class Showdown {
 										true
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
-									victim = battle.p1b.name;
+									victim =
+										battle.p1b.realName || battle.p1b.name;
 								} else if (victimSide === "p2a") {
 									killer = battle.hazardsSet.p2[prevMove];
 									let deathJson = battle.p2a.died(
@@ -1666,7 +1757,8 @@ class Showdown {
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
-									victim = battle.p2a.name;
+									victim =
+										battle.p2a.realName || battle.p2a.name;
 								} else if (victimSide === "p2b") {
 									killer = battle.hazardsSet.p2[prevMove];
 									let deathJson = battle.p2b.died(
@@ -1675,7 +1767,8 @@ class Showdown {
 										true
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
-									victim = battle.p2b.name;
+									victim =
+										battle.p2b.realName || battle.p2b.name;
 								}
 								reason = `${prevMove} (passive) (Turn ${battle.turns})`;
 							} else {
@@ -1706,7 +1799,8 @@ class Showdown {
 										battle.p2b.killed(deathJson);
 										killer = battle.p2b.name;
 									}
-									victim = battle.p1a.name;
+									victim =
+										battle.p1a.realName || battle.p1a.name;
 								} else if (
 									victimSide === "p1b" &&
 									!battle.p1b.isDead
@@ -1728,7 +1822,8 @@ class Showdown {
 										battle.p2b.killed(deathJson);
 										killer = battle.p2b.name;
 									}
-									victim = battle.p1b.name;
+									victim =
+										battle.p1b.realName || battle.p1b.name;
 								} else if (
 									victimSide === "p2a" &&
 									!battle.p2a.isDead
@@ -1750,7 +1845,8 @@ class Showdown {
 										battle.p1b.killed(deathJson);
 										killer = battle.p1b.name;
 									}
-									victim = battle.p2a.name;
+									victim =
+										battle.p2a.realName || battle.p2a.name;
 								} else if (
 									victimSide === "p2b" &&
 									!battle.p2b.isDead
@@ -1772,7 +1868,8 @@ class Showdown {
 										battle.p1b.killed(deathJson);
 										killer = battle.p1b.name;
 									}
-									victim = battle.p2b.name;
+									victim =
+										battle.p2b.realName || battle.p2b.name;
 								}
 								reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 							}
@@ -1803,7 +1900,7 @@ class Showdown {
 							let victim;
 							let killer = "";
 							if (victimSide === "p1a") {
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								if (this.rules.db !== "None")
 									if (killerSide === "p2a")
 										killer = battle.p2a.name;
@@ -1816,7 +1913,7 @@ class Showdown {
 								);
 								battle.p2Pokemon[killer].killed(deathJson);
 							} else if (victimSide === "p1b") {
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								if (this.rules.db !== "None")
 									if (killerSide === "p2a")
 										killer = battle.p2a.name;
@@ -1829,7 +1926,7 @@ class Showdown {
 								);
 								battle.p2Pokemon[killer].killed(deathJson);
 							} else if (victimSide === "p2a") {
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								if (this.rules.db !== "None")
 									if (killerSide === "p1a")
 										killer = battle.p1a.name;
@@ -1842,7 +1939,7 @@ class Showdown {
 								);
 								battle.p1Pokemon[killer].killed(deathJson);
 							} else if (victimSide === "p2b") {
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								if (this.rules.db !== "None")
 									if (killerSide === "p1a")
 										killer = battle.p1a.name;
@@ -1872,13 +1969,12 @@ class Showdown {
 							prevLine.includes("Curse")
 						) {
 							let prevMove = prevParts[2];
-							console.log("Curse BABY");
 
 							let killer = "";
 							let victim;
 							let killerSide = prevParts[1].split(": ")[0];
 							if (victimSide === "p2a" && !battle.p2a.isDead) {
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p1a")
 										killer = battle.p1a.name;
@@ -1898,7 +1994,7 @@ class Showdown {
 								victimSide === "p2b" &&
 								!battle.p2b.isDead
 							) {
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p1a")
 										killer = battle.p1a.name;
@@ -1918,7 +2014,7 @@ class Showdown {
 								victimSide === "p1a" &&
 								!battle.p1a.isDead
 							) {
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p2a")
 										killer = battle.p2a.name;
@@ -1938,7 +2034,7 @@ class Showdown {
 								victimSide === "p1b" &&
 								!battle.p1b.isDead
 							) {
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								if (this.rules.suicide !== "None") {
 									if (killerSide === "p2a")
 										killer = battle.p2a.name;
@@ -1975,14 +2071,13 @@ class Showdown {
 							let killer;
 							let victim;
 							let killerSide = prevParts[1].split(": ")[0];
-							console.log("Curse BABYBABYBABY");
 							if (victimSide === "p1a" && !battle.p1a.isDead) {
 								if (killerSide === "p2a") {
 									killer = battle.p2a.name;
 								} else if (killerSide === "p2b") {
 									killer = battle.p2b.name;
 								}
-								victim = battle.p1a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
 								let deathJson = battle.p1a.died(
 									"faint",
 									killer,
@@ -1998,12 +2093,13 @@ class Showdown {
 								} else if (killerSide === "p2b") {
 									killer = battle.p2b.name;
 								}
-								victim = battle.p1b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
 								let deathJson = battle.p1b.died(
 									"faint",
 									killer,
 									false
 								);
+								console.log(prevParts);
 								battle.p2Pokemon[killer].killed(deathJson);
 							} else if (
 								victimSide === "p2a" &&
@@ -2014,7 +2110,7 @@ class Showdown {
 								} else if (killerSide === "p1b") {
 									killer = battle.p1b.name;
 								}
-								victim = battle.p2a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
 								let deathJson = battle.p2a.died(
 									"faint",
 									killer,
@@ -2031,7 +2127,7 @@ class Showdown {
 								} else if (killerSide === "p1b") {
 									killer = battle.p1b.name;
 								}
-								victim = battle.p2b.name;
+								victim = battle.p2b.realName || battle.p2b.name;
 								let deathJson = battle.p2b.died(
 									"faint",
 									killer,
@@ -2255,7 +2351,9 @@ class Showdown {
 				await this.message.channel.send(
 					`:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.\n**Error:**\`\`\`${e}\`\`\``
 				);
-				await this.websocket.send(`${this.battle}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`);
+				await this.websocket.send(
+					`${this.battle}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+				);
 				this.websocket.send(`/leave ${this.battle}`);
 				console.error(e);
 			}
