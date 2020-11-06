@@ -411,6 +411,7 @@ const hazardMoves = [
 	"G-Max Cannonaide",
 ];
 
+//Other bot stuff
 const quirkyMessages = {
 	start: [
 		"ghlf :)",
@@ -425,11 +426,8 @@ const quirkyMessages = {
 	middle: {
 		team: {
 			rain: ["Ugh, a rain team.", "Oh goodness. A rain team. What fun."],
-			stall: [
-				"Get this stall match out of my face you despicable humans.",
-				"Ugh, this is gonna be a long one.",
-			],
 			porygon: ["Pfft, no Porygon on your team? Amateurs.", "Porygon ❤️"],
+			noporygon: ["Ripoff"],
 			boltund: ["DIE BOLTUND DIE!!"],
 			airballoon: ["ppppfffffffbbbbsshshttttpppstttt"],
 		},
@@ -447,7 +445,7 @@ const quirkyMessages = {
 				"feelsbadman",
 				"[pokemon] WAS PUNISHED BY THE HAX GODS!",
 			],
-			stall: ["Ugh this is taking too long."],
+			stall: ["Ugh this is taking too long.", "I got things to do"],
 			onemon: ["Finish him."],
 		},
 	},
@@ -474,5 +472,4 @@ const util = {
 	hazardMoves,
 	quirkyMessages,
 };
-
 module.exports = util;

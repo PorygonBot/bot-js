@@ -227,7 +227,7 @@ class Showdown {
 	async join() {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
-		this.message.channel.send(`Battle joined! Keeping track of stats now.`);
+		this.message.channel.send(`Battle joined! Keeping track of stats now.`).catch(e => console.error(e));
 		this.websocket.send(
 			`${this.battle}|Battle joined! Keeping track of stats now.`
 		);

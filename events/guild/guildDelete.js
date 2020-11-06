@@ -39,4 +39,8 @@ module.exports = async (client, guild) => {
 			console.log(`${leagueJson.name}'s league has been deleted.`);
 		});
 	}
+
+	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
+		type: "Watching",
+	});
 }

@@ -48,7 +48,7 @@ module.exports = async (client, message) => {
 				return;
 			}
 
-			channel.send("Joining the battle...");
+			channel.send("Joining the battle...").catch(e => console.error(e));
 			//Getting the rules
 			let rulesId = await utils.findRulesId(channel.id);
 			let rules = await utils.getRules(rulesId);
