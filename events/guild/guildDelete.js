@@ -17,6 +17,10 @@ const base = new Airtable({
  * @param {Guild} guild 
  */
 module.exports = async (client, guild) => {
+        client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
+		type: "Watching",
+	});
+
 	//Getting the channels that this server has
 	const channels = await utils.getChannels();
 	const toDelete = [];
