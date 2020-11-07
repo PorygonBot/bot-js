@@ -337,15 +337,16 @@ class Showdown {
 						//Rain
 						if (
 							(pokemonName === "Seismitoad" ||
-							pokemonName === "Zapdos" ||
-							pokemonName === "Barraskewda" ||
-							pokemonName === "Kingdra" ||
-							pokemonName === "Pelipper" ||
-							pokemonName === "Politoed" ||
-							pokemonName === "Armaldo" ||
-							pokemonName === "Ludicolo" ||
-							pokemonName === "Scizor" ||
-							pokemonName === "Beartic") && Math.random() >= 0.75
+								pokemonName === "Zapdos" ||
+								pokemonName === "Barraskewda" ||
+								pokemonName === "Kingdra" ||
+								pokemonName === "Pelipper" ||
+								pokemonName === "Politoed" ||
+								pokemonName === "Armaldo" ||
+								pokemonName === "Ludicolo" ||
+								pokemonName === "Scizor" ||
+								pokemonName === "Beartic") &&
+							Math.random() >= 0.75
 						) {
 							this.websocket.send(
 								`${this.battle}|${utils.randomElement(
@@ -2202,19 +2203,35 @@ class Showdown {
 						//Giving mons their proper kills
 						//Team 1
 						battle.p1Pokemon[battle.p1a.name] = battle.p1a;
-						for (let pokemon of Object.values(battle.p1Pokemon)) {
-							battle.p1Pokemon[pokemon.name].directKills +=
-								pokemon.currentDirectKills;
-							battle.p1Pokemon[pokemon.name].passiveKills +=
-								pokemon.currentPassiveKills;
+						for (let pokemonKey of Object.keys(battle.p1Pokemon)) {
+							if (
+								!(
+									pokemonKey.includes("-") ||
+									pokemonKey.includes(":")
+								)
+							) {
+								let pokemon = battle.p1Pokemon[pokemonKey];
+								battle.p1Pokemon[pokemon.name].directKills +=
+									pokemon.currentDirectKills;
+								battle.p1Pokemon[pokemon.name].passiveKills +=
+									pokemon.currentPassiveKills;
+							}
 						}
 						//Team 2
 						battle.p2Pokemon[battle.p2a.name] = battle.p2a;
-						for (let pokemon of Object.values(battle.p2Pokemon)) {
-							battle.p2Pokemon[pokemon.name].directKills +=
-								pokemon.currentDirectKills;
-							battle.p2Pokemon[pokemon.name].passiveKills +=
-								pokemon.currentPassiveKills;
+						for (let pokemonKey of Object.keys(battle.p2Pokemon)) {
+							if (
+								!(
+									pokemonKey.includes("-") ||
+									pokemonKey.includes(":")
+								)
+							) {
+								let pokemon = battle.p2Pokemon[pokemonKey];
+								battle.p2Pokemon[pokemon.name].directKills +=
+									pokemon.currentDirectKills;
+								battle.p2Pokemon[pokemon.name].passiveKills +=
+									pokemon.currentPassiveKills;
+							}
 						}
 
 						console.log(`${battle.winner} won!`);
