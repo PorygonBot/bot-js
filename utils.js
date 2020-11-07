@@ -255,7 +255,7 @@ const getRules = async (rulesId) => {
 				rules.db = db ? db : "Passive";
 
 				let spoiler = await record.get("Spoiler");
-				rules.spoiler = spoiler === "True" ? true : false;
+				rules.spoiler = spoiler;
 
 				let ping = await record.get("Ping");
 				rules.ping = ping ? ping : "";
