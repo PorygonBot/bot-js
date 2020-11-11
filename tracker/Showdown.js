@@ -2128,7 +2128,7 @@ class Showdown {
 
 					//Messages sent by the server
 					else if (line.startsWith(`|-message|`)) {
-						let messageParts = parts[1].split(" ");
+						let messageParts = parts[1].split(" forfeited");
 						if (line.endsWith("forfeited.")) {
 							let forfeiter = messageParts[0];
 							if (this.rules.forfeit !== "None") {
@@ -2137,7 +2137,9 @@ class Showdown {
 									for (let pokemon of Object.values(
 										battle.p1Pokemon
 									)) {
-										if (!pokemon.isDead) numDead++;
+										if (!pokemon.isDead) {
+											numDead++;
+										}
 									}
 									if (this.rules.forfeit === "Direct") {
 										battle.p2a.currentDirectKills += numDead;
@@ -2146,11 +2148,13 @@ class Showdown {
 									) {
 										battle.p2a.currentPassiveKills += numDead;
 									}
-								} else {
+								} else if (forfeiter === battle.p2) {
 									for (let pokemon of Object.values(
 										battle.p2Pokemon
 									)) {
-										if (!pokemon.isDead) numDead++;
+										if (!pokemon.isDead) {
+											numDead++;
+										}
 									}
 									if (this.rules.forfeit === "Direct") {
 										battle.p1a.currentDirectKills += numDead;

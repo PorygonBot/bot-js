@@ -114,6 +114,7 @@ class ReplayTracker {
 				else if (line.startsWith(`|turn|`)) {
 					battle.turns++;
 					console.log(battle.turns);
+					console.log(battle.p1Pokemon["Suicune"]);
 				}
 
 				//If a Pokemon switches, the active Pokemon must now change
@@ -1778,7 +1779,7 @@ class ReplayTracker {
 
 				//Messages sent by the server
 				else if (line.startsWith(`|-message|`)) {
-					let messageParts = parts[1].split(" ");
+					let messageParts = parts[1].split(" forfeited");
 					if (line.endsWith("forfeited.")) {
 						let forfeiter = messageParts[0];
 						if (this.rules.forfeit !== "None") {
@@ -1787,18 +1788,22 @@ class ReplayTracker {
 								for (let pokemon of Object.values(
 									battle.p1Pokemon
 								)) {
-									if (!pokemon.isDead) numDead++;
+									if (!pokemon.isDead) {
+										numDead++;
+									}
 								}
 								if (this.rules.forfeit === "Direct") {
 									battle.p2a.currentDirectKills += numDead;
 								} else if (this.rules.forfeit === "Passive") {
 									battle.p2a.currentPassiveKills += numDead;
 								}
-							} else {
+							} else if (forfeiter === battle.p2) {
 								for (let pokemon of Object.values(
 									battle.p2Pokemon
 								)) {
-									if (!pokemon.isDead) numDead++;
+									if (!pokemon.isDead) {
+										numDead++;
+									}
 								}
 								if (this.rules.forfeit === "Direct") {
 									battle.p1a.currentDirectKills += numDead;
@@ -1937,12 +1942,24 @@ class ReplayTracker {
 						battle.loser.endsWith("p2")
 					) {
 						info.result = `${battle.p1} won ${
-							Object.values(battle.p1Pokemon).length -
+							Object.keys(battle.p1Pokemon).filter(
+								(pokemonKey) =>
+									!(
+										pokemonKey.includes("-") ||
+										pokemonKey.includes(":")
+									)
+							).length -
 							Object.values(battle.p1Pokemon).filter(
 								(pokemon) => pokemon.isDead
 							).length
 						}-${
-							Object.values(battle.p2Pokemon).length -
+							Object.keys(battle.p2Pokemon).filter(
+								(pokemonKey) =>
+									!(
+										pokemonKey.includes("-") ||
+										pokemonKey.includes(":")
+									)
+							).length -
 							Object.values(battle.p2Pokemon).filter(
 								(pokemon) => pokemon.isDead
 							).length
@@ -1961,16 +1978,29 @@ class ReplayTracker {
 						battle.loser.endsWith("p1")
 					) {
 						info.result = `${battle.p2} won ${
-							Object.values(battle.p2Pokemon).length -
+							Object.keys(battle.p2Pokemon).filter(
+								(pokemonKey) =>
+									!(
+										pokemonKey.includes("-") ||
+										pokemonKey.includes(":")
+									)
+							).length -
 							Object.values(battle.p2Pokemon).filter(
 								(pokemon) => pokemon.isDead
 							).length
 						}-${
-							Object.values(battle.p1Pokemon).length -
+							Object.keys(battle.p1Pokemon).filter(
+								(pokemonKey) =>
+									!(
+										pokemonKey.includes("-") ||
+										pokemonKey.includes(":")
+									)
+							).length -
 							Object.values(battle.p1Pokemon).filter(
 								(pokemon) => pokemon.isDead
 							).length
 						}`;
+
 						await this.endscript(
 							battle.winner,
 							killJsonp2,
