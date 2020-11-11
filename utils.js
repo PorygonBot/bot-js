@@ -454,7 +454,6 @@ const util = {
 	toxicMoves,
 	burnMoves,
 	statusAbility,
-	badActivateMoves,
 	hazardMoves,
 	quirkyMessages,
 	randomElement,
