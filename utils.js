@@ -407,13 +407,6 @@ const quirkyMessages = {
 	],
 	middle: {
 		team: {
-			rain: [
-				"Ugh, a rain team.",
-				"Oh goodness. A rain team. What fun.",
-				"I’m singing in the rain",
-				"I set fire to the rain",
-				"Rain drops keep falling on my head",
-			],
 			porygon: ["Pfft, no Porygon on your team? Amateurs.", "Porygon ❤️"],
 			notporygon: ["Pfft, Porygon ripoff."],
 			boltund: ["DIE BOLTUND DIE!!"],
