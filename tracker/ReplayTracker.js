@@ -398,12 +398,13 @@ class ReplayTracker {
 						: parts[2];
 					if (
 						!(
-							parts.length < 4 ||
+							(parts.length < 4 || !parts[3].includes(": ")) ||
 							parts[2].includes("ability") ||
 							parts[2].includes("item")
 						)
 					) {
 						let victimSide = parts[1].split(": ")[0];
+						console.log(line);
 						let inflictorSide = parts[3]
 							.split(" ")[1]
 							.split(":")[0];
