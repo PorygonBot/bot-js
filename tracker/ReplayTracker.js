@@ -398,7 +398,7 @@ class ReplayTracker {
 						: parts[2];
 					if (
 						!(
-							utils.badActivateMoves.includes(move) ||
+							parts.length < 4 ||
 							parts[2].includes("ability") ||
 							parts[2].includes("item")
 						)
