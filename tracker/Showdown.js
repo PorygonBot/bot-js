@@ -231,7 +231,7 @@ class Showdown {
 			.send(`Battle joined! Keeping track of stats now.`)
 			.catch((e) => console.error(e));
 		this.websocket.send(
-			`${this.battle}|${utils.randomElement(utils.quirkyMessages.start)}`
+			`${this.battle}|${utils.randomElement(utils.hazardMoves.start)}`
 		);
 	}
 

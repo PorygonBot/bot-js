@@ -461,8 +461,7 @@ const quirkyMessages = {
 };
 
 const randomElement = (list) => {
-	console.log(list);
-	return list[Math.round(Math.random() * list.length)];
+	return list[Math.random() * list.length];
 };
 
 const util = {
