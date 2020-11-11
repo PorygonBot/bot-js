@@ -627,7 +627,7 @@ class Showdown {
 							: parts[2];
 						if (
 							!(
-								parts.length < 4 ||
+								(parts.length < 4 || !parts[3].includes(": ")) ||
 								parts[2].includes("ability") ||
 								parts[2].includes("item")
 							)
