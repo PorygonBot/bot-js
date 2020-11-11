@@ -384,26 +384,6 @@ const burnMoves = [
 ];
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
-const badActivateMoves = [
-	"Protect",
-	"Aromatherapy",
-	"Sticky Web",
-	"Substitute",
-	"Max Guard",
-	"Destiny Bond",
-	"Heal Bell",
-	"confusion",
-	"Poltergeist",
-	"Pursuit",
-	"Electric Terrain",
-	"Struggle",
-	"Hyperspace Fury",
-	"trapped",
-	"Endure",
-	"Psychic Terrain",
-	"Misty Terrain",
-];
-
 const hazardMoves = [
 	"Stealth Rock",
 	"Spikes",
@@ -461,7 +441,8 @@ const quirkyMessages = {
 };
 
 const randomElement = (list) => {
-	return list[Math.random() * list.length];
+	console.log(list);
+	return list[Math.round(Math.random() * list.length)];
 };
 
 const util = {

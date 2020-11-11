@@ -231,7 +231,7 @@ class Showdown {
 			.send(`Battle joined! Keeping track of stats now.`)
 			.catch((e) => console.error(e));
 		this.websocket.send(
-			`${this.battle}|${utils.randomElement(utils.hazardMoves.start)}`
+			`${this.battle}|${utils.randomElement(utils.quirkyMessages.start)}`
 		);
 	}
 
@@ -332,35 +332,11 @@ class Showdown {
 							//If the pokemon belongs to Player 2
 							battle.p2Pokemon[pokemonName] = pokemon;
 						}
-
-						//Quirky messages!
-						//Rain
-						if (
-							(pokemonName === "Seismitoad" ||
-								pokemonName === "Zapdos" ||
-								pokemonName === "Barraskewda" ||
-								pokemonName === "Kingdra" ||
-								pokemonName === "Pelipper" ||
-								pokemonName === "Politoed" ||
-								pokemonName === "Armaldo" ||
-								pokemonName === "Ludicolo" ||
-								pokemonName === "Scizor" ||
-								pokemonName === "Beartic") &&
-							Math.random() >= 0.75
-						) {
-							this.websocket.send(
-								`${this.battle}|${utils.randomElement(
-									utils.hazardMoves.middle.team.rain
-								)}`
-							);
-						}
 					}
 
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
-						if (battle.turns === 1 && this.rules.ping !== "")
-							await this.message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
@@ -651,7 +627,7 @@ class Showdown {
 							: parts[2];
 						if (
 							!(
-								utils.badActivateMoves.includes(move) ||
+								parts.length() < 4 || 
 								parts[2].includes("ability") ||
 								parts[2].includes("item")
 							)
@@ -659,7 +635,7 @@ class Showdown {
 							let victimSide = parts[1].split(": ")[0];
 							let inflictorSide = parts[3]
 								.split(" ")[1]
-								.split(":")[0];
+								.split(": ")[0];
 
 							if (victimSide === "p1a") {
 								if (inflictorSide === "p2a")
@@ -2279,13 +2255,24 @@ class Showdown {
 						for (let pokemonObj of Object.values(
 							battle.p1Pokemon
 						)) {
-							killJsonp1[pokemonObj.realName] = {
-								direct: pokemonObj.directKills,
-								passive: pokemonObj.passiveKills,
-							};
-							deathJsonp1[pokemonObj.realName] = pokemonObj.isDead
-								? 1
-								: 0;
+							if (
+								!(
+									Object.keys(killJsonp1).includes(
+										pokemonObj.realName
+									) ||
+									Object.keys(deathJsonp1).includes(
+										pokemonObj.realName
+									)
+								)
+							) {
+								killJsonp1[pokemonObj.realName] = {
+									direct: pokemonObj.directKills,
+									passive: pokemonObj.passiveKills,
+								};
+								deathJsonp1[
+									pokemonObj.realName
+								] = pokemonObj.isDead ? 1 : 0;
+							}
 						}
 						//Player 2
 						let killJsonp2 = {};
@@ -2293,13 +2280,24 @@ class Showdown {
 						for (let pokemonObj of Object.values(
 							battle.p2Pokemon
 						)) {
-							killJsonp2[pokemonObj.realName] = {
-								direct: pokemonObj.directKills,
-								passive: pokemonObj.passiveKills,
-							};
-							deathJsonp2[pokemonObj.realName] = pokemonObj.isDead
-								? 1
-								: 0;
+							if (
+								!(
+									Object.keys(killJsonp2).includes(
+										pokemonObj.realName
+									) ||
+									Object.keys(deathJsonp2).includes(
+										pokemonObj.realName
+									)
+								)
+							) {
+								killJsonp2[pokemonObj.realName] = {
+									direct: pokemonObj.directKills,
+									passive: pokemonObj.passiveKills,
+								};
+								deathJsonp2[
+									pokemonObj.realName
+								] = pokemonObj.isDead ? 1 : 0;
+							}
 						}
 
 						if (
