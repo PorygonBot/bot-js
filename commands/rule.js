@@ -61,6 +61,7 @@ module.exports =  {
 						.replace(args[1].charAt(0), "")
 						.toLowerCase()}`
 				: args[1];
+		result = rule === "-spoiler" && result == "True" ? true : false;
 
 		// Updating the rule in the database for the league
 		let rulesId = await utils.findRulesId(channel.id);

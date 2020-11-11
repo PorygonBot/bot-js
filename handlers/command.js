@@ -6,14 +6,9 @@ const { readdirSync } = require("fs");
  * @param {Client} client
  */
 module.exports = (client) => {
-	const load = (dir) => {
-		const commands = readdirSync(`./commands/${dir}`).filter((d) =>
-			d.endsWith(".js")
-		);
-		for (let file of commands) {
-			const command = require(`../commands/${dir}/${file}`);
-			client.commands.set(command.name, command);
-		}
-	};
-	["miscellaneous"].forEach((x) => load(x));
+	const commands = readdirSync(`./commands`).filter((d) => d.endsWith(".js"));
+	for (let file of commands) {
+		const command = require(`../commands/${file}`);
+		client.commands.set(command.name, command);
+	}
 };
