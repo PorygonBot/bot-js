@@ -1611,7 +1611,8 @@ class ReplayTracker {
 								prevLine.includes("Misty Explosion") ||
 								prevLine.includes("Memento") ||
 								prevLine.includes("Healing Wish") ||
-								prevLine.includes("Final Gambit"))) ||
+								prevLine.includes("Final Gambit") ||
+								prevLine.includes("Lunar Dance"))) ||
 						prevLine.includes("Curse")
 					) {
 						let prevMove = prevParts[2];
@@ -2060,7 +2061,7 @@ class ReplayTracker {
 			}
 		} catch (e) {
 			this.message.channel.send(
-				`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n**Error:**\`\`\`${e}\`\`\``
+				`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${e.message}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 			);
 			console.error(e);
 		}

@@ -629,7 +629,8 @@ class Showdown {
 							: parts[2];
 						if (
 							!(
-								(parts.length < 4 || !parts[3].includes(": ")) ||
+								parts.length < 4 ||
+								!parts[3].includes(": ") ||
 								parts[2].includes("ability") ||
 								parts[2].includes("item")
 							)
@@ -1944,7 +1945,8 @@ class Showdown {
 									prevLine.includes("Misty Explosion") ||
 									prevLine.includes("Memento") ||
 									prevLine.includes("Healing Wish") ||
-									prevLine.includes("Final Gambit"))) ||
+									prevLine.includes("Final Gambit") ||
+									prevLine.includes("Lunar Dance"))) ||
 							prevLine.includes("Curse")
 						) {
 							let prevMove = prevParts[2];
@@ -2431,12 +2433,13 @@ class Showdown {
 				}
 			} catch (e) {
 				await this.message.channel.send(
-					`:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.\n**Error:**\`\`\`${e}\`\`\``
+					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${e.message}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 				);
-				await this.websocket.send(
+				this.websocket.send(
 					`${this.battle}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 				);
 				this.websocket.send(`/leave ${this.battle}`);
+				
 				console.error(e);
 			}
 		});

@@ -391,6 +391,7 @@ const hazardMoves = [
 	"G-Max Vineslash",
 	"G-Max Wildfire",
 	"G-Max Cannonaide",
+	"G-Max Vine Lash"
 ];
 
 //Other bot stuff
