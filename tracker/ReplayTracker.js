@@ -345,6 +345,7 @@ class ReplayTracker {
 							battle.p2b.realName = realName;
 						}
 					}
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//If a weather condition is set
