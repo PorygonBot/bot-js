@@ -707,6 +707,7 @@ class ReplayTracker {
 					let side = parts[1].split(": ")[0];
 					let hazard = parts[2];
 					battle.endHazard(side, hazard);
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//If an affliction like Leech Seed or confusion starts
