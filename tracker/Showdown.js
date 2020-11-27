@@ -231,7 +231,7 @@ class Showdown {
 			.send(`Battle joined! Keeping track of stats now.`)
 			.catch((e) => console.error(e));
 		this.websocket.send(
-			`${this.battle}|${utils.randomElement(utils.quirkyMessages.start)}`
+			`${this.battle}|${this.rules.quirks ? utils.randomElement(utils.quirkyMessages.start) : "Battled joined! Keeping track of stats now."}`
 		);
 	}
 
@@ -245,7 +245,6 @@ class Showdown {
 			log: data.log,
 			id: data.id,
 		});
-		//console.log("newData: " + JSON.stringify(newData) + "\n");
 
 		let response = await axios.post(url, newData);
 

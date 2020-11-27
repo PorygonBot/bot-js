@@ -266,6 +266,9 @@ const getRules = async (rulesId) => {
 				let format = await record.get("Format");
 				rules.format = format ? format : "Default";
 
+				let quirks = await record.get("Quirky Messages?");
+				rules.quirks = quirks;
+
 				resolve(rules);
 			});
 		});
@@ -436,7 +439,7 @@ const quirkyMessages = {
 
 const randomElement = (list) => {
 	console.log(list);
-	return list[Math.round(Math.random() * list.length)];
+	return list[Math.round(Math.random() * (list.length-1))];
 };
 
 const util = {
