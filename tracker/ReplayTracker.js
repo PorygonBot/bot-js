@@ -1431,14 +1431,22 @@ class ReplayTracker {
 							if (
 								!(
 									(prevMoveLine.startsWith(`|move|`) &&
-										(prevMoveLine.includes("Self-Destruct") ||
-											prevMoveLine.includes("Explosion") ||
+										(prevMoveLine.includes(
+											"Self-Destruct"
+										) ||
+											prevMoveLine.includes(
+												"Explosion"
+											) ||
 											prevMoveLine.includes(
 												"Misty Explosion"
 											) ||
 											prevMoveLine.includes("Memento") ||
-											prevMoveLine.includes("Healing Wish") ||
-											prevMoveLine.includes("Final Gambit") ||
+											prevMoveLine.includes(
+												"Healing Wish"
+											) ||
+											prevMoveLine.includes(
+												"Final Gambit"
+											) ||
 											prevMoveLine.includes(
 												"Lunar Dance"
 											))) ||

@@ -337,8 +337,6 @@ class Showdown {
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
 						battle.turns++;
-						if (battle.turns === 1 && this.rules.ping !== "")
-							await this.message.channel.send(this.rules.ping);
 						console.log(battle.turns);
 					}
 
@@ -571,6 +569,7 @@ class Showdown {
 								battle.p2b.realName = realName;
 							}
 						}
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//If a weather condition is set
@@ -636,9 +635,10 @@ class Showdown {
 							)
 						) {
 							let victimSide = parts[1].split(": ")[0];
+							console.log(line);
 							let inflictorSide = parts[3]
 								.split(" ")[1]
-								.split(": ")[0];
+								.split(":")[0];
 
 							if (victimSide === "p1a") {
 								if (inflictorSide === "p2a")
@@ -951,6 +951,7 @@ class Showdown {
 						let side = parts[1].split(": ")[0];
 						let hazard = parts[2];
 						battle.endHazard(side, hazard);
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//If an affliction like Leech Seed or confusion starts
@@ -1752,113 +1753,149 @@ class Showdown {
 								}
 								reason = `${prevMove} (passive) (Turn ${battle.turns})`;
 							} else {
-								//It's just a regular effing kill
-								prevMove = prevMoveLine.split("|").slice(1)[2];
-								let prevMoveUserSide = prevMoveLine
-									.split("|")
-									.slice(1)[1]
-									.split(": ")[0];
 								if (
-									victimSide === "p1a" &&
-									!battle.p1a.isDead
+									!(
+										(prevMoveLine.startsWith(`|move|`) &&
+											(prevMoveLine.includes(
+												"Self-Destruct"
+											) ||
+												prevMoveLine.includes(
+													"Explosion"
+												) ||
+												prevMoveLine.includes(
+													"Misty Explosion"
+												) ||
+												prevMoveLine.includes(
+													"Memento"
+												) ||
+												prevMoveLine.includes(
+													"Healing Wish"
+												) ||
+												prevMoveLine.includes(
+													"Final Gambit"
+												) ||
+												prevMoveLine.includes(
+													"Lunar Dance"
+												))) ||
+										prevMoveLine.includes("Curse")
+									)
 								) {
-									if (prevMoveUserSide === "p2a") {
-										let deathJson = battle.p1a.died(
-											"direct",
-											battle.p2a,
-											false
-										);
-										battle.p2a.killed(deathJson);
-										killer = battle.p2a.name;
-									} else if (prevMoveUserSide === "p2b") {
-										let deathJson = battle.p1a.died(
-											"direct",
-											battle.p2b,
-											false
-										);
-										battle.p2b.killed(deathJson);
-										killer = battle.p2b.name;
+									//It's just a regular effing kill
+									prevMove = prevMoveLine
+										.split("|")
+										.slice(1)[2];
+									let prevMoveUserSide = prevMoveLine
+										.split("|")
+										.slice(1)[1]
+										.split(": ")[0];
+									if (
+										victimSide === "p1a" &&
+										!battle.p1a.isDead
+									) {
+										if (prevMoveUserSide === "p2a") {
+											let deathJson = battle.p1a.died(
+												"direct",
+												battle.p2a,
+												false
+											);
+											battle.p2a.killed(deathJson);
+											killer = battle.p2a.name;
+										} else if (prevMoveUserSide === "p2b") {
+											let deathJson = battle.p1a.died(
+												"direct",
+												battle.p2b,
+												false
+											);
+											battle.p2b.killed(deathJson);
+											killer = battle.p2b.name;
+										}
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
+									} else if (
+										victimSide === "p1b" &&
+										!battle.p1b.isDead
+									) {
+										if (prevMoveUserSide === "p2a") {
+											let deathJson = battle.p1b.died(
+												"direct",
+												battle.p2a,
+												false
+											);
+											battle.p2a.killed(deathJson);
+											killer = battle.p2a.name;
+										} else if (prevMoveUserSide === "p2b") {
+											let deathJson = battle.p1b.died(
+												"direct",
+												battle.p2b,
+												false
+											);
+											battle.p2b.killed(deathJson);
+											killer = battle.p2b.name;
+										}
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
+									} else if (
+										victimSide === "p2a" &&
+										!battle.p2a.isDead
+									) {
+										if (prevMoveUserSide === "p1a") {
+											let deathJson = battle.p2a.died(
+												"direct",
+												battle.p1a,
+												false
+											);
+											battle.p1a.killed(deathJson);
+											killer = battle.p1a.name;
+										} else if (prevMoveUserSide === "p1b") {
+											let deathJson = battle.p2a.died(
+												"direct",
+												battle.p1b,
+												false
+											);
+											battle.p1b.killed(deathJson);
+											killer = battle.p1b.name;
+										}
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
+									} else if (
+										victimSide === "p2b" &&
+										!battle.p2b.isDead
+									) {
+										if (prevMoveUserSide === "p1a") {
+											let deathJson = battle.p2b.died(
+												"direct",
+												battle.p1a,
+												false
+											);
+											battle.p1a.killed(deathJson);
+											killer = battle.p1a.name;
+										} else if (prevMoveUserSide === "p1b") {
+											let deathJson = battle.p2b.died(
+												"direct",
+												battle.p1b,
+												false
+											);
+											battle.p1b.killed(deathJson);
+											killer = battle.p1b.name;
+										}
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
 									}
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (
-									victimSide === "p1b" &&
-									!battle.p1b.isDead
-								) {
-									if (prevMoveUserSide === "p2a") {
-										let deathJson = battle.p1b.died(
-											"direct",
-											battle.p2a,
-											false
-										);
-										battle.p2a.killed(deathJson);
-										killer = battle.p2a.name;
-									} else if (prevMoveUserSide === "p2b") {
-										let deathJson = battle.p1b.died(
-											"direct",
-											battle.p2b,
-											false
-										);
-										battle.p2b.killed(deathJson);
-										killer = battle.p2b.name;
-									}
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								} else if (
-									victimSide === "p2a" &&
-									!battle.p2a.isDead
-								) {
-									if (prevMoveUserSide === "p1a") {
-										let deathJson = battle.p2a.died(
-											"direct",
-											battle.p1a,
-											false
-										);
-										battle.p1a.killed(deathJson);
-										killer = battle.p1a.name;
-									} else if (prevMoveUserSide === "p1b") {
-										let deathJson = battle.p2a.died(
-											"direct",
-											battle.p1b,
-											false
-										);
-										battle.p1b.killed(deathJson);
-										killer = battle.p1b.name;
-									}
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (
-									victimSide === "p2b" &&
-									!battle.p2b.isDead
-								) {
-									if (prevMoveUserSide === "p1a") {
-										let deathJson = battle.p2b.died(
-											"direct",
-											battle.p1a,
-											false
-										);
-										battle.p1a.killed(deathJson);
-										killer = battle.p1a.name;
-									} else if (prevMoveUserSide === "p1b") {
-										let deathJson = battle.p2b.died(
-											"direct",
-											battle.p1b,
-											false
-										);
-										battle.p1b.killed(deathJson);
-										killer = battle.p1b.name;
-									}
-									victim =
-										battle.p2b.realName || battle.p2b.name;
+									reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 								}
-								reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 							}
-							console.log(
-								`${victim} was killed by ${killer} due to ${reason}.`
-							);
-							battle.history.push(
-								`${victim} was killed by ${killer} due to ${reason}.`
-							);
+							if (victim && killer && reason) {
+								console.log(
+									`${victim} was killed by ${killer} due to ${reason}.`
+								);
+								battle.history.push(
+									`${victim} was killed by ${killer} due to ${reason}.`
+								);
+							}
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -2433,13 +2470,15 @@ class Showdown {
 				}
 			} catch (e) {
 				await this.message.channel.send(
-					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${e.message}\nLine number: ${e.stack.split(":")[2]}\`\`\``
+					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+						e.message
+					}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 				);
 				this.websocket.send(
 					`${this.battle}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 				);
 				this.websocket.send(`/leave ${this.battle}`);
-				
+
 				console.error(e);
 			}
 		});
