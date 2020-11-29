@@ -77,7 +77,7 @@ module.exports = {
 					const ruleEmbed = new Discord.MessageEmbed()
 						.setTitle("Rule Command Help")
 						.setDescription(
-							"This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [option]\n\nThese are the rule extensions: "
+							"This command is used to set custom kill rules for how each kill is attributed. You can add multiple rules in the same message. The command is as follows:\nporygon, use rule [rule extension] [option]\n\nThese are the rule extensions: "
 						)
 						.setColor(0xffc0cb)
 						.addField(
