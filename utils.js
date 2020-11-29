@@ -238,36 +238,39 @@ const getRules = async (rulesId) => {
 				if (err) reject(err);
 
 				let rules = {};
-
+				
 				let recoil = await record.get("Recoil");
-				rules.recoil = recoil ? recoil : "Direct";
+				rules.recoil = recoil || "Direct";
 
 				let suicide = await record.get("Suicide");
-				rules.suicide = suicide ? suicide : "Direct";
+				rules.suicide = suicide || "Direct";
 
 				let abilityitem = await record.get("Ability/Item");
-				rules.abilityitem = abilityitem ? abilityitem : "Passive";
+				rules.abilityitem = abilityitem || "Passive";
 
 				let selfteam = await record.get("Self or Teammate");
-				rules.selfteam = selfteam ? selfteam : "None";
+				rules.selfteam = selfteam || "None";
 
 				let db = await record.get("Destiny Bond");
-				rules.db = db ? db : "Passive";
+				rules.db = db || "Passive";
 
 				let spoiler = await record.get("Spoiler");
 				rules.spoiler = spoiler;
 
 				let ping = await record.get("Ping");
-				rules.ping = ping ? ping : "";
+				rules.ping = ping || "";
 
 				let forfeit = await record.get("Forfeit");
-				rules.forfeit = forfeit ? forfeit : "None";
+				rules.forfeit = forfeit || "None";
 
 				let format = await record.get("Format");
-				rules.format = format ? format : "Default";
+				rules.format = format || "Default";
 
 				let quirks = await record.get("Quirky Messages?");
 				rules.quirks = quirks;
+
+				let timeOfPing = await record.get("Time of Ping?");
+				rules.timeOfPing = timeOfPing || "First";
 
 				resolve(rules);
 			});
@@ -283,6 +286,8 @@ const getRules = async (rulesId) => {
 		ping: "",
 		forfeit: "None",
 		format: "",
+		quirks: true,
+		timeOfPing: "First"
 	};
 };
 

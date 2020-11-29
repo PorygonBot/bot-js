@@ -228,10 +228,14 @@ class Showdown {
 		console.log(this.battle);
 		this.websocket.send(`|/join ${this.battle}`);
 		this.message.channel
-			.send(`Battle joined! Keeping track of stats now.`)
+			.send(`Battle joined! Keeping track of stats now. ${this.rules.ping !== "" && this.rules.timeOfPing === "Sent" ? this.rules.ping : ""}`)
 			.catch((e) => console.error(e));
 		this.websocket.send(
-			`${this.battle}|${this.rules.quirks ? utils.randomElement(utils.quirkyMessages.start) : "Battled joined! Keeping track of stats now."}`
+			`${this.battle}|${
+				this.rules.quirks
+					? utils.randomElement(utils.quirkyMessages.start)
+					: "Battled joined! Keeping track of stats now."
+			}`
 		);
 	}
 
@@ -310,7 +314,18 @@ class Showdown {
 							players[0],
 							players[1]
 						);
-					} else if (line.startsWith(`|tier|`)) {
+					}
+
+					//Increments the total number of turns at the beginning of every new turn
+					else if (line.startsWith(`|turn|`)) {
+						battle.turns++;
+						if (battle.turns === 1 && this.rules.ping !== "" && this.rules.timeOfPing === "First")
+							await this.message.channel.send(this.rules.ping);
+						console.log(battle.turns);
+					}
+
+					//Checks if the battle is a randoms match
+					else if (line.startsWith(`|tier|`)) {
 						if (line.toLowerCase().includes("random")) {
 							this.websocket.send(`${this.battle}|/leave`);
 							return this.message.channel.send(
@@ -331,12 +346,6 @@ class Showdown {
 							//If the pokemon belongs to Player 2
 							battle.p2Pokemon[pokemonName] = pokemon;
 						}
-					}
-
-					//Increments the total number of turns at the beginning of every new turn
-					else if (line.startsWith(`|turn|`)) {
-						battle.turns++;
-						console.log(battle.turns);
 					}
 
 					//If a Pokemon switches, the active Pokemon must now change

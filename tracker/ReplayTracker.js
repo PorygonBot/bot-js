@@ -87,7 +87,16 @@ class ReplayTracker {
 							);
 						}
 					}
-				} else if (line.startsWith(`|tier|`)) {
+				}
+
+				//Increments the total number of turns at the beginning of every new turn
+				else if (line.startsWith(`|turn|`)) {
+					battle.turns++;
+					console.log(battle.turns);
+				}
+
+				//Checks if the battle is a randoms match
+				else if (line.startsWith(`|tier|`)) {
 					if (line.toLowerCase().includes("random")) {
 						this.websocket.send(`${this.battle}|/leave`);
 						return this.message.channel.send(
@@ -108,12 +117,6 @@ class ReplayTracker {
 						//If the pokemon belongs to Player 2
 						battle.p2Pokemon[pokemonName] = pokemon;
 					}
-				}
-
-				//Increments the total number of turns at the beginning of every new turn
-				else if (line.startsWith(`|turn|`)) {
-					battle.turns++;
-					console.log(battle.turns);
 				}
 
 				//If a Pokemon switches, the active Pokemon must now change

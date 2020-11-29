@@ -1,22 +1,28 @@
-const Airtable = require('airtable');;
-const utils = require('../utils');;
+const Discord = require('discord.js');
+const Airtable = require("airtable");
+const utils = require("../utils");
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
 
-module.exports =  {
-    name: "rule",
-    description: "Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
-    async execute(message, args) {
+module.exports = {
+	name: "rule",
+	description:
+		"Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
+	async execute(message, args) {
 		const channel = message.channel;
 
-        if (!message.member.hasPermission("MANAGE_ROLES")) {
+		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
 				":x: You're not a moderator. Ask a moderator to add this person for you."
 			);
 		}
+
+		let rulesId = await utils.findRulesId(channel.id);
+		const rules = await utils.getRules(rulesId);
+		let leagueJson = await utils.findLeagueId(channel.id);
 
 		let rule = args[0];
 		let category = "";
@@ -53,10 +59,62 @@ module.exports =  {
 			case "-quirks":
 				category = "Quirky Messages?";
 				break;
+			case "-pingtime":
+				category = "Time of Ping";
+				break;
 			default:
-				return channel.send(
-					"Want to set some custom kill rules? Here we go!```This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [either none, passive, or direct]\n\nThese are the rule extensions:\n-recoil: sets the kill rule of a recoil death.\n-suicide: sets the kill rule of a suicide death.\n-ability or -item: sets the kill rule of a kill caused by an ability or item.\n-self or -team: sets the kill rule of a kill caused by itself or a teammate.\n-db: sets the kill rule of a Destiny Bond death.\n-spoiler: changes if stats are spoiler tagged. Instead of none/passive/direct, you have the option of true/false.\n-ping: sets a rule so that the client @'s this ping when it starts tracking a match. Instead of none/passive/direct, you have to @ the ping at the end of the command. To remove this rule, run the command but instead of the ping, type remove.\n-forfeit: if a player forfeits, you can choose to have the 'deaths' of the forfeiter be attributed as direct, passive, or no kills to the last mon that was on the field.\n-format: add csv if you want the stats format to be in CSV form, sheets if you don't, default if you want the default. Default is false.\n\nEnding the command with none means no pokemon gets a kill; with passive means a pokemon gets a passive kill; with direct means a pokemon gets a direct kill.```"
-				);
+				const ruleEmbed = new Discord.MessageEmbed()
+					.setTitle("Rule Command Help")
+					.setDescription(
+						"This command is used to set custom kill rules for how each kill is attributed. You have to set each rule one at a time. The command is as follows:\nporygon, use rule [rule extension] [option]\n\nThese are the rule extensions: "
+					)
+					.setColor(0xffc0cb)
+					.addField(
+						"-recoil",
+						"sets the kill rule of a recoil death.\nOptions: none (no kill), passive (passive kill), direct (direct kill)."
+					)
+					.addField(
+						"-suicide",
+						"sets the kill rule of a suicide death.\nOptions: none, passive, direct."
+					)
+					.addField(
+						"-ability or -item",
+						"sets the kill rule of a kill caused by an ability or item.\nOptions: none, passive, direct."
+					)
+					.addField(
+						"-self or -team",
+						"sets the kill rule of a kill caused by itself or a teammate.\nOptions: none, passive, direct."
+					)
+					.addField(
+						"-db",
+						"sets the kill rule of a Destiny Bond death.\nOptions: none, passive, direct."
+					)
+					.addField(
+						"-spoiler",
+						"changes if stats are spoiler tagged.\nOptions: true, false."
+					)
+					.addField(
+						"-forfeit",
+						"sets the type of kills attributed after a forfeit.\nOptions: none, passive, direct."
+					)
+					.addField(
+						"-ping",
+						"sets a rule so that the client @'s this ping when it starts tracking a match.\nOptions: none, @ping."
+					)
+					.addField(
+						"-format",
+						"changes the way stats are formatted when outputted.\nOptions: csv (comma-separated), sheets (space-separated), default."
+					)
+					.addField(
+						"-quirks",
+						"sets whether you want quirky messages sent by the bot or not.\nOptions: true, false."
+					)
+					.addField(
+						"-pingtime",
+						"sets when you want the bot to ping, if at all.\nOptions: sent (immediately after the link is sent), first (immediately as the first turn starts)."
+					);
+
+				return channel.send(ruleEmbed);
 		}
 		let result =
 			rule !== "-ping"
@@ -64,12 +122,15 @@ module.exports =  {
 						.replace(args[1].charAt(0), "")
 						.toLowerCase()}`
 				: args[1];
-		if ((rule === "-spoiler" || rule === "-quirks") && result == "True") result = true;
-		else if ((rule === "-spoiler" || rule === "-quirks") && result != "True") result = false;
+		if ((rule === "-spoiler" || rule === "-quirks") && result == "True")
+			result = true;
+		else if (
+			(rule === "-spoiler" || rule === "-quirks") &&
+			result != "True"
+		)
+			result = false;
 
 		// Updating the rule in the database for the league
-		let rulesId = await utils.findRulesId(channel.id);
-		let leagueJson = await utils.findLeagueId(channel.id);
 		let fields = { League: [leagueJson.id], "Channel ID": channel.id };
 		fields[category] = result === "remove" ? "" : result;
 		if (rulesId) {
@@ -153,5 +214,5 @@ module.exports =  {
 				);
 			}
 		}
-    }
-}
+	},
+};
