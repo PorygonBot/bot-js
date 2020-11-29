@@ -24,7 +24,7 @@ module.exports =  {
 		for (let rule of Object.keys(rules)) {
 			rulesEmbed.addField(
 				rule,
-				rules[rule] === "" ? "None" : rules[rule]
+				rules[rule] === "" ? "None" : (rules[rule] || false)
 			);
 		}
 
