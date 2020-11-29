@@ -749,8 +749,6 @@ class ReplayTracker {
 								battle.hazardsSet.p2[move] = battle.p1b.name;
 							}
 						} else {
-							console.log(battle.p2a.otherAffliction);
-
 							let victim = "";
 							if (side === "p1a") {
 								afflictor = battle[afflictorSide].name;
@@ -777,7 +775,20 @@ class ReplayTracker {
 								`Started ${move} on ${victim} by ${afflictor}`
 							);
 						}
-					} else if (affliction === `perish0`) {
+					} else if (affliction === `Substitute`) {
+						let side = parts[1].split(": ")[0];
+						if (side === `p1a`) {
+							battle.p1a.hasSubstitute = true;
+						} else if (side === `p1b`) {
+							battle.p1b.hasSubstitute = true;
+						} else if (side === `p2a`) {
+							battle.p2a.hasSubstitute = true;
+						} else if (side === `p2b`) {
+							battle.p2b.hasSubstitute = true;
+						}
+					}
+
+					if (affliction === `perish0`) {
 						//Pokemon dies of perish song
 						let side = parts[1].split(": ")[0];
 						let afflictor;
@@ -797,7 +808,7 @@ class ReplayTracker {
 								if (this.rules.suicide !== "None") {
 									killer = battle.p2a.name;
 								}
-	
+
 								let deathJson = battle.p1a.died(
 									prevMove,
 									killer,
@@ -821,7 +832,7 @@ class ReplayTracker {
 								if (this.rules.suicide !== "None") {
 									killer = battle.p2a.name;
 								}
-	
+
 								let deathJson = battle.p1b.died(
 									prevMove,
 									killer,
@@ -883,18 +894,9 @@ class ReplayTracker {
 						console.log(
 							`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
 						);
-						battle.history.push(`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`)
-					} else if (affliction === `Substitute`) {
-						let side = parts[1].split(": ")[0];
-						if (side === `p1a`) {
-							battle.p1a.hasSubstitute = true;
-						} else if (side === `p1b`) {
-							battle.p1b.hasSubstitute = true;
-						} else if (side === `p2a`) {
-							battle.p2a.hasSubstitute = true;
-						} else if (side === `p2b`) {
-							battle.p2b.hasSubstitute = true;
-						}
+						battle.history.push(
+							`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
+						);
 					}
 					dataArr.splice(dataArr.length - 1, 1);
 				}
