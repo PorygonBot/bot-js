@@ -142,7 +142,7 @@ module.exports = {
 				result != "True"
 			)
 				result = false;
-			result = result === "remove" ? "" : result
+			result = result === "remove" || result === "none" ? "" : result
 
 			//Adding to the list of fields
 			categoryRules[category] = result;
