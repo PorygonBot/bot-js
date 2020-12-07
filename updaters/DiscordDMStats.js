@@ -1,4 +1,4 @@
-const util = require("../utils.js");
+const utils = require("../utils.js");
 
 class DiscordDMStats {
 	constructor(message) {
