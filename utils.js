@@ -443,7 +443,6 @@ const quirkyMessages = {
 };
 
 const randomElement = (list) => {
-	console.log(list);
 	return list[Math.round(Math.random() * (list.length-1))];
 };
 

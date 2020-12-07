@@ -684,7 +684,10 @@ class ReplayTracker {
 					console.log(
 						`${inflictor} caused ${parts[2]} on ${victim}.`
 					);
-				} else if (line.startsWith("|-sidestart|")) {
+				} 
+
+				//Side-specific ailments e.g. Stealth Rock
+				else if (line.startsWith("|-sidestart|")) {
 					let prevLine = dataArr[dataArr.length - 2];
 					let prevParts = prevLine.split("|").slice(1);
 					let inflictorSide = prevParts[1].split(": ")[0];
@@ -1133,6 +1136,7 @@ class ReplayTracker {
 								}
 								reason = `${move} (passive) (Turn ${battle.turn})`;
 							} else if (move === "brn" || move === "psn") {
+								console.log("STatus: " + battle.p2a.statusInflictor)
 								if (victimSide === "p1a") {
 									killer = battle.p1a.statusInflictor;
 									if (
@@ -1807,8 +1811,8 @@ class ReplayTracker {
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
 						let victim;
-						let killerSide = prevParts[1].split(": ")[0];
 						if (victimSide === "p1a" && !battle.p1a.isDead) {
+							let killerSide = prevParts[1].split(": ")[0];
 							if (killerSide === "p2a") {
 								killer = battle.p2a.name;
 							} else if (killerSide === "p2b") {
@@ -1822,6 +1826,7 @@ class ReplayTracker {
 							);
 							battle.p2Pokemon[killer].killed(deathJson);
 						} else if (victimSide === "p1b" && !battle.p1b.isDead) {
+							let killerSide = prevParts[1].split(": ")[0];
 							if (killerSide === "p2a") {
 								killer = battle.p2a.name;
 							} else if (killerSide === "p2b") {
@@ -1833,9 +1838,9 @@ class ReplayTracker {
 								killer,
 								false
 							);
-							console.log(prevParts);
 							battle.p2Pokemon[killer].killed(deathJson);
 						} else if (victimSide === "p2a" && !battle.p2a.isDead) {
+							let killerSide = prevParts[1].split(": ")[0];
 							if (killerSide === "p1a") {
 								killer = battle.p1a.name;
 							} else if (killerSide === "p1b") {
@@ -1850,6 +1855,7 @@ class ReplayTracker {
 
 							battle.p1Pokemon[killer].killed(deathJson);
 						} else if (victimSide === "p2b" && !battle.p2b.isDead) {
+							let killerSide = prevParts[1].split(": ")[0];
 							if (killerSide === "p1a") {
 								killer = battle.p1a.name;
 							} else if (killerSide === "p1b") {
