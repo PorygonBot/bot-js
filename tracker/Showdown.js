@@ -2297,7 +2297,7 @@ class Showdown {
 									responseType: "text",
 								}
 							)
-							.catch((e) => {
+							.catch(async (e) => {
 								await this.message.channel.send(
 									`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 										e.message
