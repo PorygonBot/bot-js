@@ -25,7 +25,7 @@ const VIEW_NAME = "Grid view";
 
 class Showdown {
 	constructor(battle, server, message, rules) {
-		this.battle = battle.split("/")[3];
+		this.battleLink = battle.split("/")[3];
 
 		this.serverType = server.toLowerCase();
 
@@ -116,7 +116,7 @@ class Showdown {
 						recordJson.streamChannel = await leagueRecord.get(
 							"Stream Channel ID"
 						);
-						recordJson.battleId = this.battle;
+						recordJson.battleId = this.battleLink;
 
 						// Gets more info from each player if Google Sheets is the system
 						if (playersIds) {
@@ -225,13 +225,25 @@ class Showdown {
 	}
 
 	async join() {
-		console.log(this.battle);
-		this.websocket.send(`|/join ${this.battle}`);
+		console.log(this.battleLink);
+		this.websocket.send(`|/join ${this.battleLink}`);
 		this.message.channel
 			.send(`Battle joined! Keeping track of stats now. ${this.rules.ping !== "" && this.rules.timeOfPing === "Sent" ? this.rules.ping : ""}`)
-			.catch((e) => console.error(e));
+			.catch((e) => {
+				await this.message.channel.send(
+					`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+						e.message
+					}\nLine number: ${e.stack.split(":")[2]}\`\`\``
+				);
+				this.websocket.send(
+					`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+				);
+				this.websocket.send(`/leave ${this.battleLink}`);
+
+				console.error(this.battleLink + ": " + e);
+			});
 		this.websocket.send(
-			`${this.battle}|${
+			`${this.battleLink}|${
 				this.rules.quirks
 					? utils.randomElement(utils.quirkyMessages.start)
 					: "Battled joined! Keeping track of stats now."
@@ -310,7 +322,7 @@ class Showdown {
 
 						//Initializes the battle as an object
 						battle = new Battle(
-							this.battle,
+							this.battleLink,
 							players[0],
 							players[1]
 						);
@@ -327,7 +339,7 @@ class Showdown {
 					//Checks if the battle is a randoms match
 					else if (line.startsWith(`|tier|`)) {
 						if (line.toLowerCase().includes("random")) {
-							this.websocket.send(`${this.battle}|/leave`);
+							this.websocket.send(`${this.battleLink}|/leave`);
 							return this.message.channel.send(
 								":x: **Error!** This is a Randoms match. I don't work with Randoms matches."
 							);
@@ -2264,7 +2276,7 @@ class Showdown {
 						}
 
 						console.log(`${battle.winner} won!`);
-						this.websocket.send(`${this.battle}|/uploadreplay`); //Requesting the replay from Showdown
+						this.websocket.send(`${this.battleLink}|/uploadreplay`); //Requesting the replay from Showdown
 					}
 
 					//After the match is done and replay request is sent, it uploads the replay and gets the link
@@ -2286,7 +2298,17 @@ class Showdown {
 								}
 							)
 							.catch((e) => {
-								return;
+								await this.message.channel.send(
+									`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+										e.message
+									}\nLine number: ${e.stack.split(":")[2]}\`\`\``
+								);
+								this.websocket.send(
+									`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+								);
+								this.websocket.send(`/leave ${this.battleLink}`);
+				
+								console.error(this.battleLink + ": " + e);
 							});
 
 						let info = {
@@ -2466,7 +2488,7 @@ class Showdown {
 							return { code: "-1" };
 						}
 
-						this.websocket.send(`|/leave ${this.battle}`);
+						this.websocket.send(`|/leave ${this.battleLink}`);
 
 						let returndata = {
 							info: info,
@@ -2478,16 +2500,16 @@ class Showdown {
 				}
 			} catch (e) {
 				await this.message.channel.send(
-					`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+					`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 						e.message
 					}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 				);
 				this.websocket.send(
-					`${this.battle}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+					`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 				);
-				this.websocket.send(`/leave ${this.battle}`);
+				this.websocket.send(`/leave ${this.battleLink}`);
 
-				console.error(e);
+				console.error(this.battleLink + ": " + e);
 			}
 		});
 	}

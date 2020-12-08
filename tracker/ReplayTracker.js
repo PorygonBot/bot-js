@@ -2040,7 +2040,17 @@ class ReplayTracker {
 							}
 						)
 						.catch((e) => {
-							return;
+							await this.message.channel.send(
+								`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+									e.message
+								}\nLine number: ${e.stack.split(":")[2]}\`\`\``
+							);
+							this.websocket.send(
+								`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+							);
+							this.websocket.send(`/leave ${this.battleLink}`);
+			
+							console.error(this.battleLink + ": " + e);
 						});
 
 					if (
@@ -2165,12 +2175,13 @@ class ReplayTracker {
 				}
 			}
 		} catch (e) {
-			this.message.channel.send(
-				`:x: Error with this match. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+			await this.message.channel.send(
+				`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 					e.message
 				}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 			);
-			console.error(e);
+
+			console.error(this.battleLink + ": " + e);
 		}
 	}
 }
