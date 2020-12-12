@@ -73,7 +73,7 @@ module.exports = {
 				case "-pingtime":
 					category = "Time of Ping";
 					break;
-				case "-talk":
+				case "-notalk":
 					category = "Stop Talking?";
 					break;
 				default:
@@ -128,8 +128,8 @@ module.exports = {
 							"sets when you want the bot to ping, if at all.\nOptions: sent (immediately after the link is sent), first (immediately as the first turn starts)."
 						)
 						.addField(
-							"-talk",
-							"sets whether you want the bot to talk while analyzing a live battle."
+							"-notalk",
+							"sets whether you want the bot to not talk while analyzing a live battle."
 						);
 
 					return channel.send(ruleEmbed);
