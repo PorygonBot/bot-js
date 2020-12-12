@@ -73,6 +73,9 @@ module.exports = {
 				case "-pingtime":
 					category = "Time of Ping";
 					break;
+				case "-talk":
+					category = "Stop Talking?";
+					break;
 				default:
 					const ruleEmbed = new Discord.MessageEmbed()
 						.setTitle("Rule Command Help")
@@ -123,6 +126,10 @@ module.exports = {
 						.addField(
 							"-pingtime",
 							"sets when you want the bot to ping, if at all.\nOptions: sent (immediately after the link is sent), first (immediately as the first turn starts)."
+						)
+						.addField(
+							"-talk",
+							"sets whether you want the bot to talk while analyzing a live battle."
 						);
 
 					return channel.send(ruleEmbed);
@@ -135,21 +142,32 @@ module.exports = {
 							.replace(result.charAt(0), "")
 							.toLowerCase()}`
 					: result;
-			if ((rule === "-spoiler" || rule === "-quirks") && result == "True")
+			if (
+				(rule === "-spoiler" ||
+					rule === "-quirks" ||
+					rule === "-talk") &&
+				result == "True"
+			)
 				result = true;
 			else if (
-				(rule === "-spoiler" || rule === "-quirks") &&
+				(rule === "-spoiler" ||
+					rule === "-quirks" ||
+					rule === "-talk") &&
 				result != "True"
 			)
 				result = false;
-			result = result === "remove" || result === "none" ? "" : result
+			result = result === "remove" || result === "none" ? "" : result;
 
 			//Adding to the list of fields
 			categoryRules[category] = result;
 		}
 
 		// Updating the rule in the database for the league
-		let fields = { League: [leagueJson.id], "Channel ID": channel.id, ...categoryRules };
+		let fields = {
+			League: [leagueJson.id],
+			"Channel ID": channel.id,
+			...categoryRules,
+		};
 		if (rulesId) {
 			await base("Custom Rules").update([
 				{
@@ -159,10 +177,18 @@ module.exports = {
 			]);
 
 			console.log(
-				`${leagueJson.name}'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+				`${leagueJson.name}'s ${Object.keys(
+					categoryRules
+				)} properties have been set to ${Object.values(
+					categoryRules
+				)}, respectively!`
 			);
 			return channel.send(
-				`\`${leagueJson.name}\`'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+				`\`${leagueJson.name}\`'s ${Object.keys(
+					categoryRules
+				)} properties have been set to ${Object.values(
+					categoryRules
+				)}, respectively!`
 			);
 		} else {
 			if (!leagueJson.id) {
@@ -208,10 +234,18 @@ module.exports = {
 							);
 
 							console.log(
-								`${leagueJson.name}'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+								`${leagueJson.name}'s ${Object.keys(
+									categoryRules
+								)} properties have been set to ${Object.values(
+									categoryRules
+								)}, respectively!`
 							);
 							return channel.send(
-								`\`${leagueJson.name}\`'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+								`\`${leagueJson.name}\`'s ${Object.keys(
+									categoryRules
+								)} properties have been set to ${Object.values(
+									categoryRules
+								)}, respectively!`
 							);
 						}
 					);
@@ -224,10 +258,18 @@ module.exports = {
 				]);
 
 				console.log(
-					`${leagueJson.name}'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+					`${leagueJson.name}'s ${Object.keys(
+						categoryRules
+					)} properties have been set to ${Object.values(
+						categoryRules
+					)}, respectively!`
 				);
 				return channel.send(
-					`\`${leagueJson.name}\`'s ${Object.keys(categoryRules)} properties have been set to ${Object.values(categoryRules)}, respectively!`
+					`\`${leagueJson.name}\`'s ${Object.keys(
+						categoryRules
+					)} properties have been set to ${Object.values(
+						categoryRules
+					)}, respectively!`
 				);
 			}
 		}
