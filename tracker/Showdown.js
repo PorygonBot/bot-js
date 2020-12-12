@@ -229,7 +229,7 @@ class Showdown {
 		this.websocket.send(`|/join ${this.battleLink}`);
 		this.message.channel
 			.send(`Battle joined! Keeping track of stats now. ${this.rules.ping !== "" && this.rules.timeOfPing === "Sent" ? this.rules.ping : ""}`)
-			.catch((e) => {
+			.catch(async (e) => {
 				await this.message.channel.send(
 					`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 						e.message
