@@ -272,6 +272,9 @@ const getRules = async (rulesId) => {
 				let timeOfPing = await record.get("Time of Ping?");
 				rules.timeOfPing = timeOfPing || "First";
 
+				let stopTalking = await record.get("Stop Talking?");
+				rules.stopTalking = stopTalking || false;
+
 				resolve(rules);
 			});
 		});
@@ -287,7 +290,8 @@ const getRules = async (rulesId) => {
 		forfeit: "None",
 		format: "",
 		quirks: true,
-		timeOfPing: "First"
+		timeOfPing: "First",
+		stopTalking: false
 	};
 };
 
