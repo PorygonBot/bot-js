@@ -145,14 +145,14 @@ module.exports = {
 			if (
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
-					rule === "-talk") &&
+					rule === "-notalk") &&
 				result == "True"
 			)
 				result = true;
 			else if (
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
-					rule === "-talk") &&
+					rule === "-notalk") &&
 				result != "True"
 			)
 				result = false;

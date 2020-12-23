@@ -297,6 +297,7 @@ class Showdown {
 
 					//Checks first and foremost if the battle even exists
 					if (line.startsWith(`|noinit|`)) {
+						this.websocket.send(`/leave ${this.battleLink}`);
 						if (line.includes("nonexistent|")) {
 							return this.message.channel.send(
 								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
@@ -304,6 +305,11 @@ class Showdown {
 						} else if (line.includes("joinfailed")) {
 							return this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
+							);
+						} else if (line.includes("rename")) {
+							this.websocket.send()
+							return this.message.channel.send(
+								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
 							);
 						}
 					}
