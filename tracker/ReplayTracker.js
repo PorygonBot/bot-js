@@ -68,6 +68,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
+				console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -331,6 +332,7 @@ class ReplayTracker {
 					line.startsWith("|-enditem|") ||
 					line.startsWith("|-fieldstart|") ||
 					line.startsWith("|-zbroken|") ||
+					line.startsWith("|-heal|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
