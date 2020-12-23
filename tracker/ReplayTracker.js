@@ -1001,8 +1001,9 @@ class ReplayTracker {
 						if (parts[3] && parts[3].includes("[from]")) {
 							//It's a special death, not a normal one.
 							let move = parts[3].split("[from] ")[1];
+
+							//Hazards
 							if (utils.hazardMoves.includes(move)) {
-								//Hazards
 								if (victimSide === "p1a") {
 									killer = battle.hazardsSet.p1[move];
 									let deathJson = battle.p1a.died(
@@ -1045,11 +1046,13 @@ class ReplayTracker {
 										battle.p2b.realName || battle.p2b.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turns})`;
-							} else if (
+							} 
+							
+							//Weather
+							else if (
 								move === "Hail" ||
 								move === "Sandstorm"
 							) {
-								//Weather
 								killer = battle.weatherInflictor;
 								if (victimSide === "p1a") {
 									if (
@@ -1141,8 +1144,10 @@ class ReplayTracker {
 										battle.p2a.realName || battle.p2a.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turn})`;
-							} else if (move === "brn" || move === "psn") {
-								console.log("STatus: " + battle.p2a.statusInflictor)
+							} 
+							
+							//Status
+							else if (move === "brn" || move === "psn") {
 								if (victimSide === "p1a") {
 									killer = battle.p1a.statusInflictor;
 									if (
@@ -1256,11 +1261,13 @@ class ReplayTracker {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								}
-							} else if (
+							} 
+							
+							//Recoil
+							else if (
 								utils.recoilMoves.includes(move) ||
 								move.toLowerCase() === "recoil"
 							) {
-								//Recoil deaths
 								if (victimSide == "p1a") {
 									if (this.rules.recoil !== "None")
 										killer = battle.p2a.name;
@@ -1331,9 +1338,12 @@ class ReplayTracker {
 										? "passive"
 										: "direct"
 								}) (Turn ${battle.turns})`;
-							} else if (
+							} 
+							
+							//Item or Ability
+							else if (
 								move.startsWith(`item: `) ||
-								move.includes(`ability`)
+								move.includes(`ability: `)
 							) {
 								let item = move.split(": ")[1];
 
@@ -1403,11 +1413,13 @@ class ReplayTracker {
 										? "passive"
 										: "direct"
 								}) (Turn ${battle.turns})`;
-							} else {
+							} 
+							
+							//Affliction
+							else {
 								move = move.includes("move: ")
 									? move.split(": ")[1]
 									: move;
-								//Affliction-caused deaths
 								if (victimSide === "p1a") {
 									killer = battle.p1a.otherAffliction[move];
 									victim =
