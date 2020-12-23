@@ -333,10 +333,14 @@ class ReplayTracker {
 					line.startsWith("|-fieldstart|") ||
 					line.startsWith("|-zbroken|") ||
 					line.startsWith("|-heal|") ||
+					line.startsWith("|-hint|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
-				} else if (line.startsWith(`|detailschange|`)) {
+				} 
+				
+				//When a Pokemon mega-evolves, I change its "realname"
+				else if (line.startsWith(`|detailschange|`)) {
 					if (parts[2].includes("Mega")) {
 						let side = parts[1].split(": ")[0];
 						let realName = parts[2].split(",")[0];
@@ -1796,14 +1800,14 @@ class ReplayTracker {
 						}
 
 						console.log(
-							`${victim} was killed by ${killer} due to ${prevMove} (${
+							`${victim} was killed by ${killer || "suicide"} due to ${prevMove} (${
 								this.rules.suicide === "Passive"
 									? "passive"
 									: "direct"
 							}) (Turn ${battle.turns}).`
 						);
 						battle.history.push(
-							`${victim} was killed by ${killer} due to ${prevMove} (${
+							`${victim} was killed by ${killer || "suicide"} due to ${prevMove} (${
 								this.rules.suicide === "Passive"
 									? "passive"
 									: "direct"
