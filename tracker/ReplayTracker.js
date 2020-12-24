@@ -1425,9 +1425,10 @@ class ReplayTracker {
 								move.includes(`ability: `)
 							) {
 								let item = move.split(": ")[1];
-								let owner =
-									parts[4].split(": ")[0].split("] ")[1] ||
-									"";
+								let owner = parts[4]
+									? parts[4].split(": ")[0].split("] ")[1] ||
+									  ""
+									: "";
 
 								if (owner === victimSide) {
 									victim =
