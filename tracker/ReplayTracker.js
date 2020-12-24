@@ -407,8 +407,8 @@ class ReplayTracker {
 						? parts[2].split(": ")[1]
 						: parts[2];
 					let ability = parts[2].includes("ability")
-					? parts[2].split(": ")[1]
-					: parts[2];
+						? parts[2].split(": ")[1]
+						: parts[2];
 					if (
 						!(
 							parts.length < 4 ||

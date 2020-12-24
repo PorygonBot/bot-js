@@ -394,7 +394,7 @@ const burnMoves = [
 	"Tri Attack",
 	"Will-O-Wisp",
 ];
-const statusAbility = ["Poison Point", "Poison Touch", "Flame Body", "Synchronize"];
+const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
 const hazardMoves = [
 	"Stealth Rock",
