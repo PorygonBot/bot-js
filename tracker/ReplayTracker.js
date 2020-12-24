@@ -68,7 +68,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -406,6 +406,9 @@ class ReplayTracker {
 					let move = parts[2].includes("move")
 						? parts[2].split(": ")[1]
 						: parts[2];
+					let ability = parts[2].includes("ability")
+					? parts[2].split(": ")[1]
+					: parts[2];
 					if (
 						!(
 							parts.length < 4 ||
@@ -450,7 +453,7 @@ class ReplayTracker {
 									battle.p1b.name;
 						}
 					}
-					if (move !== "Destiny Bond")
+					if (move !== "Destiny Bond" && ability !== "Synchronize")
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -484,6 +487,7 @@ class ReplayTracker {
 				else if (line.startsWith(`|-status|`)) {
 					let prevMoveLine = dataArr[dataArr.length - 2];
 					let prevMove = prevMoveLine.split("|").slice(1)[2];
+					let prevParts = prevMoveLine.split("|").slice(1);
 					let prevPrevMoveLine = dataArr[dataArr.length - 3];
 					let prevPrevMove = prevPrevMoveLine.split("|").slice(1)[2];
 
@@ -651,9 +655,85 @@ class ReplayTracker {
 								this.rules.abilityItem
 							);
 						}
+					} else if (prevMoveLine.includes("Synchronize")) {
+						let inflictorSide = prevParts[1].split(": ")[0];
+
+						if (inflictorSide === "p1a") {
+							if (victimSide === "p2a") {
+								battle.p2a.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p1a.name,
+									"Passive"
+								);
+								inflictor = battle.p1a.name;
+								victim = battle.p2a.realName || battle.p2a.name;
+							} else if (victimSide === "p2b") {
+								battle.p2b.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p1a.name,
+									"Passive"
+								);
+								inflictor = battle.p1a.name;
+								victim = battle.p2b.realName || battle.p2b.name;
+							}
+						} else if (inflictorSide === "p1b") {
+							if (victimSide === "p2a") {
+								battle.p2a.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p1b.name,
+									"Passive"
+								);
+								inflictor = battle.p1b.name;
+								victim = battle.p2a.realName || battle.p2a.name;
+							} else if (victimSide === "p2b") {
+								battle.p2b.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p1b.name,
+									"Passive"
+								);
+								inflictor = battle.p1b.name;
+								victim = battle.p2a.realName || battle.p2b.name;
+							}
+						} else if (inflictorSide === "p2a") {
+							if (victimSide === "p1a") {
+								battle.p1a.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p2a.name,
+									"Passive"
+								);
+								inflictor = battle.p2a.name;
+								victim = battle.p1a.realName || battle.p1a.name;
+							} else if (victimSide === "p1b") {
+								battle.p1b.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p2a.name,
+									"Passive"
+								);
+								inflictor = battle.p2a.name;
+								victim = battle.p1b.realName || battle.p1b.name;
+							}
+						} else if (inflictorSide === "p2b") {
+							if (victimSide === "p1a") {
+								battle.p1a.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p2b.name,
+									"Passive"
+								);
+								inflictor = battle.p2b.name;
+								victim = battle.p1a.realName || battle.p1a.name;
+							} else if (victimSide === "p1b") {
+								battle.p1b.statusEffect(
+									parts[2] === "tox" ? "psn" : parts[2],
+									battle.p2b.name,
+									"Passive"
+								);
+								inflictor = battle.p2b.name;
+								victim = battle.p1b.realName || battle.p1b.name;
+							}
+						}
 					} else {
 						//If status wasn't caused by a move, but rather Toxic Spikes
-						if (parts[1].split(": ")[0] === "p1a") {
+						if (victimSide === "p1a") {
 							victim = battle.p1a.realName || battle.p1a.name;
 							inflictor = battle.hazardsSet.p1["Toxic Spikes"];
 							battle.p1a.statusEffect(
@@ -661,7 +741,7 @@ class ReplayTracker {
 								inflictor,
 								"Passive"
 							);
-						} else if (parts[1].split(": ")[0] === "p1b") {
+						} else if (victimSide === "p1b") {
 							victim = battle.p1b.realName || battle.p1b.name;
 							inflictor = battle.hazardsSet.p1["Toxic Spikes"];
 							battle.p1b.statusEffect(
@@ -669,7 +749,7 @@ class ReplayTracker {
 								inflictor,
 								"Passive"
 							);
-						} else if (parts[1].split(": ")[0] === "p2a") {
+						} else if (victimSide === "p2a") {
 							victim = battle.p2a.realName || battle.p2a.name;
 							inflictor = battle.hazardsSet.p2["Toxic Spikes"];
 							battle.p2a.statusEffect(
@@ -677,7 +757,7 @@ class ReplayTracker {
 								inflictor,
 								"Passive"
 							);
-						} else if (parts[1].split(": ")[0] === "p2b") {
+						} else if (victimSide === "p2b") {
 							victim = battle.p2b.realName || battle.p2b.name;
 							inflictor = battle.hazardsSet.p2["Toxic Spikes"];
 							battle.p2b.statusEffect(
@@ -1147,6 +1227,8 @@ class ReplayTracker {
 							else if (move === "brn" || move === "psn") {
 								if (victimSide === "p1a") {
 									killer = battle.p1a.statusInflictor;
+									console.log(battle.p1a.status);
+									console.log(killer);
 									if (
 										Object.keys(battle.p1Pokemon).includes(
 											killer
