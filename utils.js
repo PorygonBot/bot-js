@@ -100,6 +100,44 @@ const genCSV = (matchJson) => {
 	return [message1, message2];
 };
 
+const genTour = (matchJson) => {
+	//retrieving info from the json object
+	let psPlayer1 = Object.keys(matchJson.players)[0];
+	let psPlayer2 = Object.keys(matchJson.players)[1];
+	let killJson1 = matchJson.players[psPlayer1].kills;
+	let deathJson1 = matchJson.players[psPlayer1].deaths;
+	let killJson2 = matchJson.players[psPlayer2].kills;
+	let deathJson2 = matchJson.players[psPlayer2].deaths;
+	let combinePD = matchJson.combinePD;
+
+	let message1 = "";
+
+	//Drafting the message to be sent to the users\
+	if (!combinePD) {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon},${killJson1[pokemon].direct},${killJson1[pokemon].passive},${deathJson1[pokemon]}\n`;
+		}
+
+		for (let pokemon of Object.keys(killJson2)) {
+			message1 += `${pokemon},${killJson2[pokemon].direct},${killJson2[pokemon].passive},${deathJson2[pokemon]}\n`;
+		}
+	} else {
+		for (let pokemon of Object.keys(killJson1)) {
+			message1 += `${pokemon},${
+				killJson1[pokemon].direct + killJson1[pokemon].passive
+			},${deathJson1[pokemon]}\n`;
+		}
+
+		for (let pokemon of Object.keys(killJson2)) {
+			message1 += `${pokemon},${
+				killJson2[pokemon].direct + killJson2[pokemon].passive
+			},${deathJson2[pokemon]}\n`;
+		}
+	}
+
+	return [message1, ""];
+};
+
 const genSheets = (matchJson) => {
 	//retrieving info from the json object
 	let psPlayer1 = Object.keys(matchJson.players)[0];
@@ -238,7 +276,7 @@ const getRules = async (rulesId) => {
 				if (err) reject(err);
 
 				let rules = {};
-				
+
 				let recoil = await record.get("Recoil");
 				rules.recoil = recoil || "Direct";
 
@@ -275,6 +313,9 @@ const getRules = async (rulesId) => {
 				let stopTalking = await record.get("Stop Talking?");
 				rules.stopTalking = stopTalking || false;
 
+				let tb = await record.get("Tidbits?");
+				rules.tb = tb;
+
 				resolve(rules);
 			});
 		});
@@ -291,7 +332,8 @@ const getRules = async (rulesId) => {
 		format: "",
 		quirks: true,
 		timeOfPing: "First",
-		stopTalking: false
+		stopTalking: false,
+		tb: true
 	};
 };
 
@@ -394,6 +436,7 @@ const burnMoves = [
 	"Tri Attack",
 	"Will-O-Wisp",
 ];
+
 const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
 
 const hazardMoves = [
@@ -403,7 +446,7 @@ const hazardMoves = [
 	"G-Max Vineslash",
 	"G-Max Wildfire",
 	"G-Max Cannonaide",
-	"G-Max Vine Lash"
+	"G-Max Vine Lash",
 ];
 
 //Other bot stuff
@@ -447,7 +490,7 @@ const quirkyMessages = {
 };
 
 const randomElement = (list) => {
-	return list[Math.round(Math.random() * (list.length-1))];
+	return list[Math.round(Math.random() * (list.length - 1))];
 };
 
 const util = {
@@ -456,6 +499,7 @@ const util = {
 	genMessage,
 	genCSV,
 	genSheets,
+	genTour,
 	getChannels,
 	findLeagueId,
 	findRulesId,
@@ -468,6 +512,6 @@ const util = {
 	statusAbility,
 	hazardMoves,
 	quirkyMessages,
-	randomElement,
+	randomElement
 };
 module.exports = util;

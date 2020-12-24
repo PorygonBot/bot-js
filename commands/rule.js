@@ -76,6 +76,9 @@ module.exports = {
 				case "-notalk":
 					category = "Stop Talking?";
 					break;
+				case "-tb":
+					category = "Tidbits?";
+					break;
 				default:
 					const ruleEmbed = new Discord.MessageEmbed()
 						.setTitle("Rule Command Help")
@@ -117,7 +120,7 @@ module.exports = {
 						)
 						.addField(
 							"-format",
-							"changes the way stats are formatted when outputted.\nOptions: csv (comma-separated), sheets (space-separated), default."
+							"changes the way stats are formatted when outputted.\nOptions: csv (comma-separated), sheets (space-separated), tour, default."
 						)
 						.addField(
 							"-quirks",
@@ -129,7 +132,11 @@ module.exports = {
 						)
 						.addField(
 							"-notalk",
-							"sets whether you want the bot to not talk while analyzing a live battle."
+							"sets whether you want the bot to not talk while analyzing a live battle.\nOptions: true, false."
+						)
+						.addField(
+							"-tb",
+							"sets whether you want extra tidbits in the stats message (replay, history link, etc.).\nOptions: true, false."
 						);
 
 					return channel.send(ruleEmbed);
@@ -145,14 +152,16 @@ module.exports = {
 			if (
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
-					rule === "-notalk") &&
+					rule === "-notalk" ||
+					rule === "-tb") &&
 				result == "True"
 			)
 				result = true;
 			else if (
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
-					rule === "-notalk") &&
+					rule === "-notalk" ||
+					rule === "-tb") &&
 				result != "True"
 			)
 				result = false;

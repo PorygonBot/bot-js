@@ -13,7 +13,9 @@ class DiscordChannelStats {
 
 		let messages = [];
 		if (info.format === "Csv") messages = utils.genCSV(matchJson);
-		else if (info.format === "Sheets") messages = utils.genSheets(matchJson);
+		else if (info.format === "Sheets")
+			messages = utils.genSheets(matchJson);
+		else if (info.format === "Tour") messages = utils.genTour(matchJson);
 		else messages = utils.genMessage(matchJson);
 
 		let psPlayer1 = Object.keys(matchJson.players)[0];
@@ -30,22 +32,28 @@ class DiscordChannelStats {
 			matchJson.streamChannel
 		);
 
+		let finalMessage = "";
+
 		//finally sending players the info
-		if (info.spoiler) {
-			streamChannel.send(
-				`**Result: ** ||${info.result}||\n\n||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}|| \n\n**Replay: **${info.replay}\n**History: **${info.history}`
-			);
-		}
-		else {
-			streamChannel.send(
-				`**Result: ** ||${info.result}||\n\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2} \n\n**Replay: **${info.replay}\n**History: **${info.history}`
-			);
+		if (info.format === "Tour") {
+			if (info.spoiler) finalMessage = `||${message1}||`;
+			else finalMessage = message1;
+		} else {
+			if (info.spoiler)
+				finalMessage = `||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}||`;
+			else
+				finalMessage = `\n\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`;
 		}
 
+		if (info.tb) {
+			finalMessage = `**Result:** ||${info.result}||\n\n${finalMessage}\n\n**Replay: **${info.replay}\n**History: **${info.history}`;
+		}
+
+		streamChannel.send(finalMessage);
 		this.channel.send(
 			`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
 		);
 	}
 }
 
-module.exports =  DiscordChannelStats;
+module.exports = DiscordChannelStats;
