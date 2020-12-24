@@ -337,8 +337,8 @@ class ReplayTracker {
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
-				} 
-				
+				}
+
 				//When a Pokemon mega-evolves, I change its "realname"
 				else if (line.startsWith(`|detailschange|`)) {
 					if (parts[2].includes("Mega")) {
@@ -690,7 +690,7 @@ class ReplayTracker {
 					console.log(
 						`${inflictor} caused ${parts[2]} on ${victim}.`
 					);
-				} 
+				}
 
 				//Side-specific ailments e.g. Stealth Rock
 				else if (line.startsWith("|-sidestart|")) {
@@ -1046,13 +1046,10 @@ class ReplayTracker {
 										battle.p2b.realName || battle.p2b.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turns})`;
-							} 
-							
+							}
+
 							//Weather
-							else if (
-								move === "Hail" ||
-								move === "Sandstorm"
-							) {
+							else if (move === "Hail" || move === "Sandstorm") {
 								killer = battle.weatherInflictor;
 								if (victimSide === "p1a") {
 									if (
@@ -1144,8 +1141,8 @@ class ReplayTracker {
 										battle.p2a.realName || battle.p2a.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turn})`;
-							} 
-							
+							}
+
 							//Status
 							else if (move === "brn" || move === "psn") {
 								if (victimSide === "p1a") {
@@ -1261,8 +1258,8 @@ class ReplayTracker {
 											: "direct"
 									}) (Turn ${battle.turns})`;
 								}
-							} 
-							
+							}
+
 							//Recoil
 							else if (
 								utils.recoilMoves.includes(move) ||
@@ -1338,83 +1335,140 @@ class ReplayTracker {
 										? "passive"
 										: "direct"
 								}) (Turn ${battle.turns})`;
-							} 
-							
+							}
+
 							//Item or Ability
 							else if (
 								move.startsWith(`item: `) ||
 								move.includes(`ability: `)
 							) {
 								let item = move.split(": ")[1];
+								let owner =
+									parts[4].split(": ")[0].split("] ")[1] ||
+									"";
 
-								if (
-									victimSide === "p1a" &&
-									!battle.p1a.isDead
-								) {
-									if (this.rules.abilityitem !== "None")
-										killer = battle.p2a.name;
-									else killer = undefined;
+								if (owner === victimSide) {
+									victim =
+										battle[owner].realName ||
+										battle[owner].name;
+									if (this.rules.suicide !== "None") {
+										if (victimSide === "p1a") {
+											victim =
+												battle.p1a.realName ||
+												battle.p1a.name;
+										} else if (killerSide === "p2b") {
+											victim =
+												battle.p1b.realName ||
+												battle.p1b.name;
+										} else if (victimSide === "p1a") {
+											victim =
+												battle.p2a.realName ||
+												battle.p2a.name;
+										} else if (killerSide === "p2b") {
+											victim =
+												battle.p2b.realName ||
+												battle.p2b.name;
+										}
+									}
+
 									let deathJson = battle.p1a.died(
-										item,
+										prevMove,
 										killer,
-										this.rules.abilityitem === "Passive"
+										this.rules.suicide === "Passive"
 									);
-									battle.p2Pokemon[killer].killed(deathJson);
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (
-									victimSide === "p1b" &&
-									!battle.p1b.isDead
-								) {
-									if (this.rules.abilityitem !== "None")
-										killer = battle.p2b.name;
-									else killer = undefined;
-									let deathJson = battle.p1b.died(
-										item,
-										killer,
+									if (killer) {
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+									}
+									killer = "suicide";
+									reason = `${item} (${
+										this.rules.suicide === "Passive"
+											? "passive"
+											: "direct"
+									}) (Turn ${battle.turns})`;
+								} else {
+									if (
+										victimSide === "p1a" &&
+										!battle.p1a.isDead
+									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p2a.name;
+										else killer = undefined;
+										let deathJson = battle.p1a.died(
+											item,
+											killer,
+											this.rules.abilityitem === "Passive"
+										);
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										victim =
+											battle.p1a.realName ||
+											battle.p1a.name;
+									} else if (
+										victimSide === "p1b" &&
+										!battle.p1b.isDead
+									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p2b.name;
+										else killer = undefined;
+										let deathJson = battle.p1b.died(
+											item,
+											killer,
+											this.rules.abilityitem === "Passive"
+										);
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
+									} else if (
+										victimSide === "p2a" &&
+										!battle.p2a.isDead
+									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p1a.name;
+										else killer = undefined;
+										let deathJson = battle.p2a.died(
+											item,
+											killer,
+											this.rules.abilityitem === "Passive"
+										);
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
+										victim =
+											battle.p2a.realName ||
+											battle.p2a.name;
+									} else if (
+										victimSide === "p2b" &&
+										!battle.p2b.isDead
+									) {
+										if (this.rules.abilityitem !== "None")
+											killer = battle.p1b.name;
+										else killer = undefined;
+										let deathJson = battle.p2b.died(
+											item,
+											killer,
+											this.rules.abilityitem === "Passive"
+										);
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
+										victim =
+											battle.p2b.realName ||
+											battle.p2b.name;
+									}
+									reason = `${item} (${
 										this.rules.abilityitem === "Passive"
-									);
-									battle.p2Pokemon[killer].killed(deathJson);
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								} else if (
-									victimSide === "p2a" &&
-									!battle.p2a.isDead
-								) {
-									if (this.rules.abilityitem !== "None")
-										killer = battle.p1a.name;
-									else killer = undefined;
-									let deathJson = battle.p2a.died(
-										item,
-										killer,
-										this.rules.abilityitem === "Passive"
-									);
-									battle.p1Pokemon[killer].killed(deathJson);
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (
-									victimSide === "p2b" &&
-									!battle.p2b.isDead
-								) {
-									if (this.rules.abilityitem !== "None")
-										killer = battle.p1b.name;
-									else killer = undefined;
-									let deathJson = battle.p2b.died(
-										item,
-										killer,
-										this.rules.abilityitem === "Passive"
-									);
-									battle.p1Pokemon[killer].killed(deathJson);
-									victim =
-										battle.p2b.realName || battle.p2b.name;
+											? "passive"
+											: "direct"
+									}) (Turn ${battle.turns})`;
 								}
-								reason = `${item} (${
-									this.rules.abilityitem === "Passive"
-										? "passive"
-										: "direct"
-								}) (Turn ${battle.turns})`;
-							} 
-							
+							}
+
 							//Affliction
 							else {
 								move = move.includes("move: ")
@@ -1812,14 +1866,18 @@ class ReplayTracker {
 						}
 
 						console.log(
-							`${victim} was killed by ${killer || "suicide"} due to ${prevMove} (${
+							`${victim} was killed by ${
+								killer || "suicide"
+							} due to ${prevMove} (${
 								this.rules.suicide === "Passive"
 									? "passive"
 									: "direct"
 							}) (Turn ${battle.turns}).`
 						);
 						battle.history.push(
-							`${victim} was killed by ${killer || "suicide"} due to ${prevMove} (${
+							`${victim} was killed by ${
+								killer || "suicide"
+							} due to ${prevMove} (${
 								this.rules.suicide === "Passive"
 									? "passive"
 									: "direct"
@@ -2059,7 +2117,9 @@ class ReplayTracker {
 						)
 						.catch(async (e) => {
 							await this.message.channel.send(
-								`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+								`:x: Error with match number \`${
+									this.battleLink
+								}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 									e.message
 								}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 							);
@@ -2067,7 +2127,7 @@ class ReplayTracker {
 								`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 							);
 							this.websocket.send(`/leave ${this.battleLink}`);
-			
+
 							console.error(this.battleLink + ": " + e);
 						});
 
@@ -2194,7 +2254,9 @@ class ReplayTracker {
 			}
 		} catch (e) {
 			await this.message.channel.send(
-				`:x: Error with match number \`${this.battleLink}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+				`:x: Error with match number \`${
+					this.battleLink
+				}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 					e.message
 				}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 			);
