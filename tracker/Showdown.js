@@ -311,7 +311,7 @@ class Showdown {
 								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
 							);
 						}
-						console.log(`Left the ${this.battleLink} battle.`)
+						console.log(`Left the ${this.battleLink} battle.`);
 						this.websocket.close();
 					}
 
@@ -1785,10 +1785,11 @@ class Showdown {
 									move.includes(`ability: `)
 								) {
 									let item = move.split(": ")[1];
-									let owner =
-										parts[4]
-											.split(": ")[0]
-											.split("] ")[1] || "";
+									let owner = parts[4]
+										? parts[4]
+												.split(": ")[0]
+												.split("] ")[1] || ""
+										: "";
 
 									if (owner === victimSide) {
 										victim =
