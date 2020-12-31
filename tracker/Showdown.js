@@ -2553,6 +2553,26 @@ class Showdown {
 							}
 						}
 
+						//Giving mons their proper names
+						//Team 1
+						for (let pokemonName of Object.keys(battle.p1Pokemon)) {
+							const newName = pokemonName.split("-")[0];
+							if (utils.misnomers.includes(newName)) {
+								battle.p1Pokemon[
+									pokemonName
+								].realName = newName;
+							}
+						}
+						//Team 2
+						for (let pokemonName of Object.keys(battle.p2Pokemon)) {
+							const newName = pokemonName.split("-")[0];
+							if (utils.misnomers.includes(newName) || utils.misnomers.includes(pokemonName)) {
+								battle.p2Pokemon[
+									pokemonName
+								].realName = newName;
+							}
+						}
+
 						console.log(`${battle.winner} won!`);
 						this.websocket.send(`${this.battleLink}|/uploadreplay`); //Requesting the replay from Showdown
 					}
@@ -2605,7 +2625,7 @@ class Showdown {
 							}`,
 							spoiler: this.rules.spoiler,
 							format: this.rules.format,
-							tb: this.rules.tb
+							tb: this.rules.tb,
 						};
 
 						//Creating the objects for kills and deaths

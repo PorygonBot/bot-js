@@ -333,7 +333,7 @@ const getRules = async (rulesId) => {
 		quirks: true,
 		timeOfPing: "First",
 		stopTalking: false,
-		tb: true
+		tb: true,
 	};
 };
 
@@ -449,6 +449,19 @@ const hazardMoves = [
 	"G-Max Vine Lash",
 ];
 
+const misnomers = [
+	"Gastrodon",
+	"Florges",
+	"Toxtricity",
+	"Vivillon",
+	"Silvally-*",
+	"Gourgeist",
+	"Oricorio",
+	"Arceus-*",
+	"Keldeo",
+	"Urshifu-*"
+];
+
 //Other bot stuff
 const quirkyMessages = {
 	start: [
@@ -511,7 +524,8 @@ const util = {
 	burnMoves,
 	statusAbility,
 	hazardMoves,
+	misnomers,
 	quirkyMessages,
-	randomElement
+	randomElement,
 };
 module.exports = util;
