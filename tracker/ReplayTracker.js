@@ -75,7 +75,6 @@ class ReplayTracker {
 				const parts = line.split("|").slice(1); //The substring is because all lines start with | so the first element is always blank
 
 				//At the beginning of every match, the title of a match contains the player's names.
-				//As such, in order to get and verify the player's names in the database, this is the most effective.
 				if (line.startsWith(`|player|`)) {
 					if (players.length < 2) {
 						players.push(parts[2]);
@@ -99,12 +98,12 @@ class ReplayTracker {
 				//Checks if the battle is a randoms match
 				else if (line.startsWith(`|tier|`)) {
 					if (line.toLowerCase().includes("random")) {
-						this.websocket.send(`${this.battle}|/leave`);
 						return this.message.channel.send(
 							":x: **Error!** This is a Randoms match. I don't work with Randoms matches."
 						);
 					}
 				}
+				
 				//At the beginning of every non-randoms match, a list of Pokemon show up.
 				//This code is to get all that
 				else if (line.startsWith(`|poke|`)) {
@@ -403,10 +402,7 @@ class ReplayTracker {
 
 				//For moves like Infestation and Fire Spin
 				else if (line.startsWith(`|-activate|`)) {
-					let move = parts[2].includes("move")
-						? parts[2].split(": ")[1]
-						: parts[2];
-					let ability = parts[2].includes("ability")
+					let move = parts[2].includes("move") || parts[2].includes("ability")
 						? parts[2].split(": ")[1]
 						: parts[2];
 					if (
@@ -453,7 +449,7 @@ class ReplayTracker {
 									battle.p1b.name;
 						}
 					}
-					if (move !== "Destiny Bond" && ability !== "Synchronize")
+					if (move !== "Destiny Bond" && move !== "Synchronize")
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -2340,7 +2336,7 @@ class ReplayTracker {
 			await this.message.channel.send(
 				`:x: Error with match number \`${
 					this.battleLink
-				}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+				}\`. I will be unable to analyze this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
 					e.message
 				}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 			);

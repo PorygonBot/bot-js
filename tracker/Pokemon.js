@@ -16,10 +16,6 @@ class Pokemon {
         this.hasSubstitute = false;
     }
 
-    setNickname(nickname) {
-        this.nickname = nickname;
-    }
-
     //If the pokemon gets poisoned, burned, etc.
     statusEffect(statusInflicted, statusInflictor, statusType) {
         this.status = statusInflicted;
