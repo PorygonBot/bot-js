@@ -360,12 +360,12 @@ class Showdown {
 					//Checks if the battle is a randoms match
 					else if (line.startsWith(`|tier|`)) {
 						if (line.toLowerCase().includes("random")) {
-							this.websocket.send(`${this.battle}|/leave`);
 							return this.message.channel.send(
 								":x: **Error!** This is a Randoms match. I don't work with Randoms matches."
 							);
 						}
 					}
+
 					//At the beginning of every non-randoms match, a list of Pokemon show up.
 					//This code is to get all that
 					else if (line.startsWith(`|poke|`)) {
@@ -595,6 +595,8 @@ class Showdown {
 						line.startsWith("|-zbroken|") ||
 						line.startsWith("|-heal|") ||
 						line.startsWith("|-hint|") ||
+						line.startsWith("|-hitcount|") ||
+						line.startsWith("|-ability|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
@@ -669,12 +671,11 @@ class Showdown {
 
 					//For moves like Infestation and Fire Spin
 					else if (line.startsWith(`|-activate|`)) {
-						let move = parts[2].includes("move")
-							? parts[2].split(": ")[1]
-							: parts[2];
-						let ability = parts[2].includes("ability")
-							? parts[2].split(": ")[1]
-							: parts[2];
+						let move =
+							parts[2].includes("move") ||
+							parts[2].includes("ability")
+								? parts[2].split(": ")[1]
+								: parts[2];
 						if (
 							!(
 								parts.length < 4 ||
@@ -719,10 +720,7 @@ class Showdown {
 										battle.p1b.name;
 							}
 						}
-						if (
-							move !== "Destiny Bond" &&
-							ability !== "Synchronize"
-						)
+						if (move !== "Destiny Bond" && move !== "Synchronize")
 							dataArr.splice(dataArr.length - 1, 1);
 					}
 
@@ -1345,6 +1343,8 @@ class Showdown {
 								battle[battle.p2b.killer.name].unkilled();
 							}
 						}
+
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Mostly used for Illusion cuz frick Zoroark
@@ -1782,9 +1782,13 @@ class Showdown {
 								//Item or Ability
 								else if (
 									move.startsWith(`item: `) ||
-									move.includes(`ability: `)
+									move.includes(`ability: `) ||
+									(parts[3] &&
+										parts[3].includes("Spiky Shield"))
 								) {
-									let item = move.split(": ")[1];
+									let item = parts[3]
+										? parts[3].split("[from] ")[1]
+										: move.split(": ")[1];
 									let owner = parts[4]
 										? parts[4]
 												.split(": ")[0]
@@ -2076,12 +2080,18 @@ class Showdown {
 									prevMove = prevMoveLine
 										.split("|")
 										.slice(1)[2];
-									let prevMoveUserSide = prevMoveLine
+									let prevMoveParts = prevMoveLine
 										.split("|")
-										.slice(1)[1]
-										.split(": ")[0];
+										.slice(1);
+									let prevMoveUserSide = prevMoveParts[1].split(
+										": "
+									)[0];
 									if (
-										victimSide === "p1a" &&
+										(victimSide === "p1a" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p1"
+												))) &&
 										!battle.p1a.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2105,7 +2115,14 @@ class Showdown {
 											battle.p1a.realName ||
 											battle.p1a.name;
 									} else if (
-										victimSide === "p1b" &&
+										(victimSide === "p1b" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread]"
+												) &&
+												prevMoveParts[4].includes(
+													victimSide
+												))) &&
 										!battle.p1b.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2129,7 +2146,14 @@ class Showdown {
 											battle.p1b.realName ||
 											battle.p1b.name;
 									} else if (
-										victimSide === "p2a" &&
+										(victimSide === "p2a" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p2"
+												) &&
+												prevMoveParts[4].includes(
+													victimSide
+												))) &&
 										!battle.p2a.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
@@ -2153,7 +2177,14 @@ class Showdown {
 											battle.p2a.realName ||
 											battle.p2a.name;
 									} else if (
-										victimSide === "p2b" &&
+										(victimSide === "p2b" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p2"
+												) &&
+												prevMoveParts[4].includes(
+													victimSide
+												))) &&
 										!battle.p2b.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
@@ -2566,7 +2597,10 @@ class Showdown {
 						//Team 2
 						for (let pokemonName of Object.keys(battle.p2Pokemon)) {
 							const newName = pokemonName.split("-")[0];
-							if (utils.misnomers.includes(newName) || utils.misnomers.includes(pokemonName)) {
+							if (
+								utils.misnomers.includes(newName) ||
+								utils.misnomers.includes(pokemonName)
+							) {
 								battle.p2Pokemon[
 									pokemonName
 								].realName = newName;
