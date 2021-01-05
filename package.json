@@ -19,7 +19,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "airtable": "^0.8.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
