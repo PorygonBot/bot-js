@@ -667,6 +667,8 @@ class Showdown {
 						if (parts[1] === "none") {
 							battle.clearWeather();
 						}
+
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//For moves like Infestation and Fire Spin
@@ -1100,6 +1102,8 @@ class Showdown {
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
 								affliction.split("move: ")[1] ||
+								prevMove.split("|").slice(1)[2] ===
+									affliction ||
 								utils.confusionMoves.includes(
 									prevMove.split("|").slice(1)[2]
 								) || //For confusion
@@ -1374,7 +1378,12 @@ class Showdown {
 							}
 							battle.history.splice(battle.history.length - 1, 1);
 						}
-						if (!line.endsWith("Future Sight"))
+						if (
+							!(
+								line.endsWith("Future Sight") ||
+								line.endsWith("Doom Desire")
+							)
+						)
 							dataArr.splice(dataArr.length - 1, 1);
 					}
 
@@ -1579,8 +1588,6 @@ class Showdown {
 								else if (move === "brn" || move === "psn") {
 									if (victimSide === "p1a") {
 										killer = battle.p1a.statusInflictor;
-										console.log(battle.p1a.status);
-										console.log(killer);
 										if (
 											Object.keys(
 												battle.p1Pokemon

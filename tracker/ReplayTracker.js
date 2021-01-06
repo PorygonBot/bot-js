@@ -68,7 +68,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -400,6 +400,8 @@ class ReplayTracker {
 					if (parts[1] === "none") {
 						battle.clearWeather();
 					}
+
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//For moves like Infestation and Fire Spin
@@ -810,6 +812,7 @@ class ReplayTracker {
 						prevMove.startsWith(`|move|`) &&
 						(prevMove.split("|").slice(1)[2] ===
 							affliction.split("move: ")[1] ||
+							prevMove.split("|").slice(1)[2] === affliction ||
 							utils.confusionMoves.includes(
 								prevMove.split("|").slice(1)[2]
 							) || //For confusion
@@ -1043,7 +1046,12 @@ class ReplayTracker {
 						}
 						battle.history.splice(battle.history.length - 1, 1);
 					}
-					if (!line.endsWith("Future Sight"))
+					if (
+						!(
+							line.endsWith("Future Sight") ||
+							line.endsWith("Doom Desire")
+						)
+					)
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -1427,7 +1435,9 @@ class ReplayTracker {
 								move.includes(`ability: `) ||
 								(parts[3] && parts[3].includes("Spiky Shield"))
 							) {
-								let item = parts[3] ? parts[3].split("[from] ")[1] : move.split(": ")[1];
+								let item = parts[3]
+									? parts[3].split("[from] ")[1]
+									: move.split(": ")[1];
 								let owner = parts[4]
 									? parts[4].split(": ")[0].split("] ")[1] ||
 									  ""
