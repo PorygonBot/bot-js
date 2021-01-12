@@ -4,7 +4,8 @@
   "description": "Porygon is a bot that keeps track of kills/deaths in a Pokemon Showdown match.",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
