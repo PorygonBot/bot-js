@@ -203,7 +203,7 @@ const findLeagueId = async (checkChannelId) => {
 	let leagueName;
 	await base("Leagues")
 		.select({
-			maxRecords: 500,
+			maxRecords: 1000,
 			view: "Grid view",
 		})
 		.all()
@@ -232,7 +232,7 @@ const findRulesId = async (checkChannelId) => {
 
 	await base("Custom Rules")
 		.select({
-			maxRecords: 500,
+			maxRecords: 1000,
 			view: "Grid view",
 		})
 		.all()
