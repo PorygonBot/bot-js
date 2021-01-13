@@ -298,6 +298,7 @@ class Showdown {
 					//Checks first and foremost if the battle even exists
 					if (line.startsWith(`|noinit|`)) {
 						this.websocket.send(`${this.battleLink}|/leave`);
+						console.log(`Left ${this.battleLink}.`);
 						if (line.includes("nonexistent|")) {
 							return this.message.channel.send(
 								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
@@ -311,8 +312,6 @@ class Showdown {
 								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
 							);
 						}
-						console.log(`Left the ${this.battleLink} battle.`);
-						this.websocket.close();
 					}
 
 					//Once the server connects, the bot logs in and joins the battle
