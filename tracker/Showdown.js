@@ -2594,7 +2594,10 @@ class Showdown {
 						//Team 1
 						for (let pokemonName of Object.keys(battle.p1Pokemon)) {
 							const newName = pokemonName.split("-")[0];
-							if (utils.misnomers.includes(newName)) {
+							if (
+								utils.misnomers.includes(newName) ||
+								utils.misnomers.includes(pokemonName)
+							) {
 								battle.p1Pokemon[
 									pokemonName
 								].realName = newName;
