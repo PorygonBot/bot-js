@@ -95,7 +95,7 @@ class Showdown {
 
 		base("Leagues")
 			.select({
-				maxRecords: 500,
+				maxRecords: 1000,
 				view: VIEW_NAME,
 			})
 			.all()
