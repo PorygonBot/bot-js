@@ -80,6 +80,7 @@ class Showdown {
 			players: {},
 			system: "Discord",
 			info: info,
+			combinePD: this.rules.combinePD
 		};
 		recordJson.players[player1] = {
 			ps: player1,

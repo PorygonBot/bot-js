@@ -79,6 +79,9 @@ module.exports = {
 				case "-tb":
 					category = "Tidbits?";
 					break;
+				case "-combine":
+					category = "Combine P/D?";
+					break;
 				default:
 					const ruleEmbed = new Discord.MessageEmbed()
 						.setTitle("Rule Command Help")
@@ -137,6 +140,10 @@ module.exports = {
 						.addField(
 							"-tb",
 							"sets whether you want extra tidbits in the stats message (replay, history link, etc.).\nOptions: true, false."
+						)
+						.addField(
+							"-combine",
+							"sets whether you want passive and direct kills combined or separated.\nOptions: true, false"
 						);
 
 					return channel.send(ruleEmbed);
@@ -153,7 +160,8 @@ module.exports = {
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
 					rule === "-notalk" ||
-					rule === "-tb") &&
+					rule === "-tb" ||
+					rule === "-combine") &&
 				result == "True"
 			)
 				result = true;
@@ -161,7 +169,8 @@ module.exports = {
 				(rule === "-spoiler" ||
 					rule === "-quirks" ||
 					rule === "-notalk" ||
-					rule === "-tb") &&
+					rule === "-tb" ||
+					rule === "-combine") &&
 				result != "True"
 			)
 				result = false;
