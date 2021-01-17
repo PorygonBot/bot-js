@@ -41,6 +41,7 @@ class ReplayTracker {
 			players: {},
 			system: "Discord",
 			info: info,
+			combinePD: info.combinePD,
 		};
 		recordJson.players[player1] = {
 			ps: player1,
@@ -2199,6 +2200,7 @@ class ReplayTracker {
 						spoiler: this.rules.spoiler,
 						format: this.rules.format,
 						tb: this.rules.tb,
+						combinePD: this.rules.combinePD,
 					};
 
 					//Creating the objects for kills and deaths

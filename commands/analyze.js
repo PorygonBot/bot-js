@@ -16,8 +16,10 @@ module.exports =  {
 			let data = response.data;
 	
 			//Getting the rules
+			let {combinePD} = await utils.findLeagueId(channel.id);
 			let rulesId = await utils.findRulesId(channel.id);
 			let rules = await utils.getRules(rulesId);
+			rules.combinePD = combinePD;
 	
 			let replayer = new ReplayTracker(arg, message, rules);
 			await replayer.track(data);

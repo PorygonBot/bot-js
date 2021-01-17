@@ -201,6 +201,7 @@ const getChannels = async () => {
 const findLeagueId = async (checkChannelId) => {
 	let leagueId;
 	let leagueName;
+	let combinePD;
 	await base("Leagues")
 		.select({
 			maxRecords: 1000,
@@ -213,6 +214,9 @@ const findLeagueId = async (checkChannelId) => {
 				if (channelId === checkChannelId) {
 					leagueId = leagueRecord.id;
 					leagueName = await leagueRecord.get("Name");
+					combinePD = await leagueRecord.get(
+						"Combine P/D?"
+					);
 				}
 			}
 		})
@@ -223,6 +227,7 @@ const findLeagueId = async (checkChannelId) => {
 	let leagueJson = {
 		id: leagueId,
 		name: leagueName,
+		combinePD: combinePD
 	};
 	return leagueJson;
 };
