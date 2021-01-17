@@ -39,7 +39,7 @@ class ReplayTracker {
 		// Getting info from Airtable if required
 		let recordJson = {
 			players: {},
-			system: "Discord",
+			system: "",
 			info: info,
 			combinePD: info.combinePD,
 		};
