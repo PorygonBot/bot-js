@@ -181,7 +181,7 @@ const getChannels = async () => {
 	let channels = [];
 	await base("Leagues")
 		.select({
-			maxRecords: 500,
+			maxRecords: 1000,
 			view: "Grid view",
 		})
 		.all()

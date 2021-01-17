@@ -235,8 +235,8 @@ module.exports = {
 						],
 						async (err, records) => {
 							if (err) console.error(err);
+							const leagueName = await records[0].get("Name")
 							fields["League"] = [records[0].getId()];
-							console.log(fields["League"]);
 
 							collector.stop();
 
@@ -252,14 +252,14 @@ module.exports = {
 							);
 
 							console.log(
-								`${leagueJson.name}'s ${Object.keys(
+								`${leagueName}'s ${Object.keys(
 									categoryRules
 								)} properties have been set to ${Object.values(
 									categoryRules
 								)}, respectively!`
 							);
 							return channel.send(
-								`\`${leagueJson.name}\`'s ${Object.keys(
+								`\`${leagueName}\`'s ${Object.keys(
 									categoryRules
 								)} properties have been set to ${Object.values(
 									categoryRules
