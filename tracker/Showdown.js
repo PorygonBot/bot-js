@@ -111,9 +111,6 @@ class Showdown {
 						);
 						recordJson.sheetId = await leagueRecord.get("Sheet ID");
 						recordJson.info = info;
-						recordJson.combinePD = await leagueRecord.get(
-							"Combine P/D?"
-						);
 						recordJson.streamChannel = await leagueRecord.get(
 							"Stream Channel ID"
 						);
