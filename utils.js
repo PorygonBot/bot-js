@@ -316,6 +316,9 @@ const getRules = async (rulesId) => {
 				let tb = await record.get("Tidbits?");
 				rules.tb = tb;
 
+				let combinePD = await record.get("Combine P/D?");
+				rules.combinePD = combinePD;
+
 				resolve(rules);
 			});
 		});
@@ -334,6 +337,7 @@ const getRules = async (rulesId) => {
 		timeOfPing: "First",
 		stopTalking: false,
 		tb: true,
+		combinePD: false,
 	};
 };
 
