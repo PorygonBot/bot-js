@@ -229,6 +229,7 @@ module.exports = {
 							{
 								fields: {
 									Name: leagueName,
+									"Guild ID": channel.guild.id,
 									"Channel ID": channel.id,
 								},
 							},
