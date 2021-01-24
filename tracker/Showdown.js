@@ -12,6 +12,7 @@ const utils = require("../utils.js");
 const DiscordDMStats = require("../updaters/DiscordDMStats");
 const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
+const SheetsAppendStats = require("../updaters/SheetsAppendStats");
 //Getting config vars frome env
 const username = process.env.USERNAME;
 const password = process.env.PASSWORD;
@@ -103,8 +104,6 @@ class Showdown {
 				for (let leagueRecord of records) {
 					let channelId = await leagueRecord.get("Channel ID");
 					if (channelId === this.message.channel.id) {
-						let playersIds = await leagueRecord.get("Players");
-
 						// Getting info from the league
 						recordJson.system = await leagueRecord.get(
 							"Stats System"
@@ -115,58 +114,6 @@ class Showdown {
 							"Stream Channel ID"
 						);
 						recordJson.battleId = this.battleLink;
-
-						// Gets more info from each player if Google Sheets is the system
-						if (playersIds) {
-							let funcArr = [];
-							for (let playerId of playersIds) {
-								funcArr.push(
-									new Promise((resolve, reject) => {
-										base("Players").find(
-											playerId,
-											async (error, record) => {
-												if (error) {
-													console.error(error);
-													reject(error);
-												}
-
-												let recordName = await record.get(
-													"Showdown Name"
-												);
-												recordName.toLowerCase().trim();
-												let recordRange = await record.get(
-													"Range"
-												);
-												console.log(
-													playerId +
-														"    " +
-														recordName +
-														"player"
-												);
-												if (
-													recordName.toLowerCase() ===
-														player1.toLowerCase() ||
-													recordName.toLowerCase() ===
-														player2.toLowerCase()
-												) {
-													recordJson.players[
-														recordName.toLowerCase() ===
-														player1.toLowerCase()
-															? player1
-															: player2
-													].range = recordRange;
-												}
-
-												resolve();
-											}
-										);
-									})
-								);
-							}
-							await Promise.all(funcArr).then(
-								console.log("Players found! Updating now...")
-							);
-						}
 					}
 				}
 			})
@@ -177,6 +124,7 @@ class Showdown {
 				let dmer = new DiscordDMStats(this.message);
 				let channeler = new DiscordChannelStats(this.message);
 				let defaulter = new DiscordDefaultStats(this.message);
+				let sheetser = new SheetsAppendStats(this.message);
 
 				//Updating stats based on given method
 				switch (recordJson.system) {
@@ -185,6 +133,9 @@ class Showdown {
 						break;
 					case "Channel":
 						await channeler.update(recordJson);
+						break;
+					case "Sheets":
+						await sheetser.update(recordJson);
 						break;
 					default:
 						await defaulter.update(recordJson);

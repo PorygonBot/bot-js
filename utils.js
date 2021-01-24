@@ -177,6 +177,49 @@ const genSheets = (matchJson) => {
 	return [message1, message2];
 };
 
+const genAppend = (matchJson) => {
+	//retrieving info from the json object
+	let info = matchJson.info;
+	let player1 = Object.keys(matchJson.players)[0];
+	let player2 = Object.keys(matchJson.players)[1];
+	let killJson1 = matchJson.players[player1].kills;
+	let deathJson1 = matchJson.players[player1].deaths;
+	let killJson2 = matchJson.players[player2].kills;
+	let deathJson2 = matchJson.players[player2].deaths;
+
+	//To generate the giant list of values
+	let values = [];
+	//Team 1
+	for (let pokemon of Object.keys(killJson1)) {
+		values.push(pokemon, killJson1[pokemon].direct, killJson1[pokemon].passive, deathJson1[pokemon]);
+	}
+	//Team 2
+	for (let i = 0; i < 6; i++) {
+		let pokemon = Object.keys(killJson2)[i] || "";
+		values.push(pokemon, pokemon ? killJson2[pokemon].direct : "", pokemon ? killJson2[pokemon].passive : "", pokemon ? deathJson2[pokemon] : "");
+	}
+
+	return {
+		spreadsheetId: matchJson.sheetId,
+		range: `'Raw Stats'!A2:AO2`,
+		responseValueRenderOption: "FORMATTED_VALUE",
+		valueInputOption: "USER_ENTERED",
+		resource: {
+			range: ``,
+			values: [
+				[
+					player1,
+					player2,
+					info.winner,
+					...values,
+					info.replay,
+					info.turns,
+				],
+			],
+		},
+	};
+};
+
 const getChannels = async () => {
 	let channels = [];
 	await base("Leagues")
@@ -222,7 +265,7 @@ const findLeagueId = async (checkChannelId) => {
 
 	let leagueJson = {
 		id: leagueId,
-		name: leagueName
+		name: leagueName,
 	};
 	return leagueJson;
 };
@@ -249,24 +292,6 @@ const findRulesId = async (checkChannelId) => {
 		});
 
 	return recordId;
-};
-
-const getPlayersIds = async (leagueId) => {
-	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues")
-			.find(leagueId, (err, record) => {
-				if (err) reject(err);
-
-				recordIds = record.get("Players");
-				resolve(recordIds);
-			})
-			.catch((e) => {
-				console.error(e);
-			});
-	});
-
-	if (!recordsIds) return [];
-	return recordsIds;
 };
 
 const getRules = async (rulesId) => {
@@ -521,10 +546,10 @@ const util = {
 	genCSV,
 	genSheets,
 	genTour,
+	genAppend,
 	getChannels,
 	findLeagueId,
 	findRulesId,
-	getPlayersIds,
 	getRules,
 	recoilMoves,
 	confusionMoves,

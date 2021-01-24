@@ -21,6 +21,7 @@ module.exports =  {
 		let mode;
 		let discordMode = args[0];
 		let streamChannel = "";
+		let sheetsID = "";
 		switch (discordMode) {
 			case "-c":
 				mode = "Channel";
@@ -28,6 +29,11 @@ module.exports =  {
 				break;
 			case "-dm":
 				mode = "DM";
+				break;
+			case "-sheets":
+				mode = "Sheets";
+				let sheetsLink = args[1];
+				sheetsID = sheetsLink.split("/")[5];
 				break;
 			case "-default":
 				mode = "";
@@ -51,18 +57,19 @@ module.exports =  {
 							streamChannel.length - 1
 						),
 						"Stats System": mode,
+						"Sheet ID": sheetsID,
 					},
 				},
 			]);
 
 			console.log(
 				`${leagueInfo.name}'s mode has been changed to ${
-					mode ? mode : "Default"
+					mode || "Default"
 				} mode!`
 			);
 			return channel.send(
 				`\`${leagueInfo.name}\`'s mode has been changed to ${
-					mode ? mode : "Default"
+					mode || "Default"
 				} mode!`
 			);
 		} else {
@@ -88,6 +95,7 @@ module.exports =  {
 								streamChannel.length - 1
 							),
 							"Stats System": mode,
+							"Sheet ID": sheetsID,
 						},
 					},
 				]);
@@ -95,12 +103,12 @@ module.exports =  {
 
 				console.log(
 					`${leagueName}'s mode has been changed to ${
-						mode ? mode : "Default"
+						mode || "Default"
 					} mode!`
 				);
 				return channel.send(
 					`\`${leagueName}\`'s mode has been changed to ${
-						mode ? mode : "Default"
+						mode || "Default"
 					} mode!`
 				);
 			});
