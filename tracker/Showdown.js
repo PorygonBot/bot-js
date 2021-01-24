@@ -80,7 +80,7 @@ class Showdown {
 			players: {},
 			system: "",
 			info: info,
-			combinePD: this.rules.combinePD
+			combinePD: this.rules.combinePD,
 		};
 		recordJson.players[player1] = {
 			ps: player1,
@@ -2591,10 +2591,15 @@ class Showdown {
 						//Giving mons their proper names
 						//Team 1
 						for (let pokemonName of Object.keys(battle.p1Pokemon)) {
-							const newName = pokemonName.split("-")[0];
+							const newName = battle.p1Pokemon[
+								pokemonName
+							].realName.split("-")[0];
 							if (
 								utils.misnomers.includes(newName) ||
-								utils.misnomers.includes(pokemonName)
+								utils.misnomers.includes(pokemonName) ||
+								utils.misnomers.includes(
+									battle.p1Pokemon[pokemonName].realName
+								)
 							) {
 								battle.p1Pokemon[
 									pokemonName
@@ -2603,10 +2608,15 @@ class Showdown {
 						}
 						//Team 2
 						for (let pokemonName of Object.keys(battle.p2Pokemon)) {
-							const newName = pokemonName.split("-")[0];
+							const newName = battle.p2Pokemon[
+								pokemonName
+							].realName.split("-")[0];
 							if (
 								utils.misnomers.includes(newName) ||
-								utils.misnomers.includes(pokemonName)
+								utils.misnomers.includes(pokemonName) ||
+								utils.misnomers.includes(
+									battle.p2Pokemon[pokemonName].realName
+								)
 							) {
 								battle.p2Pokemon[
 									pokemonName

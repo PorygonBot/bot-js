@@ -2170,20 +2170,22 @@ class ReplayTracker {
 					//Giving mons their proper names
 					//Team 1
 					for (let pokemonName of Object.keys(battle.p1Pokemon)) {
-						const newName = pokemonName.split("-")[0];
+						const newName = battle.p1Pokemon[pokemonName].realName.split("-")[0];
 						if (
 							utils.misnomers.includes(newName) ||
-							utils.misnomers.includes(pokemonName)
+							utils.misnomers.includes(pokemonName) ||
+							utils.misnomers.includes(battle.p1Pokemon[pokemonName].realName)
 						) {
 							battle.p1Pokemon[pokemonName].realName = newName;
 						}
 					}
 					//Team 2
 					for (let pokemonName of Object.keys(battle.p2Pokemon)) {
-						const newName = pokemonName.split("-")[0];
+						const newName = battle.p2Pokemon[pokemonName].realName.split("-")[0];
 						if (
 							utils.misnomers.includes(newName) ||
-							utils.misnomers.includes(pokemonName)
+							utils.misnomers.includes(pokemonName) ||
+							utils.misnomers.includes(battle.p2Pokemon[pokemonName].realName)
 						) {
 							battle.p2Pokemon[pokemonName].realName = newName;
 						}

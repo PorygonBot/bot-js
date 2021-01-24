@@ -463,7 +463,11 @@ const misnomers = [
 	"Oricorio",
 	"Arceus-*",
 	"Keldeo",
-	"Urshifu-*"
+	"Urshifu-*",
+	"Genesect-Burn",
+	"Genesect-Chill",
+	"Genesect-Douse",
+	"Genesect-Shock",
 ];
 
 //Other bot stuff
