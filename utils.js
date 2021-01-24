@@ -190,8 +190,9 @@ const genAppend = (matchJson) => {
 	//To generate the giant list of values
 	let values = [];
 	//Team 1
-	for (let pokemon of Object.keys(killJson1)) {
-		values.push(pokemon, killJson1[pokemon].direct, killJson1[pokemon].passive, deathJson1[pokemon]);
+	for (let i = 0; i < 6; i++) {
+		let pokemon = Object.keys(killJson1)[i] || "";
+		values.push(pokemon, pokemon ? killJson1[pokemon].direct : "", pokemon ? killJson1[pokemon].passive : "", pokemon ? deathJson1[pokemon] : "");
 	}
 	//Team 2
 	for (let i = 0; i < 6; i++) {
@@ -201,11 +202,11 @@ const genAppend = (matchJson) => {
 
 	return {
 		spreadsheetId: matchJson.sheetId,
-		range: `'Raw Stats'!A2:AO2`,
+		range: `'Raw Stats'!A2:BA2`,
 		responseValueRenderOption: "FORMATTED_VALUE",
 		valueInputOption: "USER_ENTERED",
 		resource: {
-			range: ``,
+			range: `'Raw Stats'!A2:BA2`,
 			values: [
 				[
 					player1,

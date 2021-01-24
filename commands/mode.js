@@ -70,7 +70,7 @@ module.exports =  {
 			return channel.send(
 				`\`${leagueInfo.name}\`'s mode has been changed to ${
 					mode || "Default"
-				} mode!`
+				} mode! ${mode === "Sheets" ? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it." : ""}`
 			);
 		} else {
 			// Message Collector for the required info for the client
@@ -109,7 +109,7 @@ module.exports =  {
 				return channel.send(
 					`\`${leagueName}\`'s mode has been changed to ${
 						mode || "Default"
-					} mode!`
+					} mode! ${mode === "Sheets" ? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it." : ""}`
 				);
 			});
 		}

@@ -30,7 +30,7 @@ class SheetsAppendStats {
 		});
 
 		this.channel.send(
-			`Battle between \`${Object.keys(matchJson.players)[0]}\` and \`${Object.keys(matchJson.players)[1]}\` is complete and info has been updated!`
+			`Battle between \`${Object.keys(matchJson.players)[0]}\` and \`${Object.keys(matchJson.players)[1]}\` is complete and info has been updated!\n**Replay:** ${matchJson.info.replay}\n**History:** ${matchJson.info.history}`
 		);
 	}
 }
