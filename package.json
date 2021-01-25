@@ -28,6 +28,7 @@
     "get-urls": "^9.2.1",
     "googleapis": "^67.0.0",
     "json": "^9.0.6",
+    "patreon": "^0.4.1",
     "querystring": "^0.2.0",
     "tinyurl": "^1.1.7",
     "ws": "^7.3.1"
