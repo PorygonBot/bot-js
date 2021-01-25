@@ -315,6 +315,7 @@ class Showdown {
 					//Once the server connects, the bot logs in and joins the battle
 					else if (data.startsWith("|challstr|")) {
 						const nonce = data.substring(10);
+						console.log(`Logging into ${this.battleLink}`);
 						const assertion = await this.login(nonce);
 						//logs in
 						if (assertion) {
