@@ -36,6 +36,15 @@ module.exports = {
 				if (isPatron) {
 					mode = "Sheets";
 					let sheetsLink = args[1];
+					if (
+						!sheetsLink.includes(
+							"https://docs.google.com/spreadsheets/d"
+						)
+					) {
+						return channel.send(
+							":x: This is not a Google Sheets link. Please copy-paste the URL of your Google Sheets file."
+						);
+					}
 					sheetsID = sheetsLink.split("/")[5];
 					break;
 				} else {
