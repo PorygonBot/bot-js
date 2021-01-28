@@ -103,8 +103,6 @@ class Showdown {
 				for (let leagueRecord of records) {
 					let channelId = await leagueRecord.get("Channel ID");
 					if (channelId === this.message.channel.id) {
-						let playersIds = await leagueRecord.get("Players");
-
 						// Getting info from the league
 						recordJson.system = await leagueRecord.get(
 							"Stats System"
@@ -115,58 +113,6 @@ class Showdown {
 							"Stream Channel ID"
 						);
 						recordJson.battleId = this.battleLink;
-
-						// Gets more info from each player if Google Sheets is the system
-						if (playersIds) {
-							let funcArr = [];
-							for (let playerId of playersIds) {
-								funcArr.push(
-									new Promise((resolve, reject) => {
-										base("Players").find(
-											playerId,
-											async (error, record) => {
-												if (error) {
-													console.error(error);
-													reject(error);
-												}
-
-												let recordName = await record.get(
-													"Showdown Name"
-												);
-												recordName.toLowerCase().trim();
-												let recordRange = await record.get(
-													"Range"
-												);
-												console.log(
-													playerId +
-														"    " +
-														recordName +
-														"player"
-												);
-												if (
-													recordName.toLowerCase() ===
-														player1.toLowerCase() ||
-													recordName.toLowerCase() ===
-														player2.toLowerCase()
-												) {
-													recordJson.players[
-														recordName.toLowerCase() ===
-														player1.toLowerCase()
-															? player1
-															: player2
-													].range = recordRange;
-												}
-
-												resolve();
-											}
-										);
-									})
-								);
-							}
-							await Promise.all(funcArr).then(
-								console.log("Players found! Updating now...")
-							);
-						}
 					}
 				}
 			})
@@ -190,13 +136,10 @@ class Showdown {
 						await defaulter.update(recordJson);
 						break;
 				}
-
-				console.log("Updating done!");
 			});
 	}
 
 	async login(nonce) {
-		console.log("LOGGING IN");
 		let psUrl = `https://play.pokemonshowdown.com/~~${this.serverType}/action.php`;
 		let data = querystring.stringify({
 			act: "login",
@@ -209,21 +152,17 @@ class Showdown {
 		let json;
 		try {
 			json = JSON.parse(response.data.substring(1));
-			console.log("Login is a success!");
 		} catch (e) {
-			console.log("Response to login request: " + response);
 			this.message.channel.send(
 				`Error: \`${this.username}\` failed to login to Showdown. Contact Porygon support.`
 			);
 			console.error(e);
 			return;
 		}
-		console.log("Logged in to PS.");
 		return json.assertion;
 	}
 
 	async join() {
-		console.log(this.battleLink);
 		this.websocket.send(`|/join ${this.battleLink}`);
 		if (!this.rules.stopTalking)
 			this.message.channel
@@ -272,7 +211,6 @@ class Showdown {
 
 		let response = await axios.post(url, newData);
 
-		console.log("Replay posted!");
 		let replay = `https://replay.pokemonshowdown.com/${data.id}`;
 
 		return replay;
@@ -315,7 +253,6 @@ class Showdown {
 					//Once the server connects, the bot logs in and joins the battle
 					else if (data.startsWith("|challstr|")) {
 						const nonce = data.substring(10);
-						console.log(`Logging into ${this.battleLink}`);
 						const assertion = await this.login(nonce);
 						//logs in
 						if (assertion) {
@@ -333,7 +270,7 @@ class Showdown {
 					//As such, in order to get and verify the player's names in the database, this is the most effective.
 					else if (line.startsWith(`|title|`)) {
 						let players = parts[1].split(" vs. ");
-						console.log("Players: " + players);
+						console.log(`${this.battleLink}: ${players}`);
 
 						//Initializes the battle as an object
 						battle = new Battle(
@@ -352,7 +289,7 @@ class Showdown {
 							this.rules.timeOfPing !== "Sent"
 						)
 							await this.message.channel.send(this.rules.ping);
-						console.log(battle.turns);
+						console.log(this.battleLink + ": " + battle.turns);
 					}
 
 					//Checks if the battle is a randoms match
@@ -408,7 +345,7 @@ class Showdown {
 							battle.p1a.realName = replacerRealName;
 							battle.p1Pokemon[battle.p1a.realName] = battle.p1a;
 							console.log(
-								`${oldPokemon.name} has been switched into ${battle.p1a.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p1a.name}`
 							);
 						} else if (parts[1].startsWith("p1b")) {
 							//If Player 1's Pokemon get switched out
@@ -432,7 +369,7 @@ class Showdown {
 							battle.p1b.realName = replacerRealName;
 							battle.p1Pokemon[battle.p1b.realName] = battle.p1b;
 							console.log(
-								`${oldPokemon.name} has been switched into ${battle.p1b.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p1b.name}`
 							);
 						} else if (parts[1].startsWith("p2a")) {
 							//If Player 2's Pokemon get switched out
@@ -455,7 +392,7 @@ class Showdown {
 							battle.p2a.realName = replacerRealName;
 							battle.p2Pokemon[battle.p2a.realName] = battle.p2a;
 							console.log(
-								`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p2a.name}`
 							);
 						} else if (parts[1].startsWith("p2b")) {
 							//If Player 1's Pokemon get switched out
@@ -479,7 +416,7 @@ class Showdown {
 							battle.p2b.realName = replacerRealName;
 							battle.p2Pokemon[battle.p2b.realName] = battle.p2b;
 							console.log(
-								`${oldPokemon.name} has been switched into ${battle.p2b.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p2b.name}`
 							);
 						}
 					}
@@ -493,9 +430,11 @@ class Showdown {
 							battle.p1b = temp;
 
 							console.log(
-								`${battle.p1a} has switched with ${
-									battle.p1b
-								} due to ${parts[3].split(": ")[1]}`
+								`${this.battleLink}: ${
+									battle.p1a
+								} has switched with ${battle.p1b} due to ${
+									parts[3].split(": ")[1]
+								}`
 							);
 						} else if (userSide.startsWith("p2")) {
 							let temp = battle.p2a;
@@ -503,9 +442,11 @@ class Showdown {
 							battle.p2b = temp;
 
 							console.log(
-								`${battle.p2a} has switched with ${
-									battle.p2b
-								} due to ${parts[3].split(": ")[1]}`
+								`${this.battleLink}: ${
+									battle.p2a
+								} has switched with ${battle.p2b} due to ${
+									parts[3].split(": ")[1]
+								}`
 							);
 						}
 					}
@@ -527,7 +468,7 @@ class Showdown {
 							battle.p1a.currentPassiveKills += tempCurrentPassiveKills;
 
 							console.log(
-								`${oldPokemon.name} has been replaced by ${battle.p1a.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1a.name}`
 							);
 						} else if (side === "p1b") {
 							let tempCurrentDirectKills =
@@ -542,7 +483,7 @@ class Showdown {
 							battle.p1b.currentPassiveKills += tempCurrentPassiveKills;
 
 							console.log(
-								`${oldPokemon.name} has been replaced by ${battle.p1b.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1b.name}`
 							);
 						} else if (side === "p2a") {
 							let tempCurrentDirectKills =
@@ -557,7 +498,7 @@ class Showdown {
 							battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
 
 							console.log(
-								`${oldPokemon.name} has been replaced by ${battle.p2a.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2a.name}`
 							);
 						} else if (side === "p2b") {
 							let tempCurrentDirectKills =
@@ -572,7 +513,7 @@ class Showdown {
 							battle.p2b.currentPassiveKills += tempCurrentPassiveKills;
 
 							console.log(
-								`${oldPokemon.name} has been replaced by ${battle.p2b.name}`
+								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2b.name}`
 							);
 						}
 						dataArr.splice(dataArr.length - 1, 1);
@@ -657,7 +598,9 @@ class Showdown {
 									inflictor = battle.p2b.name;
 								}
 							}
-							console.log(`${inflictor} caused ${weather}.`);
+							console.log(
+								`${this.battleLink}: ${inflictor} caused ${weather}.`
+							);
 							battle.setWeather(weather, inflictor);
 						}
 
@@ -685,7 +628,6 @@ class Showdown {
 							)
 						) {
 							let victimSide = parts[1].split(": ")[0];
-							console.log(line);
 							let inflictorSide = parts[3]
 								.split(" ")[1]
 								.split(":")[0];
@@ -727,7 +669,7 @@ class Showdown {
 					//Checks for certain specific moves: hazards, statuses, etc.
 					else if (line.startsWith(`|move|`)) {
 						let move = parts[2];
-						console.log(line);
+						console.log(`${this.battleLink}: ${line}`);
 
 						if (
 							move === "Stealth Rock" ||
@@ -1057,7 +999,7 @@ class Showdown {
 							}
 						}
 						console.log(
-							`${inflictor} caused ${parts[2]} on ${victim}.`
+							`${this.battleLink}: ${inflictor} caused ${parts[2]} on ${victim}.`
 						);
 					}
 
@@ -1172,7 +1114,7 @@ class Showdown {
 										battle.p2b.realName || battle.p2b.name;
 								}
 								console.log(
-									`Started ${move} on ${victim} by ${afflictor}`
+									`${this.battleLink}: Started ${move} on ${victim} by ${afflictor}`
 								);
 							}
 						} else if (affliction === `Substitute`) {
@@ -1312,7 +1254,7 @@ class Showdown {
 								}
 							}
 							console.log(
-								`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
+								`${this.battleLink}: ${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
 							);
 							battle.history.push(
 								`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
@@ -2218,7 +2160,7 @@ class Showdown {
 							}
 							if (victim && killer && reason) {
 								console.log(
-									`${victim} was killed by ${killer} due to ${reason}.`
+									`${this.battleLink}: ${victim} was killed by ${killer} due to ${reason}.`
 								);
 								battle.history.push(
 									`${victim} was killed by ${killer} due to ${reason}.`
@@ -2298,7 +2240,7 @@ class Showdown {
 								battle.p1Pokemon[killer].killed(deathJson);
 							}
 							console.log(
-								`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
+								`${this.battleLink}: ${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
 							);
 							battle.history.push(
 								`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
@@ -2399,7 +2341,7 @@ class Showdown {
 							}
 
 							console.log(
-								`${victim} was killed by ${
+								`${this.battleLink}: ${victim} was killed by ${
 									killer || "suicide"
 								} due to ${prevMove} (${
 									this.rules.suicide === "Passive"
@@ -2490,7 +2432,7 @@ class Showdown {
 
 							if (killer && victim) {
 								console.log(
-									`${victim} was killed by ${killer} (Turn ${battle.turns}).`
+									`${this.battleLink}: ${victim} was killed by ${killer} (Turn ${battle.turns}).`
 								);
 								battle.history.push(
 									`${victim} was killed by ${killer} (Turn ${battle.turns}).`
@@ -2625,7 +2567,9 @@ class Showdown {
 							}
 						}
 
-						console.log(`${battle.winner} won!`);
+						console.log(
+							`${this.battleLink}: ${battle.winner} won!`
+						);
 						this.websocket.send(`${this.battleLink}|/uploadreplay`); //Requesting the replay from Showdown
 					}
 
