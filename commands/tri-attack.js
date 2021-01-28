@@ -1,9 +1,10 @@
-module.exports =  {
-    name: "tri-attack",
-    description: "Causes Porygon to use the Tri-Attack move, with a 20% chance each for 3 statuses.",
-    async execute(message, args) {
-        const channel = message.channel;
-        
+module.exports = {
+	name: "tri-attack",
+	description:
+		"Causes Porygon to use the Tri-Attack move, with a 20% chance each for 3 statuses.",
+	async execute(message, args, client) {
+		const channel = message.channel;
+
 		let rand = Math.round(Math.random() * 5);
 		let m = await channel.send("Porygon used Tri-Attack!");
 		switch (rand) {
@@ -20,5 +21,5 @@ module.exports =  {
 					"Porygon used Tri-Attack! No secondary effect on the target."
 				);
 		}
-    }
-}
+	},
+};

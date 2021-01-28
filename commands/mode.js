@@ -1,15 +1,16 @@
-const Airtable = require('airtable');;
-const utils = require('../utils');;
+const Airtable = require("airtable");
+const utils = require("../utils");
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
 
-module.exports =  {
+module.exports = {
 	name: "mode",
-	description: "Set the stats updating mode. Run without any parameters to get more info!",
-	async execute(message, args) {
+	description:
+		"Set the stats updating mode. Run without any parameters to get more info!",
+	async execute(message, args, client) {
 		const channel = message.channel;
 
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
@@ -70,7 +71,11 @@ module.exports =  {
 			return channel.send(
 				`\`${leagueInfo.name}\`'s mode has been changed to ${
 					mode || "Default"
-				} mode! ${mode === "Sheets" ? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it." : ""}`
+				} mode! ${
+					mode === "Sheets"
+						? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it."
+						: ""
+				}`
 			);
 		} else {
 			// Message Collector for the required info for the client
@@ -109,7 +114,11 @@ module.exports =  {
 				return channel.send(
 					`\`${leagueName}\`'s mode has been changed to ${
 						mode || "Default"
-					} mode! ${mode === "Sheets" ? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it." : ""}`
+					} mode! ${
+						mode === "Sheets"
+							? "Please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`; I won't be able to work without it."
+							: ""
+					}`
 				);
 			});
 		}

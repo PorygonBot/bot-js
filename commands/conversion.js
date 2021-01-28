@@ -1,10 +1,11 @@
-module.exports =  {
-    name: "conversion",
-    description: "Causes Porygon to use the Conversion move, with Porygon changing to a random Pokemon type.",
-    async execute(message, args) {
-        const channel = message.channel;
-        
-        let rand = Math.round(Math.random() * (17 - 0 + 1) + 0);
+module.exports = {
+	name: "conversion",
+	description:
+		"Causes Porygon to use the Conversion move, with Porygon changing to a random Pokemon type.",
+	async execute(message, args, client) {
+		const channel = message.channel;
+
+		let rand = Math.round(Math.random() * (17 - 0 + 1) + 0);
 		let type = "";
 		switch (rand) {
 			case 0:
@@ -65,5 +66,5 @@ module.exports =  {
 		return channel.send(
 			`Porygon used Conversion! Porygon's type changed to ${type}!`
 		);
-    }
-}
+	},
+};

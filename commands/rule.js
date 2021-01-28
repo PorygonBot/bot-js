@@ -11,7 +11,7 @@ module.exports = {
 	name: "rule",
 	description:
 		"Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
-	async execute(message, args) {
+	async execute(message, args, client) {
 		const channel = message.channel;
 
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
@@ -236,7 +236,7 @@ module.exports = {
 						],
 						async (err, records) => {
 							if (err) console.error(err);
-							const leagueName = await records[0].get("Name")
+							const leagueName = await records[0].get("Name");
 							fields["League"] = [records[0].getId()];
 
 							collector.stop();

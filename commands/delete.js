@@ -1,18 +1,18 @@
-const Airtable = require('airtable');;
-const utils = require('../utils');;
+const Airtable = require("airtable");
+const utils = require("../utils");
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
 
-module.exports =  {
-    name: "delete",
-    description: "Deletes the league's record from the Porygon database",
-    async execute(message, args) {
-        const channel = message.channel;
+module.exports = {
+	name: "delete",
+	description: "Deletes the league's record from the Porygon database",
+	async execute(message, args, client) {
+		const channel = message.channel;
 		const channels = await utils.getChannels();
-        if (!channels.includes(channel.id)) {
+		if (!channels.includes(channel.id)) {
 			return channel.send(":x: This is not a valid live-links channel.");
 		}
 
@@ -55,5 +55,5 @@ module.exports =  {
 				);
 			}
 		});
-    }
-}
+	},
+};

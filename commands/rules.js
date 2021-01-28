@@ -1,13 +1,13 @@
-const Discord = require('discord.js');
-const utils = require('../utils');;
+const Discord = require("discord.js");
+const utils = require("../utils");
 
-module.exports =  {
-    name: "rules",
-    description: "Gets a list of the custom kill rules that a league has set.",
-    async execute(message, args) {
+module.exports = {
+	name: "rules",
+	description: "Gets a list of the custom kill rules that a league has set.",
+	async execute(message, args, client) {
 		const channel = message.channel;
-        
-        //Getting the rules
+
+		//Getting the rules
 		let rulesId = await utils.findRulesId(channel.id);
 		let rules = await utils.getRules(rulesId);
 		//Getting the league's info
@@ -24,10 +24,10 @@ module.exports =  {
 		for (let rule of Object.keys(rules)) {
 			rulesEmbed.addField(
 				rule,
-				rules[rule] === "" ? "None" : (rules[rule] || false)
+				rules[rule] === "" ? "None" : rules[rule] || false
 			);
 		}
 
 		return channel.send(rulesEmbed);
-    }
-}
+	},
+};
