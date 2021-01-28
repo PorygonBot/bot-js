@@ -32,10 +32,17 @@ module.exports = {
 				mode = "DM";
 				break;
 			case "-sheets":
-				mode = "Sheets";
-				let sheetsLink = args[1];
-				sheetsID = sheetsLink.split("/")[5];
-				break;
+				const isPatron = await utils.isPatron(client, channel.guild.id);
+				if (isPatron) {
+					mode = "Sheets";
+					let sheetsLink = args[1];
+					sheetsID = sheetsLink.split("/")[5];
+					break;
+				} else {
+					return channel.send(
+						":x: I'm afraid this is a Patreon-exclusive command. Please become a Patron of Porygon and verify yourself with Porygon in order to gain access to this feature."
+					);
+				}
 			case "-default":
 				mode = "";
 				break;
