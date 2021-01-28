@@ -149,7 +149,7 @@ class ReplayTracker {
 						battle.p1a.realName = replacerRealName;
 						battle.p1Pokemon[battle.p1a.realName] = battle.p1a;
 						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p1a.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p1a.name}`
 						);
 					} else if (parts[1].startsWith("p1b")) {
 						//If Player 1's Pokemon get switched out
@@ -173,7 +173,7 @@ class ReplayTracker {
 						battle.p1b.realName = replacerRealName;
 						battle.p1Pokemon[battle.p1b.realName] = battle.p1b;
 						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p1b.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p1b.name}`
 						);
 					} else if (parts[1].startsWith("p2a")) {
 						//If Player 2's Pokemon get switched out
@@ -196,7 +196,7 @@ class ReplayTracker {
 						battle.p2a.realName = replacerRealName;
 						battle.p2Pokemon[battle.p2a.realName] = battle.p2a;
 						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p2a.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p2a.name}`
 						);
 					} else if (parts[1].startsWith("p2b")) {
 						//If Player 1's Pokemon get switched out
@@ -220,7 +220,7 @@ class ReplayTracker {
 						battle.p2b.realName = replacerRealName;
 						battle.p2Pokemon[battle.p2b.realName] = battle.p2b;
 						console.log(
-							`${oldPokemon.name} has been switched into ${battle.p2b.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been switched into ${battle.p2b.name}`
 						);
 					}
 				}
@@ -234,9 +234,11 @@ class ReplayTracker {
 						battle.p1b = temp;
 
 						console.log(
-							`${battle.p1a} has switched with ${
-								battle.p1b
-							} due to ${parts[3].split(": ")[1]}`
+							`${this.battleLink}: ${
+								battle.p1a
+							} has switched with ${battle.p1b} due to ${
+								parts[3].split(": ")[1]
+							}`
 						);
 					} else if (userSide.startsWith("p2")) {
 						let temp = battle.p2a;
@@ -244,9 +246,11 @@ class ReplayTracker {
 						battle.p2b = temp;
 
 						console.log(
-							`${battle.p2a} has switched with ${
-								battle.p2b
-							} due to ${parts[3].split(": ")[1]}`
+							`${this.battleLink}: ${
+								battle.p2a
+							} has switched with ${battle.p2b} due to ${
+								parts[3].split(": ")[1]
+							}`
 						);
 					}
 				}
@@ -268,7 +272,7 @@ class ReplayTracker {
 						battle.p1a.currentPassiveKills += tempCurrentPassiveKills;
 
 						console.log(
-							`${oldPokemon.name} has been replaced by ${battle.p1a.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1a.name}`
 						);
 					} else if (side === "p1b") {
 						let tempCurrentDirectKills =
@@ -283,7 +287,7 @@ class ReplayTracker {
 						battle.p1b.currentPassiveKills += tempCurrentPassiveKills;
 
 						console.log(
-							`${oldPokemon.name} has been replaced by ${battle.p1b.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1b.name}`
 						);
 					} else if (side === "p2a") {
 						let tempCurrentDirectKills =
@@ -298,7 +302,7 @@ class ReplayTracker {
 						battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
 
 						console.log(
-							`${oldPokemon.name} has been replaced by ${battle.p2a.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2a.name}`
 						);
 					} else if (side === "p2b") {
 						let tempCurrentDirectKills =
@@ -313,7 +317,7 @@ class ReplayTracker {
 						battle.p2b.currentPassiveKills += tempCurrentPassiveKills;
 
 						console.log(
-							`${oldPokemon.name} has been replaced by ${battle.p2b.name}`
+							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2b.name}`
 						);
 					}
 					dataArr.splice(dataArr.length - 1, 1);
@@ -393,7 +397,9 @@ class ReplayTracker {
 								inflictor = battle.p2b.name;
 							}
 						}
-						console.log(`${inflictor} caused ${weather}.`);
+						console.log(
+							`${this.battleLink}: ${inflictor} caused ${weather}.`
+						);
 						battle.setWeather(weather, inflictor);
 					}
 
@@ -421,7 +427,6 @@ class ReplayTracker {
 						)
 					) {
 						let victimSide = parts[1].split(": ")[0];
-						console.log(line);
 						let inflictorSide = parts[3]
 							.split(" ")[1]
 							.split(":")[0];
@@ -463,7 +468,7 @@ class ReplayTracker {
 				//Checks for certain specific moves: hazards, statuses, etc.
 				else if (line.startsWith(`|move|`)) {
 					let move = parts[2];
-					console.log(line);
+					console.log(`${this.battleLink}: ${line}`);
 
 					if (
 						move === "Stealth Rock" ||
@@ -771,7 +776,7 @@ class ReplayTracker {
 						}
 					}
 					console.log(
-						`${inflictor} caused ${parts[2]} on ${victim}.`
+						`${this.battleLink}: ${inflictor} caused ${parts[2]} on ${victim}.`
 					);
 				}
 
@@ -865,7 +870,7 @@ class ReplayTracker {
 								victim = battle.p2b.realName || battle.p2b.name;
 							}
 							console.log(
-								`Started ${move} on ${victim} by ${afflictor}`
+								`${this.battleLink}: Started ${move} on ${victim} by ${afflictor}`
 							);
 						}
 					} else if (affliction === `Substitute`) {
@@ -985,7 +990,7 @@ class ReplayTracker {
 							}
 						}
 						console.log(
-							`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
+							`${this.battleLink}: ${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
 						);
 						battle.history.push(
 							`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
@@ -1238,8 +1243,6 @@ class ReplayTracker {
 							else if (move === "brn" || move === "psn") {
 								if (victimSide === "p1a") {
 									killer = battle.p1a.statusInflictor;
-									console.log(battle.p1a.status);
-									console.log(killer);
 									if (
 										Object.keys(battle.p1Pokemon).includes(
 											killer
@@ -1818,7 +1821,7 @@ class ReplayTracker {
 						}
 						if (victim && killer && reason) {
 							console.log(
-								`${victim} was killed by ${killer} due to ${reason}.`
+								`${this.battleLink}: ${victim} was killed by ${killer} due to ${reason}.`
 							);
 							battle.history.push(
 								`${victim} was killed by ${killer} due to ${reason}.`
@@ -1898,7 +1901,7 @@ class ReplayTracker {
 							battle.p1Pokemon[killer].killed(deathJson);
 						}
 						console.log(
-							`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
+							`${this.battleLink}: ${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
 						);
 						battle.history.push(
 							`${victim} was killed by ${killer} due to Destiny Bond (Turn ${battle.turns}).`
@@ -1990,7 +1993,7 @@ class ReplayTracker {
 						}
 
 						console.log(
-							`${victim} was killed by ${
+							`${this.battleLink}: ${victim} was killed by ${
 								killer || "suicide"
 							} due to ${prevMove} (${
 								this.rules.suicide === "Passive"
@@ -2072,7 +2075,7 @@ class ReplayTracker {
 
 						if (killer && victim) {
 							console.log(
-								`${victim} was killed by ${killer} (Turn ${battle.turns}).`
+								`${this.battleLink}: ${victim} was killed by ${killer} (Turn ${battle.turns}).`
 							);
 							battle.history.push(
 								`${victim} was killed by ${killer} (Turn ${battle.turns}).`
@@ -2170,22 +2173,30 @@ class ReplayTracker {
 					//Giving mons their proper names
 					//Team 1
 					for (let pokemonName of Object.keys(battle.p1Pokemon)) {
-						const newName = battle.p1Pokemon[pokemonName].realName.split("-")[0];
+						const newName = battle.p1Pokemon[
+							pokemonName
+						].realName.split("-")[0];
 						if (
 							utils.misnomers.includes(newName) ||
 							utils.misnomers.includes(pokemonName) ||
-							utils.misnomers.includes(battle.p1Pokemon[pokemonName].realName)
+							utils.misnomers.includes(
+								battle.p1Pokemon[pokemonName].realName
+							)
 						) {
 							battle.p1Pokemon[pokemonName].realName = newName;
 						}
 					}
 					//Team 2
 					for (let pokemonName of Object.keys(battle.p2Pokemon)) {
-						const newName = battle.p2Pokemon[pokemonName].realName.split("-")[0];
+						const newName = battle.p2Pokemon[
+							pokemonName
+						].realName.split("-")[0];
 						if (
 							utils.misnomers.includes(newName) ||
 							utils.misnomers.includes(pokemonName) ||
-							utils.misnomers.includes(battle.p2Pokemon[pokemonName].realName)
+							utils.misnomers.includes(
+								battle.p2Pokemon[pokemonName].realName
+							)
 						) {
 							battle.p2Pokemon[pokemonName].realName = newName;
 						}
