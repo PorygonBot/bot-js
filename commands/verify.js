@@ -24,7 +24,7 @@ module.exports = {
 		});
 
 		await channel.send(
-			`Please click on this link to verify that you are a Patreon supporter within the next 60 seconds.\nhttps://www.patreon.com/oauth2/authorize?${oauthData}`
+			`Please click on this link to verify that you are a Patreon supporter within the next 40 seconds.\nhttps://www.patreon.com/oauth2/authorize?${oauthData}`
 		);
 
 		setTimeout(async () => {
@@ -46,7 +46,11 @@ module.exports = {
 						},
 					},
 				]);
+
+				await channel.send(
+					"Verified! You are now able to use Patreon-exclusive features!"
+				);
 			}
-		}, 30000);
+		}, 40000);
 	},
 };

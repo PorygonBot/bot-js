@@ -192,12 +192,22 @@ const genAppend = (matchJson) => {
 	//Team 1
 	for (let i = 0; i < 6; i++) {
 		let pokemon = Object.keys(killJson1)[i] || "";
-		values.push(pokemon, pokemon ? killJson1[pokemon].direct : "", pokemon ? killJson1[pokemon].passive : "", pokemon ? deathJson1[pokemon] : "");
+		values.push(
+			pokemon,
+			pokemon ? killJson1[pokemon].direct : "",
+			pokemon ? killJson1[pokemon].passive : "",
+			pokemon ? deathJson1[pokemon] : ""
+		);
 	}
 	//Team 2
 	for (let i = 0; i < 6; i++) {
 		let pokemon = Object.keys(killJson2)[i] || "";
-		values.push(pokemon, pokemon ? killJson2[pokemon].direct : "", pokemon ? killJson2[pokemon].passive : "", pokemon ? deathJson2[pokemon] : "");
+		values.push(
+			pokemon,
+			pokemon ? killJson2[pokemon].direct : "",
+			pokemon ? killJson2[pokemon].passive : "",
+			pokemon ? deathJson2[pokemon] : ""
+		);
 	}
 
 	return {
@@ -365,6 +375,31 @@ const getRules = async (rulesId) => {
 		tb: true,
 		combinePD: false,
 	};
+};
+
+const isPatron = async (client, guildID) => {
+	const guild = await client.guilds.fetch(guildID);
+	const ownerID = guild.ownerID;
+
+	let isTrue = false;
+	await base("Patreon")
+		.select({ maxRecords: 1000, view: "Grid view" })
+		.all()
+		.then(async (records) => {
+			for (let record of records) {
+				const id = await record.get("Discord User ID");
+
+				if (id === ownerID) {
+					isTrue = true;
+					break;
+				}
+			}
+		})
+		.catch((e) => {
+			console.error(e);
+		});
+
+	return isTrue;
 };
 
 //Pokemon-related Constants
@@ -552,6 +587,7 @@ const util = {
 	findLeagueId,
 	findRulesId,
 	getRules,
+	isPatron,
 	recoilMoves,
 	confusionMoves,
 	toxicMoves,
