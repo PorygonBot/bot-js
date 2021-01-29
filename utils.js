@@ -177,6 +177,60 @@ const genSheets = (matchJson) => {
 	return [message1, message2];
 };
 
+const genAppend = (matchJson) => {
+	//retrieving info from the json object
+	let info = matchJson.info;
+	let player1 = Object.keys(matchJson.players)[0];
+	let player2 = Object.keys(matchJson.players)[1];
+	let killJson1 = matchJson.players[player1].kills;
+	let deathJson1 = matchJson.players[player1].deaths;
+	let killJson2 = matchJson.players[player2].kills;
+	let deathJson2 = matchJson.players[player2].deaths;
+
+	//To generate the giant list of values
+	let values = [];
+	//Team 1
+	for (let i = 0; i < 6; i++) {
+		let pokemon = Object.keys(killJson1)[i] || "";
+		values.push(
+			pokemon,
+			pokemon ? killJson1[pokemon].direct : "",
+			pokemon ? killJson1[pokemon].passive : "",
+			pokemon ? deathJson1[pokemon] : ""
+		);
+	}
+	//Team 2
+	for (let i = 0; i < 6; i++) {
+		let pokemon = Object.keys(killJson2)[i] || "";
+		values.push(
+			pokemon,
+			pokemon ? killJson2[pokemon].direct : "",
+			pokemon ? killJson2[pokemon].passive : "",
+			pokemon ? deathJson2[pokemon] : ""
+		);
+	}
+
+	return {
+		spreadsheetId: matchJson.sheetId,
+		range: `'Raw Stats'!A2:BA2`,
+		responseValueRenderOption: "FORMATTED_VALUE",
+		valueInputOption: "USER_ENTERED",
+		resource: {
+			range: `'Raw Stats'!A2:BA2`,
+			values: [
+				[
+					player1,
+					player2,
+					info.winner,
+					...values,
+					info.replay,
+					info.turns,
+				],
+			],
+		},
+	};
+};
+
 const getChannels = async () => {
 	let channels = [];
 	await base("Leagues")
@@ -222,7 +276,7 @@ const findLeagueId = async (checkChannelId) => {
 
 	let leagueJson = {
 		id: leagueId,
-		name: leagueName
+		name: leagueName,
 	};
 	return leagueJson;
 };
@@ -249,24 +303,6 @@ const findRulesId = async (checkChannelId) => {
 		});
 
 	return recordId;
-};
-
-const getPlayersIds = async (leagueId) => {
-	let recordsIds = await new Promise((resolve, reject) => {
-		base("Leagues")
-			.find(leagueId, (err, record) => {
-				if (err) reject(err);
-
-				recordIds = record.get("Players");
-				resolve(recordIds);
-			})
-			.catch((e) => {
-				console.error(e);
-			});
-	});
-
-	if (!recordsIds) return [];
-	return recordsIds;
 };
 
 const getRules = async (rulesId) => {
@@ -339,6 +375,31 @@ const getRules = async (rulesId) => {
 		tb: true,
 		combinePD: false,
 	};
+};
+
+const isPatron = async (client, guildID) => {
+	const guild = await client.guilds.fetch(guildID);
+	const ownerID = guild.ownerID;
+
+	let isTrue = false;
+	await base("Patreon")
+		.select({ maxRecords: 1000, view: "Grid view" })
+		.all()
+		.then(async (records) => {
+			for (let record of records) {
+				const id = await record.get("Discord User ID");
+
+				if (id === ownerID) {
+					isTrue = true;
+					break;
+				}
+			}
+		})
+		.catch((e) => {
+			console.error(e);
+		});
+
+	return isTrue;
 };
 
 //Pokemon-related Constants
@@ -521,11 +582,12 @@ const util = {
 	genCSV,
 	genSheets,
 	genTour,
+	genAppend,
 	getChannels,
 	findLeagueId,
 	findRulesId,
-	getPlayersIds,
 	getRules,
+	isPatron,
 	recoilMoves,
 	confusionMoves,
 	toxicMoves,

@@ -12,6 +12,7 @@ const utils = require("../utils.js");
 const DiscordDMStats = require("../updaters/DiscordDMStats");
 const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
+const SheetsAppendStats = require("../updaters/SheetsAppendStats");
 //Getting config vars frome env
 const username = process.env.USERNAME;
 const password = process.env.PASSWORD;
@@ -123,6 +124,7 @@ class Showdown {
 				let dmer = new DiscordDMStats(this.message);
 				let channeler = new DiscordChannelStats(this.message);
 				let defaulter = new DiscordDefaultStats(this.message);
+				let sheetser = new SheetsAppendStats(this.message);
 
 				//Updating stats based on given method
 				switch (recordJson.system) {
@@ -131,6 +133,9 @@ class Showdown {
 						break;
 					case "Channel":
 						await channeler.update(recordJson);
+						break;
+					case "Sheets":
+						await sheetser.update(recordJson);
 						break;
 					default:
 						await defaulter.update(recordJson);

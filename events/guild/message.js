@@ -35,13 +35,9 @@ module.exports = async (client, message) => {
 				psServer = "Showdown";
 			} else if (battlelink.includes("dawn.psim.us")) {
 				psServer = "Dawn";
-			} 
-			
-			else if (battlelink.includes("drafthub.psim.us")) {
-				psServer = "Drafthub"
-			}
-			
-			else {
+			} else if (battlelink.includes("drafthub.psim.us")) {
+				psServer = "Drafthub";
+			} else {
 				channel.send(
 					"This link is not a valid Pokemon Showdown battle url."
 				);
@@ -53,7 +49,9 @@ module.exports = async (client, message) => {
 			let rules = await utils.getRules(rulesId);
 
 			if (!rules.stopTalking)
-				await channel.send("Joining the battle...").catch(e => console.error(e));
+				await channel
+					.send("Joining the battle...")
+					.catch((e) => console.error(e));
 			//Instantiating the Showdown client
 			const psclient = new Showdown(battlelink, psServer, message, rules);
 			//Tracking the battle
@@ -79,7 +77,7 @@ module.exports = async (client, message) => {
 		if (!command) return;
 
 		try {
-			await command.execute(message, args);
+			await command.execute(message, args, client);
 		} catch (error) {
 			console.error(error);
 			message.reply("There was an error trying to execute that command!");

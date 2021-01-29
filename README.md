@@ -1,5 +1,5 @@
 # Porygon
-![](PorygonLogo.png)
+![](https://images.discordapp.net/avatars/692091256477581423/634148e2b64c4cd5e555d9677188e1e2.png?size=512)
 
 A Discord bot that keeps track of deaths and kills as they happen live in a Pokemon Showdown battle.
 
