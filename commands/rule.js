@@ -23,14 +23,79 @@ module.exports = {
 		let rulesId = await utils.findRulesId(channel.id);
 		let leagueJson = await utils.findLeagueId(channel.id);
 
+		const ruleEmbed = new Discord.MessageEmbed()
+			.setTitle("Rule Command Help")
+			.setDescription(
+				"This command is used to set custom kill rules for how each kill is attributed. You can add multiple rules in the same message. The command is as follows:\nporygon, use rule [rule extension] [option]\n\nThese are the rule extensions: "
+			)
+			.setColor(0xffc0cb)
+			.addField(
+				"-recoil",
+				"sets the kill rule of a recoil death.\nOptions: none (no kill), passive (passive kill), direct (direct kill)."
+			)
+			.addField(
+				"-suicide",
+				"sets the kill rule of a suicide death.\nOptions: none, passive, direct."
+			)
+			.addField(
+				"-ability or -item",
+				"sets the kill rule of a kill caused by an ability or item.\nOptions: none, passive, direct."
+			)
+			.addField(
+				"-self or -team",
+				"sets the kill rule of a kill caused by itself or a teammate.\nOptions: none, passive, direct."
+			)
+			.addField(
+				"-db",
+				"sets the kill rule of a Destiny Bond death.\nOptions: none, passive, direct."
+			)
+			.addField(
+				"-spoiler",
+				"changes if stats are spoiler tagged.\nOptions: true, false."
+			)
+			.addField(
+				"-forfeit",
+				"sets the type of kills attributed after a forfeit.\nOptions: none, passive, direct."
+			)
+			.addField(
+				"-ping",
+				"sets a rule so that the client @'s this ping when it starts tracking a match.\nOptions: none, @ping."
+			)
+			.addField(
+				"-format",
+				"changes the way stats are formatted when outputted.\nOptions: csv (comma-separated), sheets (space-separated), tour, default."
+			)
+			.addField(
+				"-quirks",
+				"sets whether you want quirky messages sent by the bot or not.\nOptions: true, false."
+			)
+			.addField(
+				"-pingtime",
+				"sets when you want the bot to ping, if at all.\nOptions: sent (immediately after the link is sent), first (immediately as the first turn starts)."
+			)
+			.addField(
+				"-notalk",
+				"sets whether you want the bot to not talk while analyzing a live battle.\nOptions: true, false."
+			)
+			.addField(
+				"-tb",
+				"sets whether you want extra tidbits in the stats message (replay, history link, etc.).\nOptions: true, false."
+			)
+			.addField(
+				"-combine",
+				"sets whether you want passive and direct kills combined or separated.\nOptions: true, false"
+			);
+
 		//Gets the rule args and params from the command
 		const ruleArgs = args.filter((arg) => arg.includes("-"));
+		if (!ruleArgs.length) {
+			return channel.send(ruleEmbed);
+		}
 		let currentRules = {};
 		for (let ruleArg of ruleArgs) {
 			currentRules[ruleArg] = args[args.indexOf(ruleArg) + 1];
 		}
 
-		//let rule = args[0];
 		let categoryRules = {};
 		for (let rule of Object.keys(currentRules)) {
 			let result = currentRules[rule];
@@ -83,69 +148,6 @@ module.exports = {
 					category = "Combine P/D?";
 					break;
 				default:
-					const ruleEmbed = new Discord.MessageEmbed()
-						.setTitle("Rule Command Help")
-						.setDescription(
-							"This command is used to set custom kill rules for how each kill is attributed. You can add multiple rules in the same message. The command is as follows:\nporygon, use rule [rule extension] [option]\n\nThese are the rule extensions: "
-						)
-						.setColor(0xffc0cb)
-						.addField(
-							"-recoil",
-							"sets the kill rule of a recoil death.\nOptions: none (no kill), passive (passive kill), direct (direct kill)."
-						)
-						.addField(
-							"-suicide",
-							"sets the kill rule of a suicide death.\nOptions: none, passive, direct."
-						)
-						.addField(
-							"-ability or -item",
-							"sets the kill rule of a kill caused by an ability or item.\nOptions: none, passive, direct."
-						)
-						.addField(
-							"-self or -team",
-							"sets the kill rule of a kill caused by itself or a teammate.\nOptions: none, passive, direct."
-						)
-						.addField(
-							"-db",
-							"sets the kill rule of a Destiny Bond death.\nOptions: none, passive, direct."
-						)
-						.addField(
-							"-spoiler",
-							"changes if stats are spoiler tagged.\nOptions: true, false."
-						)
-						.addField(
-							"-forfeit",
-							"sets the type of kills attributed after a forfeit.\nOptions: none, passive, direct."
-						)
-						.addField(
-							"-ping",
-							"sets a rule so that the client @'s this ping when it starts tracking a match.\nOptions: none, @ping."
-						)
-						.addField(
-							"-format",
-							"changes the way stats are formatted when outputted.\nOptions: csv (comma-separated), sheets (space-separated), tour, default."
-						)
-						.addField(
-							"-quirks",
-							"sets whether you want quirky messages sent by the bot or not.\nOptions: true, false."
-						)
-						.addField(
-							"-pingtime",
-							"sets when you want the bot to ping, if at all.\nOptions: sent (immediately after the link is sent), first (immediately as the first turn starts)."
-						)
-						.addField(
-							"-notalk",
-							"sets whether you want the bot to not talk while analyzing a live battle.\nOptions: true, false."
-						)
-						.addField(
-							"-tb",
-							"sets whether you want extra tidbits in the stats message (replay, history link, etc.).\nOptions: true, false."
-						)
-						.addField(
-							"-combine",
-							"sets whether you want passive and direct kills combined or separated.\nOptions: true, false"
-						);
-
 					return channel.send(ruleEmbed);
 			}
 
