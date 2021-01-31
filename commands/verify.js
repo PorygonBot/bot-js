@@ -30,7 +30,7 @@ module.exports = {
 		setTimeout(async () => {
 			const patreonUserResponse = await axios.get(
 				"https://jsonbase.com/PorygonBot/patreon-user"
-			);
+			).catch((e) => {console.error(e);});
 			const patreonUser = patreonUserResponse.data[message.author.id];
 			if (patreonUserResponse.status !== 200) {
 				return channel.send(
@@ -45,7 +45,7 @@ module.exports = {
 							"Patreon Username": patreonUser.links.self,
 						},
 					},
-				]);
+				]).catch((e) => {console.error(e);});
 
 				await channel.send(
 					"Verified! You are now able to use Patreon-exclusive features!"
