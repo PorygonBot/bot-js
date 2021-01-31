@@ -42,7 +42,7 @@ module.exports = {
 					{
 						fields: {
 							"Discord User ID": message.author.id,
-							"Patreon Username": patreonUser.links.self,
+							"Patreon Link": patreonUser.links.self,
 						},
 					},
 				]).catch((e) => {console.error(e);});
