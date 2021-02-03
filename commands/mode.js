@@ -1,4 +1,5 @@
 const Airtable = require("airtable");
+const querystring = require("querystring");
 const utils = require("../utils");
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
@@ -23,10 +24,11 @@ module.exports = {
 		let discordMode = args[0];
 		let streamChannel = "";
 		let sheetsID = "";
+		let dlID = "";
 		switch (discordMode) {
 			case "-c":
 				mode = "Channel";
-				streamChannel = args[1];
+				streamChannel = args[1].substring(2, streamChannel.length - 1);
 				break;
 			case "-dm":
 				mode = "DM";
@@ -52,6 +54,10 @@ module.exports = {
 						":x: I'm afraid this is a Patreon-exclusive command. Please become a Patron of Porygon and verify yourself with Porygon in order to gain access to this feature."
 					);
 				}
+			case "-dl":
+				mode = "DL";
+				dlID = querystring.parse(args[1].split("?")[1]).league;
+				break;
 			case "-default":
 				mode = "";
 				break;
@@ -69,10 +75,8 @@ module.exports = {
 					fields: {
 						"Guild ID": channel.guild.id,
 						"Channel ID": channel.id,
-						"Stream Channel ID": streamChannel.substring(
-							2,
-							streamChannel.length - 1
-						),
+						"Stream Channel ID": streamChannel,
+						"DL ID": dlID,
 						"Stats System": mode,
 						"Sheet ID": sheetsID,
 					},

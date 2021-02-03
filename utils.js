@@ -519,7 +519,24 @@ const misnomers = [
 	"Florges",
 	"Toxtricity",
 	"Vivillon",
-	"Silvally-*",
+	"Silvally-Bug",
+	"Silvally-Dark",
+	"Silvally-Dragon",
+	"Silvally-Electric",
+	"Silvally-Fairy",
+	"Silvally-Fighting",
+	"Silvally-Fire",
+	"Silvally-Flying",
+	"Silvally-Ghost",
+	"Silvally-Grass",
+	"Silvally-Ground",
+	"Silvally-Ice",
+	"Silvally-Normal",
+	"Silvally-Poison",
+	"Silvally-Psychic",
+	"Silvally-Rock",
+	"Silvally-Steel",
+	"Silvally-Water",
 	"Gourgeist",
 	"Oricorio",
 	"Arceus-*",
@@ -575,6 +592,15 @@ const randomElement = (list) => {
 	return list[Math.round(Math.random() * (list.length - 1))];
 };
 
+// Iterate through each element in the
+// first array and if some of them
+// include the elements in the second
+// array then return true.
+function findCommonElements(arr1, arr2) {
+	console.log("Arr1: " + arr1 + "\nArr2: " + arr2);
+	return arr1.some((item) => arr2.includes(item));
+}
+
 const util = {
 	getUser,
 	getChannel,
@@ -597,5 +623,6 @@ const util = {
 	misnomers,
 	quirkyMessages,
 	randomElement,
+	findCommonElements,
 };
 module.exports = util;
