@@ -564,6 +564,24 @@ class Showdown {
 						dataArr.splice(dataArr.length - 1, 1);
 					}
 
+					//When a Pokemon Gigantamaxes, I change its "realname"
+					else if (line.startsWith(`|-formechange|`)) {
+						if (parts[2].includes("-Gmax")) {
+							let side = parts[1].split(": ")[0];
+							let realName = parts[2].split(",")[0];
+							if (side === "p1a") {
+								battle.p1a.realName = realName;
+							} else if (side === "p1b") {
+								battle.p1b.realName = realName;
+							} else if (side === "p2a") {
+								battle.p2a.realName = realName;
+							} else if (side === "p2b") {
+								battle.p2b.realName = realName;
+							}
+						}
+						dataArr.splice(dataArr.length - 1, 1);
+					}
+
 					//If a weather condition is set
 					else if (line.startsWith(`|-weather|`)) {
 						if (
