@@ -2354,19 +2354,11 @@ class ReplayTracker {
 					) {
 						info.result = `${battle.p1} won ${
 							Object.keys(battle.p1Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
+								(pokemonKey) => !pokemonKey.includes("-")
 							).length -
 							Object.keys(battle.p1Pokemon)
 								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								)
 								.filter(
 									(pokemonKey) =>
@@ -2374,19 +2366,11 @@ class ReplayTracker {
 								).length
 						}-${
 							Object.keys(battle.p2Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
+								(pokemonKey) => !pokemonKey.includes("-")
 							).length -
 							Object.keys(battle.p2Pokemon)
 								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								)
 								.filter(
 									(pokemonKey) =>

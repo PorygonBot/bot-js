@@ -2687,19 +2687,12 @@ class Showdown {
 						) {
 							info.result = `${battle.p1} won ${
 								Object.keys(battle.p1Pokemon).filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								).length -
 								Object.keys(battle.p1Pokemon)
 									.filter(
 										(pokemonKey) =>
-											!(
-												pokemonKey.includes("-") ||
-												pokemonKey.includes(":")
-											)
+											!pokemonKey.includes("-")
 									)
 									.filter(
 										(pokemonKey) =>
@@ -2707,19 +2700,12 @@ class Showdown {
 									).length
 							}-${
 								Object.keys(battle.p2Pokemon).filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								).length -
 								Object.keys(battle.p2Pokemon)
 									.filter(
 										(pokemonKey) =>
-											!(
-												pokemonKey.includes("-") ||
-												pokemonKey.includes(":")
-											)
+											!pokemonKey.includes("-")
 									)
 									.filter(
 										(pokemonKey) =>
