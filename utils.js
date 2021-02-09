@@ -347,7 +347,7 @@ const getRules = async (rulesId) => {
 				rules.timeOfPing = timeOfPing || "First";
 
 				let stopTalking = await record.get("Stop Talking?");
-				rules.stopTalking = stopTalking || false;
+				rules.stopTalking = stopTalking;
 
 				let tb = await record.get("Tidbits?");
 				rules.tb = tb;
