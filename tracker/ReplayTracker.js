@@ -1775,13 +1775,14 @@ class ReplayTracker {
 									": "
 								)[0];
 								if (
-									(victimSide === "p1a" ||
+									(victimSide === "p1a" &&
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread] p1"
 											))) &&
 									!battle.p1a.isDead
 								) {
+									console.log("HEYYYYYYYYYYYYYYYYYYYY");
 									if (prevMoveUserSide === "p2a") {
 										let deathJson = battle.p1a.died(
 											"direct",
@@ -1814,7 +1815,7 @@ class ReplayTracker {
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 								} else if (
-									(victimSide === "p1b" ||
+									(victimSide === "p1b" &&
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread]"
@@ -1856,7 +1857,7 @@ class ReplayTracker {
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 								} else if (
-									(victimSide === "p2a" ||
+									(victimSide === "p2a" &&
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread] p2"
@@ -1898,7 +1899,7 @@ class ReplayTracker {
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 								} else if (
-									(victimSide === "p2b" ||
+									(victimSide === "p2b" &&
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread] p2"
