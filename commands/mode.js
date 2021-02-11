@@ -64,7 +64,7 @@ module.exports = {
 			default:
 				return channel.send(
 					"Need help? Here we go!\n```This command is used to either set up a new league or change the updating method of an existing league. To use the command, type this:\nporygon, use mode [either -c, -dm, or -default] [optional extension] \n\n-c: match-results channel mode. This is where the client will send your stats to a separate match-results channel. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode. This mode will DM the author of the original message that sent the live link with the stats.\n-default: default mode. This will just send the stats in the same channel that the link was sent. \n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.```"
-				); //TODO add sheets part, and make this an embed.
+				); //TODO add sheets and draft league part, and make this an embed.
 		}
 
 		let leagueInfo = await utils.findLeagueId(channel.id);

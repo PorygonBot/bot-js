@@ -23,7 +23,8 @@ module.exports = async (client, message) => {
 		if (
 			battlelink &&
 			!battlelink.includes("google") &&
-			!battlelink.includes("replay")
+			!battlelink.includes("replay") &&
+			!battlelink.includes("draft-league.nl")
 		) {
 			let psServer = "";
 			//Checking what server the battlelink is from
