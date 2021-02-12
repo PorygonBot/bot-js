@@ -541,6 +541,7 @@ class Showdown {
 						line.startsWith("|-hint|") ||
 						line.startsWith("|-hitcount|") ||
 						line.startsWith("|-ability|") ||
+                        line.startsWith("|-fieldactivate|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
