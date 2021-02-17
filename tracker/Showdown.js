@@ -247,11 +247,13 @@ class Showdown {
 						} else if (line.includes("joinfailed")) {
 							return this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
-							);
+                            );
+                            return this.websocket.close();
 						} else if (line.includes("rename")) {
 							await this.message.channel.send(
 								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
-							);
+                            );
+                            return this.websocket.close();
 						}
 					}
 
