@@ -245,7 +245,7 @@ class Showdown {
 								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
 							);
 						} else if (line.includes("joinfailed")) {
-							return this.message.channel.send(
+							this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
                             );
                             return this.websocket.close();
