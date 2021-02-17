@@ -541,7 +541,7 @@ class Showdown {
 						line.startsWith("|-hint|") ||
 						line.startsWith("|-hitcount|") ||
 						line.startsWith("|-ability|") ||
-                        line.startsWith("|-fieldactivate|") ||
+						line.startsWith("|-fieldactivate|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
@@ -2108,11 +2108,11 @@ class Showdown {
 										": "
 									)[0];
 									if (
-										victimSide === "p1a" &&
-										prevMoveParts[4] &&
-										prevMoveParts[4].includes(
-											"[spread] p1"
-										) &&
+										(victimSide === "p1a" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p1"
+												))) &&
 										!battle.p1a.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2150,10 +2150,11 @@ class Showdown {
 											battle.p1a.realName ||
 											battle.p1a.name;
 									} else if (
-										victimSide === "p1b" &&
-										prevMoveParts[4] &&
-										prevMoveParts[4].includes("[spread]") &&
-										prevMoveParts[4].includes(victimSide) &&
+										(victimSide === "p1b" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p1"
+												))) &&
 										!battle.p1b.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2191,12 +2192,11 @@ class Showdown {
 											battle.p1b.realName ||
 											battle.p1b.name;
 									} else if (
-										victimSide === "p2a" &&
-										prevMoveParts[4] &&
-										prevMoveParts[4].includes(
-											"[spread] p2"
-										) &&
-										prevMoveParts[4].includes(victimSide) &&
+										(victimSide === "p2a" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p2"
+												))) &&
 										!battle.p2a.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
@@ -2234,12 +2234,11 @@ class Showdown {
 											battle.p2a.realName ||
 											battle.p2a.name;
 									} else if (
-										victimSide === "p2b" &&
-										prevMoveParts[4] &&
-										prevMoveParts[4].includes(
-											"[spread] p2"
-										) &&
-										prevMoveParts[4].includes(victimSide) &&
+										(victimSide === "p2b" ||
+											(prevMoveParts[4] &&
+												prevMoveParts[4].includes(
+													"[spread] p2"
+												))) &&
 										!battle.p2b.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
