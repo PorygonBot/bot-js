@@ -94,6 +94,7 @@ class ReplayTracker {
 				else if (line.startsWith(`|turn|`)) {
 					battle.turns++;
 					console.log(battle.turns);
+					console.log(battle.history);
 				}
 
 				//Checks if the battle is a randoms match
@@ -331,7 +332,6 @@ class ReplayTracker {
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
 					line.startsWith(`|-singleturn|`) ||
-					line.startsWith(`|-crit|`) ||
 					line.startsWith("|debug|") ||
 					line.startsWith("|-enditem|") ||
 					line.startsWith("|-fieldstart|") ||
@@ -484,39 +484,60 @@ class ReplayTracker {
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
-				//Checks for certain specific moves: hazards, statuses, etc.
-                else if (line.startsWith(`|move|`)) {
-                    let move = parts[2];
-                    console.log(`${this.battleLink}: ${line}`);
+				//Checks for certain specific moves: hazards only for now
+				else if (line.startsWith(`|move|`)) {
+					let move = parts[2];
+					console.log(`${this.battleLink}: ${line}`);
 
-                    if (
-                        move === "Stealth Rock" ||
-                        move === "Spikes" ||
-                        move === "Toxic Spikes"
-                    ) {
-                        //Hazards
-                        //The pokemon that inflicted the hazards
-                        let inflictorSide = parts[1].split(": ")[0];
+					if (line.includes("[miss]")) {
+						//If a mon missed
+						let inflictorSide = parts[1].split(": ")[0];
+						let victimSide = parts[3].split(": ")[0];
+						battle.history.push(
+							`${battle[inflictorSide].name} missed ${move} against ${battle[victimSide].name} (Turn ${battle.turns}).`
+						);
+					}
 
-                        //Very inefficient, I know
-                        if (inflictorSide === "p1a") {
-                            battle.addHazard("p2", move, battle.p1a.name);
-                            battle.history.push(`${battle.p1a.name} used ${move} (Turn ${battle.turns}).`);   
-                        }
-                        else if (inflictorSide === "p1b") {
-                            battle.addHazard("p2", move, battle.p1b.name);
-                            battle.history.push(`${battle.p1b.name} used ${move} (Turn ${battle.turns}).`);   
-                        }
-                        else if (inflictorSide === "p2a") {
-                            battle.addHazard("p1", move, battle.p2a.name);
-                            battle.history.push(`${battle.p2a.name} used ${move} (Turn ${battle.turns}).`);   
-                        }
-                        else if (inflictorSide === "p2b") {
-                            battle.addHazard("p1", move, battle.p2b.name);
-                            battle.history.push(`${battle.p2b.name} used ${move} (Turn ${battle.turns}).`);   
-                        }
-                    }
-                }
+					if (
+						move === "Stealth Rock" ||
+						move === "Spikes" ||
+						move === "Toxic Spikes"
+					) {
+						//Hazards
+						//The pokemon that inflicted the hazards
+						let inflictorSide = parts[1].split(": ")[0];
+
+						let inflictor;
+						if (inflictorSide === "p1a") {
+							inflictor = battle.p1a.name;
+						} else if (inflictorSide === "p1b") {
+							inflictor = battle.p1b.name;
+						} else if (inflictorSide === "p2a") {
+							inflictor = battle.p2a.name;
+						} else if (inflictorSide === "p2b") {
+							inflictor = battle.p1b.name;
+						}
+						battle.addHazard(
+							inflictorSide.startsWith("p1") ? "p2" : "p1",
+							move,
+							inflictor
+						);
+						battle.history.push(
+							`${inflictor} used ${move} (Turn ${battle.turns}).`
+						);
+					}
+				} else if (line.startsWith(`|-crit|`)) {
+					let victimSide = parts[1].split(": ")[0];
+					let prevMoveLine = dataArr[dataArr.length - 2];
+					let prevParts = prevMoveLine.split("|").slice(1);
+					let prevMove = prevParts[2];
+					let inflictorSide = prevParts[1].split(": ")[0];
+
+					battle.history.push(
+						`${battle[inflictorSide].name} used ${prevMove} with a critical hit against ${battle[victimSide].name} (Turn ${battle.turns}).`
+					);
+					dataArr.splice(dataArr.length - 1, 1);
+				}
 
 				//Checks for statuses
 				else if (line.startsWith(`|-status|`)) {
