@@ -379,7 +379,6 @@ const getRules = async (rulesId) => {
 
 const isPatron = async (client, guildID) => {
 	const guild = await client.guilds.fetch(guildID);
-	const ownerID = guild.ownerID;
 
 	let isTrue = false;
 	await base("Patreon")
@@ -387,9 +386,10 @@ const isPatron = async (client, guildID) => {
 		.all()
 		.then(async (records) => {
 			for (let record of records) {
-				const id = await record.get("Discord User ID");
+                const id = await record.get("Discord User ID");
+                const user = await guild.members.fetch(id) || undefined;
 
-				if (id === ownerID) {
+				if (user && user.hasPermission("ADMINISTRATOR")) {
 					isTrue = true;
 					break;
 				}
