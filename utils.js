@@ -387,7 +387,9 @@ const isPatron = async (client, guildID) => {
 		.then(async (records) => {
 			for (let record of records) {
                 const id = await record.get("Discord User ID");
-                const user = await guild.members.fetch(id) || undefined;
+                const user = await guild.members.fetch(id).catch((e) => {
+                    //Do nothing
+                });
 
 				if (user && user.hasPermission("ADMINISTRATOR")) {
 					isTrue = true;
