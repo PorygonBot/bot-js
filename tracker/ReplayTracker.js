@@ -340,6 +340,7 @@ class ReplayTracker {
 					line.startsWith("|-hint|") ||
 					line.startsWith("|-hitcount|") ||
 					line.startsWith("|-ability|") ||
+					line.startsWith("|-fieldactivate|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
@@ -348,6 +349,24 @@ class ReplayTracker {
 				//When a Pokemon mega-evolves, I change its "realname"
 				else if (line.startsWith(`|detailschange|`)) {
 					if (parts[2].includes("Mega")) {
+						let side = parts[1].split(": ")[0];
+						let realName = parts[2].split(",")[0];
+						if (side === "p1a") {
+							battle.p1a.realName = realName;
+						} else if (side === "p1b") {
+							battle.p1b.realName = realName;
+						} else if (side === "p2a") {
+							battle.p2a.realName = realName;
+						} else if (side === "p2b") {
+							battle.p2b.realName = realName;
+						}
+					}
+					dataArr.splice(dataArr.length - 1, 1);
+				}
+
+				//When a Pokemon Gigantamaxes, I change its "realname"
+				else if (line.startsWith(`|-formechange|`)) {
+					if (parts[2].includes("-Gmax")) {
 						let side = parts[1].split(": ")[0];
 						let realName = parts[2].split(",")[0];
 						if (side === "p1a") {
@@ -778,6 +797,8 @@ class ReplayTracker {
 					console.log(
 						`${this.battleLink}: ${inflictor} caused ${parts[2]} on ${victim}.`
 					);
+
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Side-specific ailments e.g. Stealth Rock
@@ -1778,6 +1799,18 @@ class ReplayTracker {
 										);
 										battle.p2b.killed(deathJson);
 										killer = battle.p2b.name;
+									} else if (prevMoveUserSide === "p1b") {
+										if (this.rules.selfteam !== "None") {
+											killer = battle.p1b;
+										} else killer = undefined;
+										let deathJson = battle.p1a.died(
+											"direct",
+											killer,
+											this.rules.selfteam
+										);
+										if (killer) {
+											battle.p1b.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p1a.realName || battle.p1a.name;
@@ -1785,10 +1818,7 @@ class ReplayTracker {
 									(victimSide === "p1b" ||
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
-												"[spread]"
-											) &&
-											prevMoveParts[4].includes(
-												victimSide
+												"[spread] p1"
 											))) &&
 									!battle.p1b.isDead
 								) {
@@ -1808,6 +1838,18 @@ class ReplayTracker {
 										);
 										battle.p2b.killed(deathJson);
 										killer = battle.p2b.name;
+									} else if (prevMoveUserSide === "p1a") {
+										if (this.rules.selfteam !== "None") {
+											killer = battle.p1a;
+										} else killer = undefined;
+										let deathJson = battle.p1b.died(
+											"direct",
+											killer,
+											this.rules.selfteam
+										);
+										if (killer) {
+											battle.p1a.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p1b.realName || battle.p1b.name;
@@ -1816,9 +1858,6 @@ class ReplayTracker {
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread] p2"
-											) &&
-											prevMoveParts[4].includes(
-												victimSide
 											))) &&
 									!battle.p2a.isDead
 								) {
@@ -1838,6 +1877,18 @@ class ReplayTracker {
 										);
 										battle.p1b.killed(deathJson);
 										killer = battle.p1b.name;
+									} else if (prevMoveUserSide === "p2b") {
+										if (this.rules.selfteam !== "None") {
+											killer = battle.p2b;
+										} else killer = undefined;
+										let deathJson = battle.p2a.died(
+											"direct",
+											killer,
+											this.rules.selfteam
+										);
+										if (killer) {
+											battle.p2b.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p2a.realName || battle.p2a.name;
@@ -1846,9 +1897,6 @@ class ReplayTracker {
 										(prevMoveParts[4] &&
 											prevMoveParts[4].includes(
 												"[spread] p2"
-											) &&
-											prevMoveParts[4].includes(
-												victimSide
 											))) &&
 									!battle.p2b.isDead
 								) {
@@ -1868,6 +1916,18 @@ class ReplayTracker {
 										);
 										battle.p1b.killed(deathJson);
 										killer = battle.p1b.name;
+									} else if (prevMoveUserSide === "p2a") {
+										if (this.rules.selfteam !== "None") {
+											killer = battle.p2a;
+										} else killer = undefined;
+										let deathJson = battle.p2b.died(
+											"direct",
+											killer,
+											this.rules.selfteam
+										);
+										if (killer) {
+											battle.p2a.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p2b.realName || battle.p2b.name;
@@ -2354,19 +2414,11 @@ class ReplayTracker {
 					) {
 						info.result = `${battle.p1} won ${
 							Object.keys(battle.p1Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
+								(pokemonKey) => !pokemonKey.includes("-")
 							).length -
 							Object.keys(battle.p1Pokemon)
 								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								)
 								.filter(
 									(pokemonKey) =>
@@ -2374,19 +2426,11 @@ class ReplayTracker {
 								).length
 						}-${
 							Object.keys(battle.p2Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
+								(pokemonKey) => !pokemonKey.includes("-")
 							).length -
 							Object.keys(battle.p2Pokemon)
 								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
+									(pokemonKey) => !pokemonKey.includes("-")
 								)
 								.filter(
 									(pokemonKey) =>
