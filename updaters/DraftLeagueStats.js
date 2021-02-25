@@ -10,8 +10,6 @@ class DraftLeagueStats {
 	}
 
 	async update(matchJson) {
-		matchJson.league_id = 7;
-
 		//Getting the Discord user player from their Discord ID
 		const authorID = this.author.id;
 		const playerResponse = await axios.get(

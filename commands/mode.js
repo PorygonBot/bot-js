@@ -1,5 +1,7 @@
 const Airtable = require("airtable");
+const axios = require("axios");
 const querystring = require("querystring");
+
 const utils = require("../utils");
 const airtable_key = process.env.AIRTABLE_KEY;
 const base_id = process.env.BASE_ID;
@@ -12,7 +14,8 @@ module.exports = {
 	description:
 		"Set the stats updating mode. Run without any parameters to get more info!",
 	async execute(message, args, client) {
-		const channel = message.channel;
+        const channel = message.channel;
+        const author = message.author;
 
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
@@ -56,7 +59,12 @@ module.exports = {
 				}
 			case "-dl":
 				mode = "DL";
-				dlID = querystring.parse(args[1].split("?")[1]).league;
+                dlID = querystring.parse(args[1].split("?")[1]).league;
+                const dlResponse = await axios.get(`${process.env.DL_API_URL}/league/${dlID}`);
+                const dlData = dlResponse.data;
+                if (!dlData.mod_discords.includes(`<@${author.id}>`)) {
+                    return channel.send(":x: You're not a moderator on the website for the given league.")
+                }
 				break;
 			case "-default":
 				mode = "";
