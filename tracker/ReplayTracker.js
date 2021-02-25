@@ -485,30 +485,38 @@ class ReplayTracker {
 				}
 
 				//Checks for certain specific moves: hazards, statuses, etc.
-				else if (line.startsWith(`|move|`)) {
-					let move = parts[2];
-					console.log(`${this.battleLink}: ${line}`);
+                else if (line.startsWith(`|move|`)) {
+                    let move = parts[2];
+                    console.log(`${this.battleLink}: ${line}`);
 
-					if (
-						move === "Stealth Rock" ||
-						move === "Spikes" ||
-						move === "Toxic Spikes"
-					) {
-						//Hazards
-						//The pokemon that inflicted the hazards
-						let inflictorSide = parts[1].split(": ")[0];
+                    if (
+                        move === "Stealth Rock" ||
+                        move === "Spikes" ||
+                        move === "Toxic Spikes"
+                    ) {
+                        //Hazards
+                        //The pokemon that inflicted the hazards
+                        let inflictorSide = parts[1].split(": ")[0];
 
-						//Very inefficient, I know
-						if (inflictorSide === "p1a")
-							battle.addHazard("p2", move, battle.p1a.name);
-						else if (inflictorSide === "p1b")
-							battle.addHazard("p2", move, battle.p1b.name);
-						else if (inflictorSide === "p2a")
-							battle.addHazard("p1", move, battle.p2a.name);
-						else if (inflictorSide === "p2b")
-							battle.addHazard("p1", move, battle.p2b.name);
-					}
-				}
+                        //Very inefficient, I know
+                        if (inflictorSide === "p1a") {
+                            battle.addHazard("p2", move, battle.p1a.name);
+                            battle.history.push(`${battle.p1a.name} used ${move} (Turn ${battle.turns}).`);   
+                        }
+                        else if (inflictorSide === "p1b") {
+                            battle.addHazard("p2", move, battle.p1b.name);
+                            battle.history.push(`${battle.p1b.name} used ${move} (Turn ${battle.turns}).`);   
+                        }
+                        else if (inflictorSide === "p2a") {
+                            battle.addHazard("p1", move, battle.p2a.name);
+                            battle.history.push(`${battle.p2a.name} used ${move} (Turn ${battle.turns}).`);   
+                        }
+                        else if (inflictorSide === "p2b") {
+                            battle.addHazard("p1", move, battle.p2b.name);
+                            battle.history.push(`${battle.p2b.name} used ${move} (Turn ${battle.turns}).`);   
+                        }
+                    }
+                }
 
 				//Checks for statuses
 				else if (line.startsWith(`|-status|`)) {
