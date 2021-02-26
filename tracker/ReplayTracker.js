@@ -2354,7 +2354,7 @@ class ReplayTracker {
 						turns: battle.turns,
 						winner: battle.winner,
 						loser: battle.loser,
-						history: `https://kills.porygonbot.xyz/${this.battleLink}`,
+						history: `https://server.porygonbot.xyz/kills/${this.battleLink}`,
 						spoiler: this.rules.spoiler,
 						format: this.rules.format,
 						tb: this.rules.tb,
@@ -2411,7 +2411,7 @@ class ReplayTracker {
 
 					await axios
 						.post(
-							`https://kills.porygonbot.xyz/${this.battleLink}`,
+							`https://server.porygonbot.xyz/kills/${this.battleLink}`,
 							battle.history.join("<br>"),
 							{
 								headers: {

@@ -2730,7 +2730,7 @@ class Showdown {
 						battle.replay = await this.requestReplay(replayData);
 						await axios
 							.post(
-								`https://kills.porygonbot.xyz/${
+								`https://server.porygonbot.xyz/kills/${
 									battle.replay.split("/")[3]
 								}`,
 								battle.history.join("<br>"),
@@ -2767,7 +2767,7 @@ class Showdown {
 							turns: battle.turns,
 							winner: battle.winner,
 							loser: battle.loser,
-							history: `https://kills.porygonbot.xyz/${
+							history: `https://server.porygonbot.xyz/kills/${
 								battle.replay.split("/")[3]
 							}`,
 							spoiler: this.rules.spoiler,
