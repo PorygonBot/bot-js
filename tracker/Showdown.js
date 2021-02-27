@@ -255,7 +255,7 @@ class Showdown {
                             return this.websocket.close();
 						} else if (line.includes("rename")) {
 							await this.message.channel.send(
-								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
+								`:x: ${this.battleLink} has become private. I have left the battle. Please run \`/inviteonly off\` in the battle chat and re-send the link here.`
                             );
                             return this.websocket.close();
 						}
