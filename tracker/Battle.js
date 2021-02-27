@@ -37,6 +37,16 @@ class Battle {
         this.p2b = new Pokemon("");
     }
 
+    static numBattles = 0;
+
+    static incrementBattles() {
+        this.numBattles++;
+    }
+
+    static decrementBattles() {
+        this.numBattles--;
+    }
+
     addHazard(side, hazard, hazardInflictor) {
         if (side !== "") {
             this.hazardsSet[side][hazard] = hazardInflictor;

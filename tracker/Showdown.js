@@ -25,7 +25,7 @@ const base = new Airtable({
 const VIEW_NAME = "Grid view";
 
 class Showdown {
-	constructor(battle, server, message, rules) {
+	constructor(battle, server, message, rules, client) {
 		this.battleLink = battle.split("/")[3];
 
 		this.serverType = server.toLowerCase();
@@ -56,6 +56,8 @@ class Showdown {
 		this.message = message;
 		//Getting the custom rules for the battle
 		this.rules = rules;
+
+		this.client = client;
 	}
 
 	async endscript(
@@ -141,6 +143,14 @@ class Showdown {
 						await defaulter.update(recordJson);
 						break;
 				}
+
+				Battle.decrementBattles();
+				this.client.user.setActivity(
+					`${Battle.numBattles} PS Battles in ${this.client.guilds.cache.size} servers.`,
+					{
+						type: "WATCHING",
+					}
+				);
 			});
 	}
 
@@ -248,13 +258,13 @@ class Showdown {
 							this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
 							);
-							return this.websocket.close();
 						} else if (line.includes("rename")) {
 							await this.message.channel.send(
 								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
 							);
-							return this.websocket.close();
 						}
+						Battle.decrementBattles();
+						return this.websocket.close();
 					}
 
 					//Once the server connects, the bot logs in and joins the battle
@@ -2947,9 +2957,11 @@ class Showdown {
 				this.websocket.send(
 					`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 				);
-				this.websocket.send(`/leave ${this.battleLink}`);
 
-				console.error(this.battleLink + ": " + e);
+				console.log(this.battleLink);
+				console.error(e);
+				Battle.decrementBattles();
+				return this.websocket.close();
 			}
 		});
 	}

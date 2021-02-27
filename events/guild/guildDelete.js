@@ -1,9 +1,9 @@
 const { Client, Guild } = require("discord.js");
-const Airtable = require('airtable');
+const Airtable = require("airtable");
 const utils = require("../../utils");
 const util = require("../../utils");
 
-// You should move this to be all in one file, 
+// You should move this to be all in one file,
 // so you can call on one method, instead of
 // rewritting the same thing.
 const airtable_key = process.env.AIRTABLE_KEY;
@@ -11,16 +11,15 @@ const base_id = process.env.BASE_ID;
 const base = new Airtable({
 	apiKey: airtable_key,
 }).base(base_id);
+
+const Battle = require("../../tracker/Battle");
+
 /**
  * When the client leaves/gets kicked from a server
- * @param {Client} client 
- * @param {Guild} guild 
+ * @param {Client} client
+ * @param {Guild} guild
  */
 module.exports = async (client, guild) => {
-        client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
-		type: "Watching",
-	});
-
 	//Getting the channels that this server has
 	const channels = await utils.getChannels();
 	const toDelete = [];
@@ -44,7 +43,10 @@ module.exports = async (client, guild) => {
 		});
 	}
 
-	client.user.setActivity(`PS Battles in ${client.guilds.size} servers.`, {
-		type: "Watching",
-	});
-}
+	client.user.setActivity(
+		`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
+		{
+			type: "WATCHING",
+		}
+	);
+};

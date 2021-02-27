@@ -1,7 +1,10 @@
 const { Client, Message } = require("discord.js");
 const getUrls = require("get-urls");
+
 const Showdown = require("../../tracker/Showdown");
+const Battle = require("../../tracker/Battle");
 const utils = require("../../utils");
+
 /**
  * When a message is sent
  * @param {Client} client
@@ -52,8 +55,22 @@ module.exports = async (client, message) => {
 				await channel
 					.send("Joining the battle...")
 					.catch((e) => console.error(e));
+
+			Battle.incrementBattles();
+			client.user.setActivity(
+				`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
+				{
+					type: "WATCHING",
+				}
+			);
 			//Instantiating the Showdown client
-			const psclient = new Showdown(battlelink, psServer, message, rules);
+			const psclient = new Showdown(
+				battlelink,
+				psServer,
+				message,
+				rules,
+				client
+			);
 			//Tracking the battle
 			await new Promise(async (resolve, reject) => {
 				await psclient.track();
