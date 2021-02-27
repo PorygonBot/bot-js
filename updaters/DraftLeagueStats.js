@@ -5,13 +5,19 @@ const utils = require("../utils.js");
 class DraftLeagueStats {
 	constructor(message) {
 		//Requires that message is a Discord Message object
-        this.message = message;
+		this.message = message;
 		this.author = message.author;
 		this.channel = message.channel;
 	}
 
 	async update(matchJson) {
 		try {
+			//Getting league data
+			const leagueResponse = await axios.get(
+				`${process.env.DL_API_URL}/league/${matchJson.league_id}`
+			);
+			const leagueData = leagueResponse.data;
+
 			//Getting the Discord user player from their Discord ID
 			const authorID = this.author.id;
 			const playerResponse = await axios.get(
@@ -57,15 +63,17 @@ class DraftLeagueStats {
 				final
 			);
 
-			await this.channel.send(
-				`Battle between \`${
-					Object.keys(matchJson.players)[0]
-				}\` and \`${
-					Object.keys(matchJson.players)[1]
-				}\` is complete and info has been updated!\n**Replay:** ${
-					matchJson.info.replay
-				}\n**History:** ${matchJson.info.history}`
-			);
+			//Posting to the replay webhook
+			let result = matchJson.info.result;
+			result = result.startsWith(discordUserPS)
+				? result.substring(result.length - 3)
+				: `${result.substring(result.length - 1)}-${result.substring(
+						result.length - 3,
+						result.length - 2
+				  )}}}`;
+			await axios.post(leagueData.replay_webhook, {
+				content: `A match in the ${leagueData.league_name} between the ${discordPlayerData.team_name} and the ${matchData.opponent_team_name} has just been submitted *by Porygon*.\nReplay: ${matchJson.info.replay}\n**History:** ${matchJson.info.history}\nResult: ||${result}||`,
+			});
 		} catch (e) {
 			await this.channel.send(
 				":x: There was an error updating this match. Please paste these stats instead: "
