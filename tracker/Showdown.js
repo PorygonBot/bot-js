@@ -26,7 +26,7 @@ const base = new Airtable({
 const VIEW_NAME = "Grid view";
 
 class Showdown {
-	constructor(battle, server, message, rules) {
+	constructor(battle, server, message, rules, client) {
 		this.battleLink = battle.split("/")[3];
 
 		this.serverType = server.toLowerCase();
@@ -57,6 +57,8 @@ class Showdown {
 		this.message = message;
 		//Getting the custom rules for the battle
 		this.rules = rules;
+
+		this.client = client;
 	}
 
 	async endscript(
@@ -145,6 +147,14 @@ class Showdown {
 						await defaulter.update(recordJson);
 						break;
 				}
+
+				Battle.decrementBattles();
+				this.client.user.setActivity(
+					`${Battle.numBattles} PS Battles in ${this.client.guilds.cache.size} servers.`,
+					{
+						type: "WATCHING",
+					}
+				);
 			});
 	}
 
@@ -251,14 +261,14 @@ class Showdown {
 						} else if (line.includes("joinfailed")) {
 							this.message.channel.send(
 								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
-                            );
-                            return this.websocket.close();
+							);
 						} else if (line.includes("rename")) {
 							await this.message.channel.send(
-								`:x: ${this.battleLink} has become private. I have left the battle. Please run \`/inviteonly off\` in the battle chat and re-send the link here.`
-                            );
-                            return this.websocket.close();
+								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
+							);
 						}
+						Battle.decrementBattles();
+						return this.websocket.close();
 					}
 
 					//Once the server connects, the bot logs in and joins the battle
@@ -538,7 +548,6 @@ class Showdown {
 						line.startsWith(`|-unboost|`) ||
 						line.startsWith(`|-boost|`) ||
 						line.startsWith(`|-singleturn|`) ||
-						line.startsWith(`|-crit|`) ||
 						line.startsWith("|debug|") ||
 						line.startsWith("|-enditem|") ||
 						line.startsWith("|-fieldstart|") ||
@@ -696,10 +705,19 @@ class Showdown {
 							dataArr.splice(dataArr.length - 1, 1);
 					}
 
-					//Checks for certain specific moves: hazards, statuses, etc.
+					//Checks for certain specific moves: hazards only for now
 					else if (line.startsWith(`|move|`)) {
 						let move = parts[2];
 						console.log(`${this.battleLink}: ${line}`);
+
+						if (line.includes("[miss]")) {
+							//If a mon missed
+							let inflictorSide = parts[1].split(": ")[0];
+							let victimSide = parts[3].split(": ")[0];
+							battle.history.push(
+								`${battle[inflictorSide].name} missed ${move} against ${battle[victimSide].name} (Turn ${battle.turns}).`
+							);
+						}
 
 						if (
 							move === "Stealth Rock" ||
@@ -710,16 +728,36 @@ class Showdown {
 							//The pokemon that inflicted the hazards
 							let inflictorSide = parts[1].split(": ")[0];
 
-							//Very inefficient, I know
-							if (inflictorSide === "p1a")
-								battle.addHazard("p2", move, battle.p1a.name);
-							else if (inflictorSide === "p1b")
-								battle.addHazard("p2", move, battle.p1b.name);
-							else if (inflictorSide === "p2a")
-								battle.addHazard("p1", move, battle.p2a.name);
-							else if (inflictorSide === "p2b")
-								battle.addHazard("p1", move, battle.p2b.name);
+							let inflictor;
+							if (inflictorSide === "p1a") {
+								inflictor = battle.p1a.name;
+							} else if (inflictorSide === "p1b") {
+								inflictor = battle.p1b.name;
+							} else if (inflictorSide === "p2a") {
+								inflictor = battle.p2a.name;
+							} else if (inflictorSide === "p2b") {
+								inflictor = battle.p1b.name;
+							}
+							battle.addHazard(
+								inflictorSide.startsWith("p1") ? "p2" : "p1",
+								move,
+								inflictor
+							);
+							battle.history.push(
+								`${inflictor} used ${move} (Turn ${battle.turns}).`
+							);
 						}
+					} else if (line.startsWith(`|-crit|`)) {
+						let victimSide = parts[1].split(": ")[0];
+						let prevMoveLine = dataArr[dataArr.length - 2];
+						let prevParts = prevMoveLine.split("|").slice(1);
+						let prevMove = prevParts[2];
+						let inflictorSide = prevParts[1].split(": ")[0];
+
+						battle.history.push(
+							`${battle[inflictorSide].name} used ${prevMove} with a critical hit against ${battle[victimSide].name} (Turn ${battle.turns}).`
+						);
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//Checks for statuses
@@ -2706,7 +2744,7 @@ class Showdown {
 						battle.replay = await this.requestReplay(replayData);
 						await axios
 							.post(
-								`https://kills.porygonbot.xyz/${
+								`https://server.porygonbot.xyz/kills/${
 									battle.replay.split("/")[3]
 								}`,
 								battle.history.join("<br>"),
@@ -2743,7 +2781,7 @@ class Showdown {
 							turns: battle.turns,
 							winner: battle.winner,
 							loser: battle.loser,
-							history: `https://kills.porygonbot.xyz/${
+							history: `https://server.porygonbot.xyz/kills/${
 								battle.replay.split("/")[3]
 							}`,
 							spoiler: this.rules.spoiler,
@@ -2903,6 +2941,7 @@ class Showdown {
 						}
 
 						this.websocket.send(`|/leave ${this.battleLink}`);
+                        this.websocket.close();
 
 						let returndata = {
 							info: info,
@@ -2923,9 +2962,11 @@ class Showdown {
 				this.websocket.send(
 					`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
 				);
-				this.websocket.send(`/leave ${this.battleLink}`);
 
-				console.error(this.battleLink + ": " + e);
+				console.log(this.battleLink);
+				console.error(e);
+				Battle.decrementBattles();
+				return this.websocket.close();
 			}
 		});
 	}

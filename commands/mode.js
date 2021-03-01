@@ -60,7 +60,7 @@ module.exports = {
 			case "-dl":
 				mode = "DL";
                 dlID = querystring.parse(args[1].split("?")[1]).league;
-                const dlResponse = await axios.get(`${process.env.DL_API_URL}/league/${dlID}`);
+                const dlResponse = await axios.get(`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`);
                 const dlData = dlResponse.data;
                 if (!dlData.mod_discords.includes(`<@${author.id}>`)) {
                     return channel.send(":x: You're not a moderator on the website for the given league.")

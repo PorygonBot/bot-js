@@ -14,14 +14,14 @@ class DraftLeagueStats {
 		try {
 			//Getting league data
 			const leagueResponse = await axios.get(
-				`${process.env.DL_API_URL}/league/${matchJson.league_id}`
+				`${process.env.DL_API_URL}/league/${matchJson.league_id}?key=${process.env.DL_API_KEY}`
 			);
 			const leagueData = leagueResponse.data;
 
 			//Getting the Discord user player from their Discord ID
 			const authorID = this.author.id;
 			const playerResponse = await axios.get(
-				`${process.env.DL_API_URL}/league/${matchJson.league_id}/player/<@${authorID}>`
+				`${process.env.DL_API_URL}/league/${matchJson.league_id}/player/<@${authorID}>?key=${process.env.DL_API_KEY}`
 			);
 			const discordPlayerData = playerResponse.data;
 			//Check which player the Discord user is.
@@ -44,7 +44,7 @@ class DraftLeagueStats {
 					matchJson.league_id
 				}/player/<@${authorID}>?pokemon=${Object.keys(
 					matchJson.players[nonDiscordUserPS].kills
-				).join(",")}`
+				).join(",")}&key=${process.env.DL_API_KEY}`
 			);
 			const matchData = matchResponse.data;
 
@@ -59,7 +59,7 @@ class DraftLeagueStats {
 
 			//Making the submission
 			const submissionResponse = await axios.post(
-				`${process.env.DL_API_URL}/submission`,
+				`${process.env.DL_API_URL}/submission?key=${process.env.DL_API_KEY}`,
 				final
 			);
 

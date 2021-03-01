@@ -18,7 +18,7 @@ module.exports = {
 		let oauthData = qs.stringify({
 			response_type: "code",
 			client_id: process.env.PATREON_CLIENT_ID,
-			redirect_uri: "https://kills.porygonbot.xyz/patreon-redirect",
+			redirect_uri: "https://server.porygonbot.xyz/patreon-redirect",
 			scope: "identity",
 			state: message.author.id,
 		});

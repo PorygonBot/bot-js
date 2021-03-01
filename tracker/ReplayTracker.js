@@ -331,7 +331,6 @@ class ReplayTracker {
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
 					line.startsWith(`|-singleturn|`) ||
-					line.startsWith(`|-crit|`) ||
 					line.startsWith("|debug|") ||
 					line.startsWith("|-enditem|") ||
 					line.startsWith("|-fieldstart|") ||
@@ -484,10 +483,19 @@ class ReplayTracker {
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
-				//Checks for certain specific moves: hazards, statuses, etc.
+				//Checks for certain specific moves: hazards only for now
 				else if (line.startsWith(`|move|`)) {
 					let move = parts[2];
 					console.log(`${this.battleLink}: ${line}`);
+
+					if (line.includes("[miss]")) {
+						//If a mon missed
+						let inflictorSide = parts[1].split(": ")[0];
+						let victimSide = parts[3].split(": ")[0];
+						battle.history.push(
+							`${battle[inflictorSide].name} missed ${move} against ${battle[victimSide].name} (Turn ${battle.turns}).`
+						);
+					}
 
 					if (
 						move === "Stealth Rock" ||
@@ -498,16 +506,36 @@ class ReplayTracker {
 						//The pokemon that inflicted the hazards
 						let inflictorSide = parts[1].split(": ")[0];
 
-						//Very inefficient, I know
-						if (inflictorSide === "p1a")
-							battle.addHazard("p2", move, battle.p1a.name);
-						else if (inflictorSide === "p1b")
-							battle.addHazard("p2", move, battle.p1b.name);
-						else if (inflictorSide === "p2a")
-							battle.addHazard("p1", move, battle.p2a.name);
-						else if (inflictorSide === "p2b")
-							battle.addHazard("p1", move, battle.p2b.name);
+						let inflictor;
+						if (inflictorSide === "p1a") {
+							inflictor = battle.p1a.name;
+						} else if (inflictorSide === "p1b") {
+							inflictor = battle.p1b.name;
+						} else if (inflictorSide === "p2a") {
+							inflictor = battle.p2a.name;
+						} else if (inflictorSide === "p2b") {
+							inflictor = battle.p1b.name;
+						}
+						battle.addHazard(
+							inflictorSide.startsWith("p1") ? "p2" : "p1",
+							move,
+							inflictor
+						);
+						battle.history.push(
+							`${inflictor} used ${move} (Turn ${battle.turns}).`
+						);
 					}
+				} else if (line.startsWith(`|-crit|`)) {
+					let victimSide = parts[1].split(": ")[0];
+					let prevMoveLine = dataArr[dataArr.length - 2];
+					let prevParts = prevMoveLine.split("|").slice(1);
+					let prevMove = prevParts[2];
+					let inflictorSide = prevParts[1].split(": ")[0];
+
+					battle.history.push(
+						`${battle[inflictorSide].name} used ${prevMove} with a critical hit against ${battle[victimSide].name} (Turn ${battle.turns}).`
+					);
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Checks for statuses
@@ -2325,7 +2353,7 @@ class ReplayTracker {
 						turns: battle.turns,
 						winner: battle.winner,
 						loser: battle.loser,
-						history: `https://kills.porygonbot.xyz/${this.battleLink}`,
+						history: `https://server.porygonbot.xyz/kills/${this.battleLink}`,
 						spoiler: this.rules.spoiler,
 						format: this.rules.format,
 						tb: this.rules.tb,
@@ -2382,7 +2410,7 @@ class ReplayTracker {
 
 					await axios
 						.post(
-							`https://kills.porygonbot.xyz/${this.battleLink}`,
+							`https://server.porygonbot.xyz/kills/${this.battleLink}`,
 							battle.history.join("<br>"),
 							{
 								headers: {
@@ -2400,12 +2428,8 @@ class ReplayTracker {
 									e.message
 								}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 							);
-							this.websocket.send(
-								`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
-							);
-							this.websocket.send(`/leave ${this.battleLink}`);
 
-							console.error(this.battleLink + ": " + e);
+							console.error(e);
 						});
 
 					if (
@@ -2522,7 +2546,7 @@ class ReplayTracker {
 				}\nLine number: ${e.stack.split(":")[2]}\`\`\``
 			);
 
-			console.error(this.battleLink + ": " + e);
+			console.error(e);
 		}
 	}
 }
