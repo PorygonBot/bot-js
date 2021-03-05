@@ -944,17 +944,22 @@ class ReplayTracker {
 						if (side === "p1a") {
 							afflictor = battle.p1a.otherAffliction["perish3"];
 							victim = battle.p1a.realName || battle.p1a.name;
-							let deathJson = battle.p1a.died(
-								affliction,
-								afflictor,
-								true
-							);
-							if (battle.p1Pokemon[afflictor])
+							if (
+								battle.p1Pokemon[afflictor] &&
+								afflictor !== victim
+							) {
+								let deathJson = battle.p1a.died(
+									affliction,
+									afflictor,
+									true
+								);
 								battle.p1Pokemon[afflictor].killed(deathJson);
-							else {
+							} else {
 								if (this.rules.suicide !== "None") {
 									killer = battle.p2a.name;
+									console.log("i'm in her eboyos " + killer);
 								}
+								console.log("we out here");
 
 								let deathJson = battle.p1a.died(
 									prevMove,
@@ -1039,10 +1044,10 @@ class ReplayTracker {
 							}
 						}
 						console.log(
-							`${this.battleLink}: ${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
+							`${this.battleLink}: ${victim} was killed by ${killer} due to Perish Song (passive) (Turn ${battle.turns})`
 						);
 						battle.history.push(
-							`${victim} was killed by ${afflictor} due to Perish Song (passive) (Turn ${battle.turns})`
+							`${victim} was killed by ${killer} due to Perish Song (passive) (Turn ${battle.turns})`
 						);
 					}
 					dataArr.splice(dataArr.length - 1, 1);
