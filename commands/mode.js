@@ -31,41 +31,39 @@ module.exports = {
 		switch (discordMode) {
 			case "-c":
 				mode = "Channel";
-				streamChannel = args[1].substring(2, streamChannel.length - 1);
+				streamChannel = args[1];
+				if (!streamChannel) {
+					return channel.send(
+						":x: You didn't link a channel. Please run the command again and link the channel you'd like the stats to be put in."
+					);
+				}
 				break;
 			case "-dm":
 				mode = "DM";
 				break;
 			case "-sheets":
-				const isPatron = await utils.isPatron(client, channel.guild.id);
-				if (isPatron) {
-					mode = "Sheets";
-					let sheetsLink = args[1];
-					if (
-						!sheetsLink.includes(
-							"https://docs.google.com/spreadsheets/d"
-						)
-					) {
-						return channel.send(
-							":x: This is not a Google Sheets link. Please copy-paste the URL of your Google Sheets file."
-						);
-					}
-					sheetsID = sheetsLink.split("/")[5];
-					break;
-				} else {
+				mode = "Sheets";
+				let sheetsLink = args[1];
+				if (
+					!sheetsLink.includes(
+						"https://docs.google.com/spreadsheets/d"
+					)
+				) {
 					return channel.send(
-						":x: I'm afraid this is a Patreon-exclusive command. Please become a Patron of Porygon and verify yourself with Porygon in order to gain access to this feature."
+						":x: This is not a Google Sheets link. Please copy-paste the URL of your Google Sheets file."
 					);
-				}
-			case "-dl":
-				mode = "DL";
+                }
+                sheetsID = sheetsLink.split("/")[5];
+				break;
+            case "-dl":
+                mode = "DL";
                 dlID = querystring.parse(args[1].split("?")[1]).league;
                 const dlResponse = await axios.get(`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`);
                 const dlData = dlResponse.data;
                 if (!dlData.mod_discords.includes(`<@${author.id}>`)) {
                     return channel.send(":x: You're not a moderator on the website for the given league.")
                 }
-				break;
+                break;
 			case "-default":
 				mode = "";
 				break;
