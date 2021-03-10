@@ -13,6 +13,7 @@ const DiscordDMStats = require("../updaters/DiscordDMStats");
 const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
 const SheetsAppendStats = require("../updaters/SheetsAppendStats");
+const DraftLeagueStats = require("../updaters/DraftLeagueStats");
 //Getting config vars frome env
 const username = process.env.USERNAME;
 const password = process.env.PASSWORD;
@@ -115,18 +116,18 @@ class Showdown {
 						recordJson.streamChannel = await leagueRecord.get(
 							"Stream Channel ID"
 						);
+						recordJson.league_id = await leagueRecord.get("DL ID");
 						recordJson.battleId = this.battleLink;
 					}
 				}
 			})
 			.then(async () => {
-				console.log(JSON.stringify(recordJson));
-
 				//Instantiating updater objects
 				let dmer = new DiscordDMStats(this.message);
 				let channeler = new DiscordChannelStats(this.message);
 				let defaulter = new DiscordDefaultStats(this.message);
 				let sheetser = new SheetsAppendStats(this.message);
+				let dler = new DraftLeagueStats(this.message);
 
 				//Updating stats based on given method
 				switch (recordJson.system) {
@@ -138,6 +139,9 @@ class Showdown {
 						break;
 					case "Sheets":
 						await sheetser.update(recordJson);
+						break;
+					case "DL":
+						await dler.update(recordJson);
 						break;
 					default:
 						await defaulter.update(recordJson);
