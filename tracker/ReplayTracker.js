@@ -825,9 +825,16 @@ class ReplayTracker {
 					console.log(
 						`${this.battleLink}: ${inflictor} caused ${parts[2]} on ${victim}.`
 					);
+                    battle.history.push(`${inflictor} caused ${parts[2]} on ${victim} (Turn ${battle.turns}).`);
 
 					dataArr.splice(dataArr.length - 1, 1);
 				}
+
+                //If a mon flinches
+                else if (line.startsWith("|cant|")) {
+                    let userSide = parts[1].split(": ")[0];
+                    battle.history.push(`${battle[userSide].realName} flinched (Turn ${battle.turns}).`);
+                }
 
 				//Side-specific ailments e.g. Stealth Rock
 				else if (line.startsWith("|-sidestart|")) {
