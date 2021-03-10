@@ -1202,25 +1202,38 @@ class ReplayTracker {
 							else if (move === "Hail" || move === "Sandstorm") {
 								killer = battle.weatherInflictor;
 								if (victimSide === "p1a") {
-									if (
-										Object.keys(battle.p1Pokemon).includes(
-											killer
-										)
-									) {
-										if (this.rules.selfteam !== "None")
-											killer = battle.p2a.name;
-										else killer = undefined;
-									}
-									let deathJson = battle.p1a.died(
+									// if (
+									// 	Object.keys(battle.p1Pokemon).includes(
+									// 		killer
+									// 	)
+									// ) {
+									// 	if (this.rules.selfteam !== "None")
+									// 		killer = battle.p2a.name;
+									// 	else killer = undefined;
+									// }
+									// let deathJson = battle.p1a.died(
+									// 	move,
+									// 	killer,
+									// 	true
+									// );
+									// if (killer) {
+									// 	battle.p2Pokemon[killer].killed(
+									// 		deathJson
+									// 	);
+									// }
+                                    let deathJson = battle.p1a.died(
 										move,
 										killer,
 										true
 									);
-									if (killer) {
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
-									}
+									if (
+										Object.keys(battle.p1Pokemon).includes(
+											killer
+										) && this.rules.selfteam !== "None"
+									) {
+                                        killer = battle.p2a.name;
+                                    }
+                                    battle.p2Pokemon[killer].killed(deathJson);
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 								} else if (victimSide === "p1b") {
@@ -1290,7 +1303,7 @@ class ReplayTracker {
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 								}
-								reason = `${move} (passive) (Turn ${battle.turn})`;
+								reason = `${move} (passive) (Turn ${battle.turns})`;
 							}
 
 							//Status
@@ -1835,15 +1848,15 @@ class ReplayTracker {
 										battle.p2b.killed(deathJson);
 										killer = battle.p2b.name;
 									} else if (prevMoveUserSide === "p1b") {
-                                        killer = battle.p1b.name;
-                                        let deathJson = battle.p1a.died(
+										killer = battle.p1b.name;
+										let deathJson = battle.p1a.died(
 											"direct",
 											killer,
 											this.rules.selfteam === "Passive"
-                                        );
-                                        if (this.rules.selfteam !== "None") {
-                                            battle.p1b.killed(deathJson);
-                                        }
+										);
+										if (this.rules.selfteam !== "None") {
+											battle.p1b.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p1a.realName || battle.p1a.name;
@@ -1875,14 +1888,14 @@ class ReplayTracker {
 										killer = battle.p2b.name;
 									} else if (prevMoveUserSide === "p1a") {
 										killer = battle.p1a.name;
-                                        let deathJson = battle.p1b.died(
+										let deathJson = battle.p1b.died(
 											"direct",
 											killer,
 											this.rules.selfteam === "Passive"
-                                        );
-                                        if (this.rules.selfteam !== "None") {
-                                            battle.p1a.killed(deathJson);
-                                        }
+										);
+										if (this.rules.selfteam !== "None") {
+											battle.p1a.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p1b.realName || battle.p1b.name;
@@ -1914,14 +1927,14 @@ class ReplayTracker {
 										killer = battle.p1b.name;
 									} else if (prevMoveUserSide === "p2b") {
 										killer = battle.p2b.name;
-                                        let deathJson = battle.p2a.died(
+										let deathJson = battle.p2a.died(
 											"direct",
 											killer,
 											this.rules.selfteam === "Passive"
-                                        );
-                                        if (this.rules.selfteam !== "None") {
-                                            battle.p2b.killed(deathJson);
-                                        }
+										);
+										if (this.rules.selfteam !== "None") {
+											battle.p2b.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p2a.realName || battle.p2a.name;
@@ -1953,14 +1966,14 @@ class ReplayTracker {
 										killer = battle.p1b.name;
 									} else if (prevMoveUserSide === "p2a") {
 										killer = battle.p2a.name;
-                                        let deathJson = battle.p2b.died(
+										let deathJson = battle.p2b.died(
 											"direct",
 											killer,
 											this.rules.selfteam === "Passive"
-                                        );
-                                        if (this.rules.selfteam !== "None") {
-                                            battle.p2a.killed(deathJson);
-                                        }
+										);
+										if (this.rules.selfteam !== "None") {
+											battle.p2a.killed(deathJson);
+										}
 									}
 									victim =
 										battle.p2b.realName || battle.p2b.name;
