@@ -1202,26 +1202,7 @@ class ReplayTracker {
 							else if (move === "Hail" || move === "Sandstorm") {
 								killer = battle.weatherInflictor;
 								if (victimSide === "p1a") {
-									// if (
-									// 	Object.keys(battle.p1Pokemon).includes(
-									// 		killer
-									// 	)
-									// ) {
-									// 	if (this.rules.selfteam !== "None")
-									// 		killer = battle.p2a.name;
-									// 	else killer = undefined;
-									// }
-									// let deathJson = battle.p1a.died(
-									// 	move,
-									// 	killer,
-									// 	true
-									// );
-									// if (killer) {
-									// 	battle.p2Pokemon[killer].killed(
-									// 		deathJson
-									// 	);
-									// }
-                                    let deathJson = battle.p1a.died(
+									let deathJson = battle.p1a.died(
 										move,
 										killer,
 										true
@@ -1229,79 +1210,65 @@ class ReplayTracker {
 									if (
 										Object.keys(battle.p1Pokemon).includes(
 											killer
-										) && this.rules.selfteam !== "None"
+										) &&
+										this.rules.selfteam !== "None"
 									) {
-                                        killer = battle.p2a.name;
-                                    }
-                                    battle.p2Pokemon[killer].killed(deathJson);
+										killer = battle.p2a.name;
+									}
+									battle.p2Pokemon[killer].killed(deathJson);
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 								} else if (victimSide === "p1b") {
-									if (
-										Object.keys(battle.p1Pokemon).includes(
-											killer
-										)
-									) {
-										if (this.rules.selfteam !== "None")
-											killer = battle.p2b.name;
-										else killer = undefined;
-									}
 									let deathJson = battle.p1b.died(
 										move,
 										killer,
 										true
 									);
-									if (killer) {
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
-									}
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (victimSide === "p2a") {
 									if (
-										Object.keys(battle.p2Pokemon).includes(
+										Object.keys(battle.p1Pokemon).includes(
 											killer
-										)
+										) &&
+										this.rules.selfteam !== "None"
 									) {
-										if (this.rules.selfteam !== "None")
-											killer = battle.p1a.name;
-										else killer = undefined;
+										killer = battle.p2b.name;
 									}
+									battle.p2Pokemon[killer].killed(deathJson);
+									victim =
+										battle.p1b.realName || battle.p1b.name;
+								} else if (victimSide === "p2a") {
 									let deathJson = battle.p2a.died(
 										move,
 										killer,
 										true
 									);
-									if (killer) {
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
-									}
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (victimSide === "p2b") {
 									if (
 										Object.keys(battle.p2Pokemon).includes(
 											killer
-										)
+										) &&
+										this.rules.selfteam !== "None"
 									) {
-										if (this.rules.selfteam !== "None")
-											killer = battle.p1b.name;
-										else killer = undefined;
+										killer = battle.p1a.name;
 									}
+									battle.p1Pokemon[killer].killed(deathJson);
+									victim =
+										battle.p2a.realName || battle.p2a.name;
+								} else if (victimSide === "p2b") {
 									let deathJson = battle.p2b.died(
 										move,
 										killer,
 										true
 									);
-									if (killer) {
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+									if (
+										Object.keys(battle.p2Pokemon).includes(
+											killer
+										) &&
+										this.rules.selfteam !== "None"
+									) {
+										killer = battle.p1b.name;
 									}
+									battle.p1Pokemon[killer].killed(deathJson);
 									victim =
-										battle.p2a.realName || battle.p2a.name;
+										battle.p2b.realName || battle.p2b.name;
 								}
 								reason = `${move} (passive) (Turn ${battle.turns})`;
 							}
