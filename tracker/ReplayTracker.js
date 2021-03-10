@@ -69,7 +69,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				//console.log(line);
+				console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -1807,164 +1807,337 @@ class ReplayTracker {
 									.slice(1);
 								let prevMoveUserSide = prevMoveParts[1].split(
 									": "
-								)[0];
-								if (
-									(victimSide === "p1a" ||
-										(prevMoveParts[4] &&
-											prevMoveParts[4].includes(
-												"[spread] p1"
-											))) &&
-									!battle.p1a.isDead
-								) {
-									if (prevMoveUserSide === "p2a") {
-										let deathJson = battle.p1a.died(
-											"direct",
-											battle.p2a,
-											false
-										);
-										battle.p2a.killed(deathJson);
-										killer = battle.p2a.name;
-									} else if (prevMoveUserSide === "p2b") {
-										let deathJson = battle.p1a.died(
-											"direct",
-											battle.p2b,
-											false
-										);
-										battle.p2b.killed(deathJson);
-										killer = battle.p2b.name;
-									} else if (prevMoveUserSide === "p1b") {
-										if (this.rules.selfteam !== "None") {
-											killer = battle.p1b;
-										} else killer = undefined;
-										let deathJson = battle.p1a.died(
-											"direct",
-											killer,
-											this.rules.selfteam
-										);
-										if (killer) {
-											battle.p1b.killed(deathJson);
-										}
-									}
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (
-									(victimSide === "p1b" ||
-										(prevMoveParts[4] &&
-											prevMoveParts[4].includes(
-												"[spread] p1"
-											))) &&
-									!battle.p1b.isDead
-								) {
-									if (prevMoveUserSide === "p2a") {
-										let deathJson = battle.p1b.died(
-											"direct",
-											battle.p2a,
-											false
-										);
-										battle.p2a.killed(deathJson);
-										killer = battle.p2a.name;
-									} else if (prevMoveUserSide === "p2b") {
-										let deathJson = battle.p1b.died(
-											"direct",
-											battle.p2b,
-											false
-										);
-										battle.p2b.killed(deathJson);
-										killer = battle.p2b.name;
-									} else if (prevMoveUserSide === "p1a") {
-										if (this.rules.selfteam !== "None") {
-											killer = battle.p1a;
-										} else killer = undefined;
-										let deathJson = battle.p1b.died(
-											"direct",
-											killer,
-											this.rules.selfteam
-										);
-										if (killer) {
-											battle.p1a.killed(deathJson);
-										}
-									}
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								} else if (
-									(victimSide === "p2a" ||
-										(prevMoveParts[4] &&
-											prevMoveParts[4].includes(
-												"[spread] p2"
-											))) &&
-									!battle.p2a.isDead
-								) {
-									if (prevMoveUserSide === "p1a") {
-										let deathJson = battle.p2a.died(
-											"direct",
-											battle.p1a,
-											false
-										);
-										battle.p1a.killed(deathJson);
-										killer = battle.p1a.name;
-									} else if (prevMoveUserSide === "p1b") {
-										let deathJson = battle.p2a.died(
-											"direct",
-											battle.p1b,
-											false
-										);
-										battle.p1b.killed(deathJson);
-										killer = battle.p1b.name;
-									} else if (prevMoveUserSide === "p2b") {
-										if (this.rules.selfteam !== "None") {
-											killer = battle.p2b;
-										} else killer = undefined;
-										let deathJson = battle.p2a.died(
-											"direct",
-											killer,
-											this.rules.selfteam
-										);
-										if (killer) {
-											battle.p2b.killed(deathJson);
-										}
-									}
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (
-									(victimSide === "p2b" ||
-										(prevMoveParts[4] &&
-											prevMoveParts[4].includes(
-												"[spread] p2"
-											))) &&
-									!battle.p2b.isDead
-								) {
-									if (prevMoveUserSide === "p1a") {
-										let deathJson = battle.p2b.died(
-											"direct",
-											battle.p1a,
-											false
-										);
-										battle.p1a.killed(deathJson);
-										killer = battle.p1a.name;
-									} else if (prevMoveUserSide === "p1b") {
-										let deathJson = battle.p2b.died(
-											"direct",
-											battle.p1b,
-											false
-										);
-										battle.p1b.killed(deathJson);
-										killer = battle.p1b.name;
-									} else if (prevMoveUserSide === "p2a") {
-										if (this.rules.selfteam !== "None") {
-											killer = battle.p2a;
-										} else killer = undefined;
-										let deathJson = battle.p2b.died(
-											"direct",
-											killer,
-											this.rules.selfteam
-										);
-										if (killer) {
-											battle.p2a.killed(deathJson);
-										}
-									}
-									victim =
-										battle.p2b.realName || battle.p2b.name;
-								}
+                                )[0];
+								
+                                if (battle.p1b && battle.p2b) {
+                                    console.log("I'm here, everyone! guess what!");
+                                    if (
+                                        (victimSide === "p1a" &&
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p1a"))) &&
+                                        !battle.p1a.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p2a") {
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                battle.p2a,
+                                                false
+                                            );
+                                            battle.p2a.killed(deathJson);
+                                            killer = battle.p2a.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                battle.p2b,
+                                                false
+                                            );
+                                            battle.p2b.killed(deathJson);
+                                            killer = battle.p2b.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p1b;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p1b.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p1a.realName || battle.p1a.name;
+                                    } else if (
+                                        (victimSide === "p1b" &&
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p1b"))) &&
+                                        !battle.p1b.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p2a") {
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                battle.p2a,
+                                                false
+                                            );
+                                            battle.p2a.killed(deathJson);
+                                            killer = battle.p2a.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                battle.p2b,
+                                                false
+                                            );
+                                            battle.p2b.killed(deathJson);
+                                            killer = battle.p2b.name;
+                                        } else if (prevMoveUserSide === "p1a") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p1a;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p1a.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p1b.realName || battle.p1b.name;
+                                    } else if (
+                                        (victimSide === "p2a" &&
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p2a"))) &&
+                                        !battle.p2a.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p1a") {
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                battle.p1a,
+                                                false
+                                            );
+                                            battle.p1a.killed(deathJson);
+                                            killer = battle.p1a.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                battle.p1b,
+                                                false
+                                            );
+                                            battle.p1b.killed(deathJson);
+                                            killer = battle.p1b.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p2b;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p2b.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p2a.realName || battle.p2a.name;
+                                    } else if (
+                                        (victimSide === "p2b" &&
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p2b"))) &&
+                                        !battle.p2b.isDead
+                                    ) {
+                                        console.log("i'm here as well, boyos! this is getting hype.");
+                                        if (prevMoveUserSide === "p1a") {
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                battle.p1a,
+                                                false
+                                            );
+                                            battle.p1a.killed(deathJson);
+                                            killer = battle.p1a.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                battle.p1b,
+                                                false
+                                            );
+                                            battle.p1b.killed(deathJson);
+                                            killer = battle.p1b.name;
+                                        } else if (prevMoveUserSide === "p2a") {
+                                            console.log("Oh yeahh, it's all coming together.")
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p2a;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p2a.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p2b.realName || battle.p2b.name;
+                                    }
+                                } else {
+                                    if (
+                                        (victimSide === "p1a" ||
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p1a"))) &&
+                                        !battle.p1a.isDead
+                                    ) {
+                                        console.log("you're in the wrong place, buddy");
+                                        if (prevMoveUserSide === "p2a") {
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                battle.p2a,
+                                                false
+                                            );
+                                            battle.p2a.killed(deathJson);
+                                            killer = battle.p2a.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                battle.p2b,
+                                                false
+                                            );
+                                            battle.p2b.killed(deathJson);
+                                            killer = battle.p2b.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p1b;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p1a.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p1b.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p1a.realName || battle.p1a.name;
+                                    } else if (
+                                        (victimSide === "p1b" ||
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p1b"))) &&
+                                        !battle.p1b.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p2a") {
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                battle.p2a,
+                                                false
+                                            );
+                                            battle.p2a.killed(deathJson);
+                                            killer = battle.p2a.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                battle.p2b,
+                                                false
+                                            );
+                                            battle.p2b.killed(deathJson);
+                                            killer = battle.p2b.name;
+                                        } else if (prevMoveUserSide === "p1a") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p1a;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p1b.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p1a.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p1b.realName || battle.p1b.name;
+                                    } else if (
+                                        (victimSide === "p2a" ||
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p2a"))) &&
+                                        !battle.p2a.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p1a") {
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                battle.p1a,
+                                                false
+                                            );
+                                            battle.p1a.killed(deathJson);
+                                            killer = battle.p1a.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                battle.p1b,
+                                                false
+                                            );
+                                            battle.p1b.killed(deathJson);
+                                            killer = battle.p1b.name;
+                                        } else if (prevMoveUserSide === "p2b") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p2b;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p2a.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p2b.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p2a.realName || battle.p2a.name;
+                                    } else if (
+                                        (victimSide === "p2b" ||
+                                            (prevMoveParts[4] &&
+                                                prevMoveParts[4].includes(
+                                                    "[spread]"
+                                                ) &&
+                                                prevMoveParts[4].includes("p2b"))) &&
+                                        !battle.p2b.isDead
+                                    ) {
+                                        if (prevMoveUserSide === "p1a") {
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                battle.p1a,
+                                                false
+                                            );
+                                            battle.p1a.killed(deathJson);
+                                            killer = battle.p1a.name;
+                                        } else if (prevMoveUserSide === "p1b") {
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                battle.p1b,
+                                                false
+                                            );
+                                            battle.p1b.killed(deathJson);
+                                            killer = battle.p1b.name;
+                                        } else if (prevMoveUserSide === "p2a") {
+                                            if (this.rules.selfteam !== "None") {
+                                                killer = battle.p2a;
+                                            } else killer = undefined;
+                                            let deathJson = battle.p2b.died(
+                                                "direct",
+                                                killer,
+                                                this.rules.selfteam
+                                            );
+                                            if (killer) {
+                                                battle.p2a.killed(deathJson);
+                                            }
+                                        }
+                                        victim =
+                                            battle.p2b.realName || battle.p2b.name;
+                                    }
+                                }
 								reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 							}
 						}
