@@ -1069,8 +1069,19 @@ class Showdown {
 						console.log(
 							`${this.battleLink}: ${inflictor} caused ${parts[2]} on ${victim}.`
 						);
+						battle.history.push(
+							`${inflictor} caused ${parts[2]} on ${victim} (Turn ${battle.turns}).`
+						);
 
 						dataArr.splice(dataArr.length - 1, 1);
+					}
+
+					//If a mon flinches
+					else if (line.startsWith("|cant|")) {
+						let userSide = parts[1].split(": ")[0];
+						battle.history.push(
+							`${battle[userSide].realName} flinched (Turn ${battle.turns}).`
+						);
 					}
 
 					//Side-specific ailments e.g. Stealth Rock
@@ -1506,99 +1517,87 @@ class Showdown {
 								) {
 									killer = battle.weatherInflictor;
 									if (victimSide === "p1a") {
-										if (
-											Object.keys(
-												battle.p1Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p2a.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
 											true
 										);
-										if (killer) {
-											battle.p2Pokemon[killer].killed(
-												deathJson
-											);
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer) &&
+											this.rules.selfteam !== "None"
+										) {
+											killer = battle.p2a.name;
 										}
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
 									} else if (victimSide === "p1b") {
-										if (
-											Object.keys(
-												battle.p1Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p2b.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p1b.died(
 											move,
 											killer,
 											true
 										);
-										if (killer) {
-											battle.p2Pokemon[killer].killed(
-												deathJson
-											);
-										}
-										victim =
-											battle.p1a.realName ||
-											battle.p1a.name;
-									} else if (victimSide === "p2a") {
 										if (
 											Object.keys(
-												battle.p2Pokemon
-											).includes(killer)
+												battle.p1Pokemon
+											).includes(killer) &&
+											this.rules.selfteam !== "None"
 										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p1a.name;
-											else killer = undefined;
+											killer = battle.p2b.name;
 										}
+										battle.p2Pokemon[killer].killed(
+											deathJson
+										);
+										victim =
+											battle.p1b.realName ||
+											battle.p1b.name;
+									} else if (victimSide === "p2a") {
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
 											true
 										);
-										if (killer) {
-											battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer) &&
+											this.rules.selfteam !== "None"
+										) {
+											killer = battle.p1a.name;
 										}
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
 									} else if (victimSide === "p2b") {
-										if (
-											Object.keys(
-												battle.p2Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p1b.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p2b.died(
 											move,
 											killer,
 											true
 										);
-										if (killer) {
-											battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer) &&
+											this.rules.selfteam !== "None"
+										) {
+											killer = battle.p1b.name;
 										}
+										battle.p1Pokemon[killer].killed(
+											deathJson
+										);
 										victim =
-											battle.p2a.realName ||
-											battle.p2a.name;
+											battle.p2b.realName ||
+											battle.p2b.name;
 									}
-									reason = `${move} (passive) (Turn ${battle.turn})`;
+									reason = `${move} (passive) (Turn ${battle.turns})`;
 								}
 
 								//Status
@@ -2162,8 +2161,12 @@ class Showdown {
 										(victimSide === "p1a" ||
 											(prevMoveParts[4] &&
 												prevMoveParts[4].includes(
-													"[spread] p1"
-												))) &&
+													"[spread]"
+												) &&
+												prevMoveParts[4].includes(
+													"p1a"
+												) &&
+												victimSide === "p1a")) &&
 										!battle.p1a.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2183,17 +2186,16 @@ class Showdown {
 											battle.p2b.killed(deathJson);
 											killer = battle.p2b.name;
 										} else if (prevMoveUserSide === "p1b") {
-											if (
-												this.rules.selfteam !== "None"
-											) {
-												killer = battle.p1b;
-											} else killer = undefined;
+											killer = battle.p1b.name;
 											let deathJson = battle.p1a.died(
 												"direct",
 												killer,
-												this.rules.selfteam
+												this.rules.selfteam ===
+													"Passive"
 											);
-											if (killer) {
+											if (
+												this.rules.selfteam !== "None"
+											) {
 												battle.p1b.killed(deathJson);
 											}
 										}
@@ -2204,8 +2206,12 @@ class Showdown {
 										(victimSide === "p1b" ||
 											(prevMoveParts[4] &&
 												prevMoveParts[4].includes(
-													"[spread] p1"
-												))) &&
+													"[spread]"
+												) &&
+												prevMoveParts[4].includes(
+													"p1b"
+												) &&
+												victimSide === "p1b")) &&
 										!battle.p1b.isDead
 									) {
 										if (prevMoveUserSide === "p2a") {
@@ -2225,17 +2231,16 @@ class Showdown {
 											battle.p2b.killed(deathJson);
 											killer = battle.p2b.name;
 										} else if (prevMoveUserSide === "p1a") {
-											if (
-												this.rules.selfteam !== "None"
-											) {
-												killer = battle.p1a;
-											} else killer = undefined;
+											killer = battle.p1a.name;
 											let deathJson = battle.p1b.died(
 												"direct",
 												killer,
-												this.rules.selfteam
+												this.rules.selfteam ===
+													"Passive"
 											);
-											if (killer) {
+											if (
+												this.rules.selfteam !== "None"
+											) {
 												battle.p1a.killed(deathJson);
 											}
 										}
@@ -2246,8 +2251,12 @@ class Showdown {
 										(victimSide === "p2a" ||
 											(prevMoveParts[4] &&
 												prevMoveParts[4].includes(
-													"[spread] p2"
-												))) &&
+													"[spread]"
+												) &&
+												prevMoveParts[4].includes(
+													"p2a"
+												) &&
+												victimSide === "p2a")) &&
 										!battle.p2a.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
@@ -2267,17 +2276,16 @@ class Showdown {
 											battle.p1b.killed(deathJson);
 											killer = battle.p1b.name;
 										} else if (prevMoveUserSide === "p2b") {
-											if (
-												this.rules.selfteam !== "None"
-											) {
-												killer = battle.p2b;
-											} else killer = undefined;
+											killer = battle.p2b.name;
 											let deathJson = battle.p2a.died(
 												"direct",
 												killer,
-												this.rules.selfteam
+												this.rules.selfteam ===
+													"Passive"
 											);
-											if (killer) {
+											if (
+												this.rules.selfteam !== "None"
+											) {
 												battle.p2b.killed(deathJson);
 											}
 										}
@@ -2288,8 +2296,12 @@ class Showdown {
 										(victimSide === "p2b" ||
 											(prevMoveParts[4] &&
 												prevMoveParts[4].includes(
-													"[spread] p2"
-												))) &&
+													"[spread]"
+												) &&
+												prevMoveParts[4].includes(
+													"p2b"
+												) &&
+												victimSide === "p2b")) &&
 										!battle.p2b.isDead
 									) {
 										if (prevMoveUserSide === "p1a") {
@@ -2309,17 +2321,16 @@ class Showdown {
 											battle.p1b.killed(deathJson);
 											killer = battle.p1b.name;
 										} else if (prevMoveUserSide === "p2a") {
-											if (
-												this.rules.selfteam !== "None"
-											) {
-												killer = battle.p2a;
-											} else killer = undefined;
+											killer = battle.p2a.name;
 											let deathJson = battle.p2b.died(
 												"direct",
 												killer,
-												this.rules.selfteam
+												this.rules.selfteam ===
+													"Passive"
 											);
-											if (killer) {
+											if (
+												this.rules.selfteam !== "None"
+											) {
 												battle.p2a.killed(deathJson);
 											}
 										}
@@ -2330,7 +2341,7 @@ class Showdown {
 									reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 								}
 							}
-							if (victim && killer && reason) {
+							if (victim && reason) {
 								console.log(
 									`${this.battleLink}: ${victim} was killed by ${killer} due to ${reason}.`
 								);
@@ -2748,7 +2759,13 @@ class Showdown {
 					//After the match is done and replay request is sent, it uploads the replay and gets the link
 					else if (line.startsWith("|queryresponse|savereplay")) {
 						let replayData = JSON.parse(data.substring(26));
-						battle.replay = await this.requestReplay(replayData);
+						let replayLink = await this.requestReplay(replayData);
+						battle.replay = `https://replay.pokemonshowdown.com/${this.battleLink.replace(
+							"battle-",
+							this.serverType === "showdown"
+								? ""
+								: this.serverType + "-"
+						)}`;
 						await axios
 							.post(
 								`https://server.porygonbot.xyz/kills/${
