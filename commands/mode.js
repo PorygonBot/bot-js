@@ -31,7 +31,7 @@ module.exports = {
 		switch (discordMode) {
 			case "-c":
 				mode = "Channel";
-				streamChannel = args[1];
+				streamChannel = args[1].substring(2, args[1].length - 1);
 				if (!streamChannel) {
 					return channel.send(
 						":x: You didn't link a channel. Please run the command again and link the channel you'd like the stats to be put in."

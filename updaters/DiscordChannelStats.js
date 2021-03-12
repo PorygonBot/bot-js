@@ -26,7 +26,7 @@ class DiscordChannelStats {
 			return this.channel.send(
 				":x: Error! You don't have a match results channel in the database for this server. "
 			);
-		}
+        }
 		let streamChannel = utils.getChannel(
 			this.server,
 			matchJson.streamChannel
