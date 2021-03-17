@@ -538,8 +538,12 @@ const misnomers = [
 	"Silvally-Psychic",
 	"Silvally-Rock",
 	"Silvally-Steel",
-	"Silvally-Water",
-	"Gourgeist",
+    "Silvally-Water",
+    "Silvally-*",
+    "Pumpkaboo",
+    "Pumpkaboo-Small",
+    "Gourgeist",
+    "Gourgeist-Super",
 	"Oricorio",
 	"Arceus-*",
 	"Keldeo",
@@ -553,8 +557,8 @@ const misnomers = [
 //Other bot stuff
 const quirkyMessages = {
 	start: [
-		"ghlf :)",
-		"Porygon has digitalized into the match... booting up... successfully calibrating stats!",
+		"glhf :)",
+		"Porygon has digitized into the match... booting up... successfully calibrating stats!",
 		"I hope I win!",
 		"y'all suck",
 		"y'all are stupid",
@@ -598,6 +602,7 @@ const randomElement = (list) => {
 // first array and if some of them
 // include the elements in the second
 // array then return true.
+// Credit to GeeksForGeeks
 function findCommonElements(arr1, arr2) {
 	return arr1.some((item) => arr2.includes(item));
 }
