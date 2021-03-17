@@ -335,7 +335,7 @@ class ReplayTracker {
 					line.startsWith("|-hitcount|") ||
 					line.startsWith("|-ability|") ||
 					line.startsWith("|-fieldactivate|") ||
-                    line.startsWith("|-fail|") ||
+					line.startsWith("|-fail|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
@@ -2050,7 +2050,7 @@ class ReplayTracker {
 								prevLine.includes("Final Gambit") ||
 								prevLine.includes("Lunar Dance"))) ||
 						prevLine.includes("Curse")
-                    ) {
+					) {
 						let prevMove = prevParts[2];
 
 						let killer = "";

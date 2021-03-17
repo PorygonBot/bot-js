@@ -328,13 +328,8 @@ class Showdown {
 						let realName = parts[2].split(",")[0];
 						let pokemonName = realName.split("-")[0];
 						let pokemon = new Pokemon(pokemonName, realName); //Adding a pokemon to the list of pokemon in the battle
-						if (parts[1] === "p1") {
-							//If the pokemon belongs to Player 1
-							battle.p1Pokemon[pokemonName] = pokemon;
-						} else if (parts[1] === "p2") {
-							//If the pokemon belongs to Player 2
-							battle.p2Pokemon[pokemonName] = pokemon;
-						}
+
+						battle[`${parts[1]}Pokemon`][pokemonName] = pokemon;
 					}
 
 					//If a Pokemon switches, the active Pokemon must now change
@@ -557,6 +552,7 @@ class Showdown {
 						line.startsWith("|-hitcount|") ||
 						line.startsWith("|-ability|") ||
 						line.startsWith("|-fieldactivate|") ||
+						line.startsWith("|-fail|") ||
 						line === "|"
 					) {
 						dataArr.splice(dataArr.length - 1, 1);
@@ -564,18 +560,13 @@ class Showdown {
 
 					//When a Pokemon mega-evolves, I change its "realname"
 					else if (line.startsWith(`|detailschange|`)) {
-						if (parts[2].includes("Mega")) {
+						if (
+							parts[2].includes("Mega") ||
+							parts[2].includes("Primal")
+						) {
 							let side = parts[1].split(": ")[0];
 							let realName = parts[2].split(",")[0];
-							if (side === "p1a") {
-								battle.p1a.realName = realName;
-							} else if (side === "p1b") {
-								battle.p1b.realName = realName;
-							} else if (side === "p2a") {
-								battle.p2a.realName = realName;
-							} else if (side === "p2b") {
-								battle.p2b.realName = realName;
-							}
+							battle[side].realName = realName;
 						}
 						dataArr.splice(dataArr.length - 1, 1);
 					}
@@ -1079,9 +1070,12 @@ class Showdown {
 					//If a mon flinches
 					else if (line.startsWith("|cant|")) {
 						let userSide = parts[1].split(": ")[0];
-						battle.history.push(
-							`${battle[userSide].realName} flinched (Turn ${battle.turns}).`
-						);
+
+						if (parts[2].includes("flinch")) {
+							battle.history.push(
+								`${battle[userSide].realName} flinched (Turn ${battle.turns}).`
+							);
+						}
 					}
 
 					//Side-specific ailments e.g. Stealth Rock
@@ -2082,7 +2076,7 @@ class Showdown {
 									let deathJson = battle.p1a.died(
 										prevMove,
 										killer,
-										true
+										false
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
 									victim =
@@ -2092,7 +2086,7 @@ class Showdown {
 									let deathJson = battle.p1b.died(
 										prevMove,
 										killer,
-										true
+										false
 									);
 									battle.p2Pokemon[killer].killed(deathJson);
 									victim =
@@ -2102,7 +2096,7 @@ class Showdown {
 									let deathJson = battle.p2a.died(
 										prevMove,
 										killer,
-										true
+										false
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
 									victim =
@@ -2112,7 +2106,7 @@ class Showdown {
 									let deathJson = battle.p2b.died(
 										prevMove,
 										killer,
-										true
+										false
 									);
 									battle.p1Pokemon[killer].killed(deathJson);
 									victim =
@@ -2443,15 +2437,21 @@ class Showdown {
 
 							let killer = "";
 							let victim;
-							let killerSide = prevParts[1].split(": ")[0];
+							if (this.rules.suicide !== "None") {
+								killer =
+									battle[
+										prevParts[1]
+											.split(": ")[0]
+											.endsWith("a") ||
+										prevParts[1]
+											.split(": ")[0]
+											.endsWith("b")
+											? prevParts[1].split(": ")[0]
+											: `${prevParts[1].split(": ")[0]}a`
+									].name;
+							}
 							if (victimSide === "p2a" && !battle.p2a.isDead) {
 								victim = battle.p2a.realName || battle.p2a.name;
-								if (this.rules.suicide !== "None") {
-									if (killerSide === "p1a")
-										killer = battle.p1a.name;
-									else if (killerSide === "p1b")
-										killer = battle.p1b.name;
-								}
 
 								let deathJson = battle.p2a.died(
 									prevMove,
@@ -2466,12 +2466,6 @@ class Showdown {
 								!battle.p2b.isDead
 							) {
 								victim = battle.p2b.realName || battle.p2b.name;
-								if (this.rules.suicide !== "None") {
-									if (killerSide === "p1a")
-										killer = battle.p1a.name;
-									else if (killerSide === "p1b")
-										killer = battle.p1b.name;
-								}
 
 								let deathJson = battle.p2b.died(
 									prevMove,
@@ -2486,12 +2480,6 @@ class Showdown {
 								!battle.p1a.isDead
 							) {
 								victim = battle.p1a.realName || battle.p1a.name;
-								if (this.rules.suicide !== "None") {
-									if (killerSide === "p2a")
-										killer = battle.p2a.name;
-									else if (killerSide === "p2b")
-										killer = battle.p2b.name;
-								}
 
 								let deathJson = battle.p1a.died(
 									prevMove,
@@ -2506,12 +2494,6 @@ class Showdown {
 								!battle.p1b.isDead
 							) {
 								victim = battle.p1b.realName || battle.p1b.name;
-								if (this.rules.suicide !== "None") {
-									if (killerSide === "p2a")
-										killer = battle.p2a.name;
-									else if (killerSide === "p2b")
-										killer = battle.p2b.name;
-								}
 
 								let deathJson = battle.p1b.died(
 									prevMove,
@@ -2641,13 +2623,9 @@ class Showdown {
 											numDead++;
 										}
 									}
-									if (this.rules.forfeit === "Direct") {
-										battle.p2a.currentDirectKills += numDead;
-									} else if (
-										this.rules.forfeit === "Passive"
-									) {
-										battle.p2a.currentPassiveKills += numDead;
-									}
+									battle.p2a[
+										`current${this.rules.forfeit}Kills`
+									] += numDead;
 								} else if (forfeiter === battle.p2) {
 									for (let pokemon of Object.values(
 										battle.p2Pokemon
@@ -2656,15 +2634,12 @@ class Showdown {
 											numDead++;
 										}
 									}
-									if (this.rules.forfeit === "Direct") {
-										battle.p1a.currentDirectKills += numDead;
-									} else if (
-										this.rules.forfeit === "Passive"
-									) {
-										battle.p1a.currentPassiveKills += numDead;
-									}
+									battle.p1a[
+										`current${this.rules.forfeit}Kills`
+									] += numDead;
 								}
 							}
+							battle.forfeiter = forfeiter;
 						}
 					}
 
