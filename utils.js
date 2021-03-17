@@ -386,10 +386,10 @@ const isPatron = async (client, guildID) => {
 		.all()
 		.then(async (records) => {
 			for (let record of records) {
-                const id = await record.get("Discord User ID");
-                const user = await guild.members.fetch(id).catch((e) => {
-                    //Do nothing
-                });
+				const id = await record.get("Discord User ID");
+				const user = await guild.members.fetch(id).catch((e) => {
+					//Do nothing
+				});
 
 				if (user && user.hasPermission("ADMINISTRATOR")) {
 					isTrue = true;
@@ -538,12 +538,12 @@ const misnomers = [
 	"Silvally-Psychic",
 	"Silvally-Rock",
 	"Silvally-Steel",
-    "Silvally-Water",
-    "Silvally-*",
-    "Pumpkaboo",
-    "Pumpkaboo-Small",
-    "Gourgeist",
-    "Gourgeist-Super",
+	"Silvally-Water",
+	"Silvally-*",
+	"Pumpkaboo",
+	"Pumpkaboo-Small",
+	"Gourgeist",
+	"Gourgeist-Super",
 	"Oricorio",
 	"Arceus-*",
 	"Keldeo",

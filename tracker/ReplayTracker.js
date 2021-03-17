@@ -2314,7 +2314,10 @@ class ReplayTracker {
 							)
 						) {
 							battle.p1Pokemon[pokemonName].realName = newName;
-						}
+                        }
+                        if (pokemonName === "") {
+                            battle.p1Pokemon.splice(battle.p1Pokemon.indexOf(pokemonName));
+                        }
 					}
 					//Team 2
 					for (let pokemonName of Object.keys(battle.p2Pokemon)) {
@@ -2330,6 +2333,9 @@ class ReplayTracker {
 						) {
 							battle.p2Pokemon[pokemonName].realName = newName;
 						}
+                        if (pokemonName === "") {
+                            battle.p2Pokemon.splice(battle.p2Pokemon.indexOf(pokemonName));
+                        }
 					}
 
 					console.log(`${battle.winner} won!`);
@@ -2423,21 +2429,18 @@ class ReplayTracker {
 					if (
 						battle.winner.endsWith("p1") &&
 						battle.loser.endsWith("p2")
-					) {
-						info.result = `${battle.p1} won ${
-							Object.keys(killJsonp1).length -
-							Object.keys(battle.p1Pokemon)
-								.filter(
-									(pokemonKey) =>
-										battle.p1Pokemon[pokemonKey].isDead
-								).length
+                    ) {
+                        info.result = `${battle.p1} won ${Object.keys(killJsonp1).length -
+                            Object.keys(deathJsonp1).filter(
+                                (pokemonKey) =>
+                                    deathJsonp1[pokemonKey] === 1
+							).length
 						}-${
 							Object.keys(killJsonp2).length -
-							Object.keys(battle.p2Pokemon)
-								.filter(
-									(pokemonKey) =>
-										battle.p2Pokemon[pokemonKey].isDead
-								).length
+							Object.keys(deathJsonp2).filter(
+                                (pokemonKey) =>
+                                    deathJsonp2[pokemonKey] === 1
+							).length
 						}`;
 
 						await this.endscript(
@@ -2452,21 +2455,19 @@ class ReplayTracker {
 					} else if (
 						battle.winner.endsWith("p2") &&
 						battle.loser.endsWith("p1")
-					) {
+                    ) {
 						info.result = `${battle.p2} won ${
 							Object.keys(killJsonp2).length -
-							Object.keys(battle.p2Pokemon)
-								.filter(
-									(pokemonKey) =>
-										battle.p2Pokemon[pokemonKey].isDead
-								).length
+							Object.keys(deathJsonp2).filter(
+                                (pokemonKey) =>
+                                    deathJsonp2[pokemonKey] === 1
+							).length
 						}-${
 							Object.keys(killJsonp1).length -
-							Object.keys(battle.p1Pokemon)
-								.filter(
-									(pokemonKey) =>
-										battle.p1Pokemon[pokemonKey].isDead
-								).length
+							Object.keys(deathJsonp1).filter(
+                                (pokemonKey) =>
+                                    deathJsonp1[pokemonKey] === 1
+							).length
 						}`;
 
 						await this.endscript(
