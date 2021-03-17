@@ -835,9 +835,12 @@ class ReplayTracker {
 				//If a mon flinches
 				else if (line.startsWith("|cant|")) {
 					let userSide = parts[1].split(": ")[0];
-					battle.history.push(
-						`${battle[userSide].realName} flinched (Turn ${battle.turns}).`
-					);
+
+                    if (parts[2].includes("flinch")) {
+                        battle.history.push(
+                            `${battle[userSide].realName} flinched (Turn ${battle.turns}).`
+                        );
+                    }
 				}
 
 				//Side-specific ailments e.g. Stealth Rock
