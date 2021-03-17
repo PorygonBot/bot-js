@@ -29,6 +29,7 @@ class Battle {
         this.replay = "";
         this.winner = "";
         this.loser = "";
+        this.forfeiter = "";
         //Player 1's pokemon
         this.p1a = new Pokemon("");
         this.p1b = new Pokemon("");

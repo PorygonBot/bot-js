@@ -69,7 +69,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -111,13 +111,8 @@ class ReplayTracker {
 					let realName = parts[2].split(",")[0];
 					let pokemonName = realName.split("-")[0];
 					let pokemon = new Pokemon(pokemonName, realName); //Adding a pokemon to the list of pokemon in the battle
-					if (parts[1] === "p1") {
-						//If the pokemon belongs to Player 1
-						battle.p1Pokemon[pokemonName] = pokemon;
-					} else if (parts[1] === "p2") {
-						//If the pokemon belongs to Player 2
-						battle.p2Pokemon[pokemonName] = pokemon;
-					}
+
+					battle[`${parts[1]}Pokemon`][pokemonName] = pokemon;
 				}
 
 				//If a Pokemon switches, the active Pokemon must now change
@@ -347,10 +342,13 @@ class ReplayTracker {
 
 				//When a Pokemon mega-evolves, I change its "realname"
 				else if (line.startsWith(`|detailschange|`)) {
-					if (parts[2].includes("Mega") || parts[2].includes("Primal")) {
+					if (
+						parts[2].includes("Mega") ||
+						parts[2].includes("Primal")
+					) {
 						let side = parts[1].split(": ")[0];
 						let realName = parts[2].split(",")[0];
-                        battle[side].realName = realName;
+						battle[side].realName = realName;
 					}
 					dataArr.splice(dataArr.length - 1, 1);
 				}
@@ -828,11 +826,11 @@ class ReplayTracker {
 				else if (line.startsWith("|cant|")) {
 					let userSide = parts[1].split(": ")[0];
 
-                    if (parts[2].includes("flinch")) {
-                        battle.history.push(
-                            `${battle[userSide].realName} flinched (Turn ${battle.turns}).`
-                        );
-                    }
+					if (parts[2].includes("flinch")) {
+						battle.history.push(
+							`${battle[userSide].realName} flinched (Turn ${battle.turns}).`
+						);
+					}
 				}
 
 				//Side-specific ailments e.g. Stealth Rock
@@ -2236,11 +2234,9 @@ class ReplayTracker {
 										numDead++;
 									}
 								}
-								if (this.rules.forfeit === "Direct") {
-									battle.p2a.currentDirectKills += numDead;
-								} else if (this.rules.forfeit === "Passive") {
-									battle.p2a.currentPassiveKills += numDead;
-								}
+								battle.p2a[
+									`current${this.rules.forfeit}Kills`
+								] += numDead;
 							} else if (forfeiter === battle.p2) {
 								for (let pokemon of Object.values(
 									battle.p2Pokemon
@@ -2249,13 +2245,12 @@ class ReplayTracker {
 										numDead++;
 									}
 								}
-								if (this.rules.forfeit === "Direct") {
-									battle.p1a.currentDirectKills += numDead;
-								} else if (this.rules.forfeit === "Passive") {
-									battle.p1a.currentPassiveKills += numDead;
-								}
+								battle.p1a[
+									`current${this.rules.forfeit}Kills`
+								] += numDead;
 							}
 						}
+						battle.forfeiter = forfeiter;
 					}
 				}
 
@@ -2364,7 +2359,8 @@ class ReplayTracker {
 								Object.keys(deathJsonp1).includes(
 									pokemonObj.realName
 								)
-							)
+							) &&
+							pokemonObj.realName !== ""
 						) {
 							killJsonp1[pokemonObj.realName] = {
 								direct: pokemonObj.directKills,
@@ -2387,7 +2383,8 @@ class ReplayTracker {
 								Object.keys(deathJsonp2).includes(
 									pokemonObj.realName
 								)
-							)
+							) &&
+							pokemonObj.realName !== ""
 						) {
 							killJsonp2[pokemonObj.realName] = {
 								direct: pokemonObj.directKills,
@@ -2428,30 +2425,21 @@ class ReplayTracker {
 						battle.loser.endsWith("p2")
 					) {
 						info.result = `${battle.p1} won ${
-							Object.keys(battle.p1Pokemon).filter(
-								(pokemonKey) => !pokemonKey.includes("-")
-							).length -
+							Object.keys(killJsonp1).length -
 							Object.keys(battle.p1Pokemon)
-								.filter(
-									(pokemonKey) => !pokemonKey.includes("-")
-								)
 								.filter(
 									(pokemonKey) =>
 										battle.p1Pokemon[pokemonKey].isDead
 								).length
 						}-${
-							Object.keys(battle.p2Pokemon).filter(
-								(pokemonKey) => !pokemonKey.includes("-")
-							).length -
+							Object.keys(killJsonp2).length -
 							Object.keys(battle.p2Pokemon)
-								.filter(
-									(pokemonKey) => !pokemonKey.includes("-")
-								)
 								.filter(
 									(pokemonKey) =>
 										battle.p2Pokemon[pokemonKey].isDead
 								).length
 						}`;
+
 						await this.endscript(
 							battle.winner,
 							killJsonp1,
@@ -2466,41 +2454,15 @@ class ReplayTracker {
 						battle.loser.endsWith("p1")
 					) {
 						info.result = `${battle.p2} won ${
-							Object.keys(battle.p2Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
-							).length -
+							Object.keys(killJsonp2).length -
 							Object.keys(battle.p2Pokemon)
-								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
-								)
 								.filter(
 									(pokemonKey) =>
 										battle.p2Pokemon[pokemonKey].isDead
 								).length
 						}-${
-							Object.keys(battle.p1Pokemon).filter(
-								(pokemonKey) =>
-									!(
-										pokemonKey.includes("-") ||
-										pokemonKey.includes(":")
-									)
-							).length -
+							Object.keys(killJsonp1).length -
 							Object.keys(battle.p1Pokemon)
-								.filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
-								)
 								.filter(
 									(pokemonKey) =>
 										battle.p1Pokemon[pokemonKey].isDead
