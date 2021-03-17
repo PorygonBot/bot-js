@@ -258,15 +258,15 @@ class Showdown {
 						console.log(`Left ${this.battleLink}.`);
 						if (line.includes("nonexistent|")) {
 							return this.message.channel.send(
-								":x: This link is invalid. The battleroom is either closed or non-existent. I have left the battle."
+								`:x: Battle ${this.battleLink} is invalid. The battleroom is either closed or non-existent. I have left the battle.`
 							);
 						} else if (line.includes("joinfailed")) {
 							this.message.channel.send(
-								":x: This link is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it."
+								`:x: Battle ${this.battleLink} is closed to spectators. I have left the battle. Please start a new battle with spectators allowed if you want me to track it.`
 							);
 						} else if (line.includes("rename")) {
 							await this.message.channel.send(
-								":x: This link has become private. I have left the battle. Please run `/inviteonly off` in the battle chat and re-send the link here."
+								`:x: Battle ${this.battleLink} has become private. I have left the battle. Please run \`/inviteonly off\` in the battle chat and re-send the link here.`
 							);
 						}
 					}
