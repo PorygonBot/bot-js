@@ -335,6 +335,7 @@ class ReplayTracker {
 					line.startsWith("|-hitcount|") ||
 					line.startsWith("|-ability|") ||
 					line.startsWith("|-fieldactivate|") ||
+                    line.startsWith("|-fail|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
@@ -2049,20 +2050,22 @@ class ReplayTracker {
 								prevLine.includes("Final Gambit") ||
 								prevLine.includes("Lunar Dance"))) ||
 						prevLine.includes("Curse")
-					) {
+                    ) {
 						let prevMove = prevParts[2];
 
 						let killer = "";
 						let victim;
-						let killerSide = prevParts[1].split(": ")[0];
+						if (this.rules.suicide !== "None") {
+							killer =
+								battle[
+									prevParts[1].split(": ")[0].endsWith("a") ||
+									prevParts[1].split(": ")[0].endsWith("b")
+										? prevParts[1].split(": ")[0]
+										: `${prevParts[1].split(": ")[0]}a`
+								].name;
+						}
 						if (victimSide === "p2a" && !battle.p2a.isDead) {
 							victim = battle.p2a.realName || battle.p2a.name;
-							if (this.rules.suicide !== "None") {
-								if (killerSide === "p1a")
-									killer = battle.p1a.name;
-								else if (killerSide === "p1b")
-									killer = battle.p1b.name;
-							}
 
 							let deathJson = battle.p2a.died(
 								prevMove,
@@ -2074,12 +2077,6 @@ class ReplayTracker {
 							}
 						} else if (victimSide === "p2b" && !battle.p2b.isDead) {
 							victim = battle.p2b.realName || battle.p2b.name;
-							if (this.rules.suicide !== "None") {
-								if (killerSide === "p1a")
-									killer = battle.p1a.name;
-								else if (killerSide === "p1b")
-									killer = battle.p1b.name;
-							}
 
 							let deathJson = battle.p2b.died(
 								prevMove,
@@ -2091,12 +2088,6 @@ class ReplayTracker {
 							}
 						} else if (victimSide === "p1a" && !battle.p1a.isDead) {
 							victim = battle.p1a.realName || battle.p1a.name;
-							if (this.rules.suicide !== "None") {
-								if (killerSide === "p2a")
-									killer = battle.p2a.name;
-								else if (killerSide === "p2b")
-									killer = battle.p2b.name;
-							}
 
 							let deathJson = battle.p1a.died(
 								prevMove,
@@ -2108,12 +2099,6 @@ class ReplayTracker {
 							}
 						} else if (victimSide === "p1b" && !battle.p1b.isDead) {
 							victim = battle.p1b.realName || battle.p1b.name;
-							if (this.rules.suicide !== "None") {
-								if (killerSide === "p2a")
-									killer = battle.p2a.name;
-								else if (killerSide === "p2b")
-									killer = battle.p2b.name;
-							}
 
 							let deathJson = battle.p1b.died(
 								prevMove,
@@ -2314,10 +2299,12 @@ class ReplayTracker {
 							)
 						) {
 							battle.p1Pokemon[pokemonName].realName = newName;
-                        }
-                        if (pokemonName === "") {
-                            battle.p1Pokemon.splice(battle.p1Pokemon.indexOf(pokemonName));
-                        }
+						}
+						if (pokemonName === "") {
+							battle.p1Pokemon.splice(
+								battle.p1Pokemon.indexOf(pokemonName)
+							);
+						}
 					}
 					//Team 2
 					for (let pokemonName of Object.keys(battle.p2Pokemon)) {
@@ -2333,9 +2320,11 @@ class ReplayTracker {
 						) {
 							battle.p2Pokemon[pokemonName].realName = newName;
 						}
-                        if (pokemonName === "") {
-                            battle.p2Pokemon.splice(battle.p2Pokemon.indexOf(pokemonName));
-                        }
+						if (pokemonName === "") {
+							battle.p2Pokemon.splice(
+								battle.p2Pokemon.indexOf(pokemonName)
+							);
+						}
 					}
 
 					console.log(`${battle.winner} won!`);
@@ -2429,17 +2418,16 @@ class ReplayTracker {
 					if (
 						battle.winner.endsWith("p1") &&
 						battle.loser.endsWith("p2")
-                    ) {
-                        info.result = `${battle.p1} won ${Object.keys(killJsonp1).length -
-                            Object.keys(deathJsonp1).filter(
-                                (pokemonKey) =>
-                                    deathJsonp1[pokemonKey] === 1
+					) {
+						info.result = `${battle.p1} won ${
+							Object.keys(killJsonp1).length -
+							Object.keys(deathJsonp1).filter(
+								(pokemonKey) => deathJsonp1[pokemonKey] === 1
 							).length
 						}-${
 							Object.keys(killJsonp2).length -
 							Object.keys(deathJsonp2).filter(
-                                (pokemonKey) =>
-                                    deathJsonp2[pokemonKey] === 1
+								(pokemonKey) => deathJsonp2[pokemonKey] === 1
 							).length
 						}`;
 
@@ -2455,18 +2443,16 @@ class ReplayTracker {
 					} else if (
 						battle.winner.endsWith("p2") &&
 						battle.loser.endsWith("p1")
-                    ) {
+					) {
 						info.result = `${battle.p2} won ${
 							Object.keys(killJsonp2).length -
 							Object.keys(deathJsonp2).filter(
-                                (pokemonKey) =>
-                                    deathJsonp2[pokemonKey] === 1
+								(pokemonKey) => deathJsonp2[pokemonKey] === 1
 							).length
 						}-${
 							Object.keys(killJsonp1).length -
 							Object.keys(deathJsonp1).filter(
-                                (pokemonKey) =>
-                                    deathJsonp1[pokemonKey] === 1
+								(pokemonKey) => deathJsonp1[pokemonKey] === 1
 							).length
 						}`;
 
