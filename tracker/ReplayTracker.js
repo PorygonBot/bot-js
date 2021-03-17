@@ -1726,7 +1726,7 @@ class ReplayTracker {
 								let deathJson = battle.p1a.died(
 									prevMove,
 									killer,
-									true
+									false
 								);
 								battle.p2Pokemon[killer].killed(deathJson);
 								victim = battle.p1a.realName || battle.p1a.name;
@@ -1735,7 +1735,7 @@ class ReplayTracker {
 								let deathJson = battle.p1b.died(
 									prevMove,
 									killer,
-									true
+									false
 								);
 								battle.p2Pokemon[killer].killed(deathJson);
 								victim = battle.p1b.realName || battle.p1b.name;
@@ -1744,7 +1744,7 @@ class ReplayTracker {
 								let deathJson = battle.p2a.died(
 									prevMove,
 									killer,
-									true
+									false
 								);
 								battle.p1Pokemon[killer].killed(deathJson);
 								victim = battle.p2a.realName || battle.p2a.name;
@@ -1753,7 +1753,7 @@ class ReplayTracker {
 								let deathJson = battle.p2b.died(
 									prevMove,
 									killer,
-									true
+									false
 								);
 								battle.p1Pokemon[killer].killed(deathJson);
 								victim = battle.p2b.realName || battle.p2b.name;
