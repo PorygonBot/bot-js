@@ -347,18 +347,10 @@ class ReplayTracker {
 
 				//When a Pokemon mega-evolves, I change its "realname"
 				else if (line.startsWith(`|detailschange|`)) {
-					if (parts[2].includes("Mega")) {
+					if (parts[2].includes("Mega") || parts[2].includes("Primal")) {
 						let side = parts[1].split(": ")[0];
 						let realName = parts[2].split(",")[0];
-						if (side === "p1a") {
-							battle.p1a.realName = realName;
-						} else if (side === "p1b") {
-							battle.p1b.realName = realName;
-						} else if (side === "p2a") {
-							battle.p2a.realName = realName;
-						} else if (side === "p2b") {
-							battle.p2b.realName = realName;
-						}
+                        battle[side].realName = realName;
 					}
 					dataArr.splice(dataArr.length - 1, 1);
 				}
