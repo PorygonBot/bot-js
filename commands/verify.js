@@ -10,7 +10,6 @@ const VIEW_NAME = "Grid view";
 
 module.exports = {
 	name: "verify",
-	aliases: [],
 	description: "Allows users to verify that they're Patreon supporters.",
 	async execute(message, args, client) {
 		const channel = message.channel;

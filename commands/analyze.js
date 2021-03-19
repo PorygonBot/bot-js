@@ -4,8 +4,9 @@ const ReplayTracker = require("../tracker/ReplayTracker");
 
 module.exports = {
 	name: "analyze",
-	description: "Analyze replays instead of live links.",
-	aliases: ["analyse"],
+	description: "Analyzes Pokemon Showdown replays.",
+    aliases: ["analyse"],
+    usage: "[replay link]",
 	async execute(message, args, client) {
 		const channel = message.channel;
 

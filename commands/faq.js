@@ -2,15 +2,12 @@ const Discord = require("discord.js");
 
 module.exports = {
 	name: "faq",
-	description:
-		"An FAQ regarding setup of the bot and about the bot in general.",
+	description: "An FAQ regarding setup of the bot and about the bot in general.",
 	execute(message, args, client) {
 		const faqEmbed = new Discord.MessageEmbed()
 			.setColor("#fc03d7")
 			.setTitle("Porygon FAQ")
-			.setURL(
-				"https://www.notion.so/harshithpersonal/Porygon-Setup-Usage-Tutorial-69e286240d2c4309a8d53f7a3beb7c6c"
-			)
+			.setURL("https://bit.ly/porygon")
 			.setDescription(
 				'Porygon is a bot that automatically joins and tracks the stats of a Pokemon Showdown battle. Click on "Porygon FAQ" in this message for a tutorial.'
 			)
@@ -31,7 +28,11 @@ module.exports = {
 			)
 			.addField(
 				"Surely there are some caveats that there are to using the bot?",
-				"Yes! You need to keep your battles spectator-open, they cannot be randoms matches, they have to have Dupe Clause active, and they have to be singles matches."
+				"Yes! You need to keep your battles spectator-open, they cannot be randoms matches, and they have to have Dupe Clause active."
+			)
+			.addField(
+				"I want to support this bot!",
+				"Awesome! You can support it here, monetarily or otherwise:\nhttps://patreon.com/harbar20 \nhttps://paypal.me/harbar20 \nCashapp: $harbar20 \nhttps://top.gg/bot/692091256477581423 \nhttps://discord.bots.gg/bots/692091256477581423"
 			)
 			.addField(
 				"My question isn't on this list! or I have another issue!",

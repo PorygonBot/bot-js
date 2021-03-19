@@ -12,10 +12,12 @@ const base = new Airtable({
 module.exports = {
 	name: "mode",
 	description:
-		"Set the stats updating mode. Run without any parameters to get more info!",
+		"Sets the stats updating mode. Run without any parameters to get more info.",
+	usage:
+		"[mode name with hyphen] [parameter] [optional: --redirect] [optional: #redirect-channel]",
 	async execute(message, args, client) {
-        const channel = message.channel;
-        const author = message.author;
+		const channel = message.channel;
+		const author = message.author;
 
 		if (!message.member.hasPermission("MANAGE_ROLES")) {
 			return channel.send(
@@ -52,18 +54,22 @@ module.exports = {
 					return channel.send(
 						":x: This is not a Google Sheets link. Please copy-paste the URL of your Google Sheets file."
 					);
-                }
-                sheetsID = sheetsLink.split("/")[5];
+				}
+				sheetsID = sheetsLink.split("/")[5];
 				break;
-            case "-dl":
-                mode = "DL";
-                dlID = querystring.parse(args[1].split("?")[1]).league;
-                const dlResponse = await axios.get(`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`);
-                const dlData = dlResponse.data;
-                if (!dlData.mod_discords.includes(`<@${author.id}>`)) {
-                    return channel.send(":x: You're not a moderator on the website for the given league.")
-                }
-                break;
+			case "-dl":
+				mode = "DL";
+				dlID = querystring.parse(args[1].split("?")[1]).league;
+				const dlResponse = await axios.get(
+					`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`
+				);
+				const dlData = dlResponse.data;
+				if (!dlData.mod_discords.includes(`<@${author.id}>`)) {
+					return channel.send(
+						":x: You're not a moderator on the website for the given league."
+					);
+				}
+				break;
 			case "-default":
 				mode = "";
 				break;

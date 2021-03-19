@@ -8,7 +8,8 @@ const base = new Airtable({
 
 module.exports = {
 	name: "rename",
-	description: "Allows you to rename your league in the Porygon database",
+    description: "Renames your league in the Porygon database",
+    usage: "[new name, including spaces and all special characters]",
 	async execute(message, args, client) {
 		const channel = message.channel;
 		const channels = await utils.getChannels();
