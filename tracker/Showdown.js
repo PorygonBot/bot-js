@@ -1519,14 +1519,17 @@ class Showdown {
 										if (
 											Object.keys(
 												battle.p1Pokemon
-											).includes(killer) &&
-											this.rules.selfteam !== "None"
+											).includes(killer)
 										) {
-											killer = battle.p2a.name;
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2a.name
+													: undefined;
 										}
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer)
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
@@ -1539,14 +1542,17 @@ class Showdown {
 										if (
 											Object.keys(
 												battle.p1Pokemon
-											).includes(killer) &&
-											this.rules.selfteam !== "None"
+											).includes(killer)
 										) {
-											killer = battle.p2b.name;
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2b.name
+													: undefined;
 										}
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer)
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
 										victim =
 											battle.p1b.realName ||
 											battle.p1b.name;
@@ -1559,14 +1565,26 @@ class Showdown {
 										if (
 											Object.keys(
 												battle.p2Pokemon
-											).includes(killer) &&
-											this.rules.selfteam !== "None"
+											).includes(killer)
 										) {
-											killer = battle.p1a.name;
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1a.name
+													: undefined;
 										}
-										battle.p1Pokemon[killer].killed(
-											deathJson
+										console.log(killer);
+										console.log(
+											Object.keys(battle.p2Pokemon)
 										);
+										console.log(
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										);
+										if (killer)
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
@@ -1579,14 +1597,17 @@ class Showdown {
 										if (
 											Object.keys(
 												battle.p2Pokemon
-											).includes(killer) &&
-											this.rules.selfteam !== "None"
+											).includes(killer)
 										) {
-											killer = battle.p1b.name;
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1b.name
+													: undefined;
 										}
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer)
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
 										victim =
 											battle.p2b.realName ||
 											battle.p2b.name;
@@ -2435,20 +2456,18 @@ class Showdown {
 						) {
 							let prevMove = prevParts[2];
 
-							let killer = "";
+							let killer;
 							let victim;
 							if (this.rules.suicide !== "None") {
+								let newSide =
+									prevParts[1].split(": ")[0].endsWith("a") ||
+									prevParts[1].split(": ")[0].endsWith("b")
+										? prevParts[1].split(": ")[0]
+										: `${prevParts[1].split(": ")[0]}a`;
+
 								killer =
-									battle[
-										prevParts[1]
-											.split(": ")[0]
-											.endsWith("a") ||
-										prevParts[1]
-											.split(": ")[0]
-											.endsWith("b")
-											? prevParts[1].split(": ")[0]
-											: `${prevParts[1].split(": ")[0]}a`
-									].name;
+									battle[newSide].realName ||
+									battle[newSide].name;
 							}
 							if (victimSide === "p2a" && !battle.p2a.isDead) {
 								victim = battle.p2a.realName || battle.p2a.name;
@@ -2458,7 +2477,7 @@ class Showdown {
 									killer,
 									this.rules.suicide === "Passive"
 								);
-								if (killer) {
+								if (killer && killer !== victim) {
 									battle.p1Pokemon[killer].killed(deathJson);
 								}
 							} else if (
@@ -2472,7 +2491,7 @@ class Showdown {
 									killer,
 									this.rules.suicide === "Passive"
 								);
-								if (killer) {
+								if (killer && killer !== victim) {
 									battle.p1Pokemon[killer].killed(deathJson);
 								}
 							} else if (
@@ -2486,7 +2505,7 @@ class Showdown {
 									killer,
 									this.rules.suicide === "Passive"
 								);
-								if (killer) {
+								if (killer && killer !== victim) {
 									battle.p2Pokemon[killer].killed(deathJson);
 								}
 							} else if (
@@ -2500,7 +2519,7 @@ class Showdown {
 									killer,
 									this.rules.suicide === "Passive"
 								);
-								if (killer) {
+								if (killer && killer !== victim) {
 									battle.p2Pokemon[killer].killed(deathJson);
 								}
 							}
@@ -2706,6 +2725,11 @@ class Showdown {
 									pokemonName
 								].realName = newName;
 							}
+							if (pokemonName === "") {
+								battle.p1Pokemon.splice(
+									battle.p1Pokemon.indexOf(pokemonName)
+								);
+							}
 						}
 						//Team 2
 						for (let pokemonName of Object.keys(battle.p2Pokemon)) {
@@ -2722,6 +2746,11 @@ class Showdown {
 								battle.p2Pokemon[
 									pokemonName
 								].realName = newName;
+							}
+							if (pokemonName === "") {
+								battle.p2Pokemon.splice(
+									battle.p2Pokemon.indexOf(pokemonName)
+								);
 							}
 						}
 
@@ -2845,32 +2874,16 @@ class Showdown {
 							battle.loser.endsWith("p2")
 						) {
 							info.result = `${battle.p1} won ${
-								Object.keys(battle.p1Pokemon).filter(
-									(pokemonKey) => !pokemonKey.includes("-")
-								).length -
-								Object.keys(battle.p1Pokemon)
-									.filter(
-										(pokemonKey) =>
-											!pokemonKey.includes("-")
-									)
-									.filter(
-										(pokemonKey) =>
-											battle.p1Pokemon[pokemonKey].isDead
-									).length
-							}-${
-								Object.keys(battle.p2Pokemon).filter(
-									(pokemonKey) => !pokemonKey.includes("-")
-								).length -
-								Object.keys(battle.p2Pokemon)
-									.filter(
-										(pokemonKey) =>
-											!pokemonKey.includes("-")
-									)
-									.filter(
-										(pokemonKey) =>
-											battle.p2Pokemon[pokemonKey].isDead
-									).length
-							}`;
+                                Object.keys(killJsonp1).length -
+                                Object.keys(deathJsonp1).filter(
+                                    (pokemonKey) => deathJsonp1[pokemonKey] === 1
+                                ).length
+                            }-${
+                                Object.keys(killJsonp2).length -
+                                Object.keys(deathJsonp2).filter(
+                                    (pokemonKey) => deathJsonp2[pokemonKey] === 1
+                                ).length
+                            }`;
 							await this.endscript(
 								battle.winner,
 								killJsonp1,
@@ -2885,46 +2898,16 @@ class Showdown {
 							battle.loser.endsWith("p1")
 						) {
 							info.result = `${battle.p2} won ${
-								Object.keys(battle.p2Pokemon).filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
-								).length -
-								Object.keys(battle.p2Pokemon)
-									.filter(
-										(pokemonKey) =>
-											!(
-												pokemonKey.includes("-") ||
-												pokemonKey.includes(":")
-											)
-									)
-									.filter(
-										(pokemonKey) =>
-											battle.p2Pokemon[pokemonKey].isDead
-									).length
-							}-${
-								Object.keys(battle.p1Pokemon).filter(
-									(pokemonKey) =>
-										!(
-											pokemonKey.includes("-") ||
-											pokemonKey.includes(":")
-										)
-								).length -
-								Object.keys(battle.p1Pokemon)
-									.filter(
-										(pokemonKey) =>
-											!(
-												pokemonKey.includes("-") ||
-												pokemonKey.includes(":")
-											)
-									)
-									.filter(
-										(pokemonKey) =>
-											battle.p1Pokemon[pokemonKey].isDead
-									).length
-							}`;
+                                Object.keys(killJsonp2).length -
+                                Object.keys(deathJsonp2).filter(
+                                    (pokemonKey) => deathJsonp2[pokemonKey] === 1
+                                ).length
+                            }-${
+                                Object.keys(killJsonp1).length -
+                                Object.keys(deathJsonp1).filter(
+                                    (pokemonKey) => deathJsonp1[pokemonKey] === 1
+                                ).length
+                            }`;
 
 							await this.endscript(
 								battle.winner,
