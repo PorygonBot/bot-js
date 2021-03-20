@@ -2726,9 +2726,7 @@ class Showdown {
 								].realName = newName;
 							}
 							if (pokemonName === "") {
-								battle.p1Pokemon.splice(
-									battle.p1Pokemon.indexOf(pokemonName)
-								);
+                                delete battle.p1Pokemon[pokemonName]
 							}
 						}
 						//Team 2
@@ -2748,9 +2746,7 @@ class Showdown {
 								].realName = newName;
 							}
 							if (pokemonName === "") {
-								battle.p2Pokemon.splice(
-									battle.p2Pokemon.indexOf(pokemonName)
-								);
+                                delete battle.p2Pokemon[pokemonName]
 							}
 						}
 
