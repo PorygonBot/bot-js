@@ -1890,7 +1890,7 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p2Pokemon[killer].killed(
+											if (killer) battle.p2Pokemon[killer].killed(
 												deathJson
 											);
 											victim =
@@ -1912,7 +1912,7 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p2Pokemon[killer].killed(
+											if (killer) battle.p2Pokemon[killer].killed(
 												deathJson
 											);
 											victim =
@@ -1934,7 +1934,7 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p1Pokemon[killer].killed(
+											if (killer) battle.p1Pokemon[killer].killed(
 												deathJson
 											);
 											victim =
@@ -1956,7 +1956,7 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p1Pokemon[killer].killed(
+											if (killer) battle.p1Pokemon[killer].killed(
 												deathJson
 											);
 											victim =
