@@ -45,8 +45,8 @@ class DiscordChannelStats {
 				finalMessage = `\n\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`;
 		}
 
-		if (info.tb) {
-			finalMessage = `**Result:** ||${info.result}||\n\n${finalMessage}\n\n**Replay: **${info.replay}\n**History: **${info.history}`;
+        if (info.tb) {
+            finalMessage = `**Result:** ${info.spoiler ? `|| ${ info.result }||` : info.result}\n\n${finalMessage}\n\n**Replay: **${info.replay}\n**History: **${info.history}`;
 		}
 
 		streamChannel.send(finalMessage);
