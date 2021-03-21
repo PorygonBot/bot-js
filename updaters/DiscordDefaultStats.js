@@ -37,7 +37,7 @@ class DiscordDefaultStats {
 		}
 
 		if (info.tb) {
-			finalMessage = `**Result:** ${info.spoiler ? `|| ${ info.result }||` : info.result}\n\n${finalMessage}\n\n**Replay: **${info.replay}\n**History: **${info.history}`;
+			finalMessage = `**Result:** ${info.spoiler ? `|| ${ info.result }||` : info.result}\n\n${finalMessage}\n\n**Replay: **<${info.replay}>\n**History: **${info.history}`;
 		}
 
 		this.channel.send(finalMessage);
