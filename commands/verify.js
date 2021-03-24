@@ -28,7 +28,10 @@ module.exports = {
 
 		setTimeout(async () => {
 			const patreonUserResponse = await axios.get(
-				"https://jsonbase.com/PorygonBot/patreon-user"
+				"https://jsonbase.com/PorygonBot/patreon-user",
+                {
+                    headers: { "User-Agent": "PorygonTheBot" },
+                }
 			).catch((e) => {console.error(e);});
 			const patreonUser = patreonUserResponse.data[message.author.id];
 			if (patreonUserResponse.status !== 200) {

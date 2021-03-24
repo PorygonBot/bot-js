@@ -18,7 +18,10 @@ class DraftLeagueStats {
 		try {
 			//Getting league data
 			const leagueResponse = await axios.get(
-				`${process.env.DL_API_URL}/league/${matchJson.league_id}?key=${process.env.DL_API_KEY}`
+				`${process.env.DL_API_URL}/league/${matchJson.league_id}?key=${process.env.DL_API_KEY}`,
+				{
+					headers: { "User-Agent": "PorygonTheBot" },
+				}
 			);
 			const leagueData = leagueResponse.data;
 			console.log("League recieved.");
@@ -26,7 +29,10 @@ class DraftLeagueStats {
 			//Getting the Discord user player from their Discord ID
 			const authorID = this.author.id;
 			const playerResponse = await axios.get(
-				`${process.env.DL_API_URL}/league/${matchJson.league_id}/player/<@${authorID}>?key=${process.env.DL_API_KEY}`
+				`${process.env.DL_API_URL}/league/${matchJson.league_id}/player/<@${authorID}>?key=${process.env.DL_API_KEY}`,
+				{
+					headers: { "User-Agent": "PorygonTheBot" },
+				}
 			);
 			const discordPlayerData = playerResponse.data;
 			//Check which player the Discord user is.
@@ -53,7 +59,9 @@ class DraftLeagueStats {
 				.join(",")
 				.replace("’", "")}&key=${process.env.DL_API_KEY}`;
 			console.log(matchURL);
-			const matchResponse = await axios.get(matchURL);
+			const matchResponse = await axios.get(matchURL, {
+				headers: { "User-Agent": "PorygonTheBot" },
+			});
 			const matchData = matchResponse.data;
 			console.log("Match recieved.");
 			console.log(matchData);
@@ -65,6 +73,7 @@ class DraftLeagueStats {
 				...matchJson,
 				...matchData,
 				discord_user: discordUserPS,
+				headers: { "User-Agent": "PorygonTheBot" },
 			};
 
 			//Making the submission
@@ -75,7 +84,9 @@ class DraftLeagueStats {
 			console.log("Submitted");
 
 			//Posting to the replay webhook
-			let result = matchJson.info.result.toLowerCase().startsWith(discordUserPS)
+			let result = matchJson.info.result
+				.toLowerCase()
+				.startsWith(discordUserPS)
 				? matchJson.info.result.substring(
 						matchJson.info.result.length - 3
 				  )

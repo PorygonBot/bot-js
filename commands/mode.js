@@ -61,7 +61,10 @@ module.exports = {
 				mode = "DL";
 				dlID = querystring.parse(args[1].split("?")[1]).league;
 				const dlResponse = await axios.get(
-					`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`
+					`${process.env.DL_API_URL}/league/${dlID}?key=${process.env.DL_API_KEY}`,
+					{
+						headers: { "User-Agent": "PorygonTheBot" },
+					}
 				);
 				const dlData = dlResponse.data;
 				if (!dlData.mod_discords.includes(`<@${author.id}>`)) {

@@ -165,6 +165,7 @@ class Showdown {
 			name: this.username,
 			pass: this.password,
 			challstr: nonce,
+			headers: { "User-Agent": "PorygonTheBot" },
 		});
 
 		let response = await axios.post(psUrl, data);
@@ -226,6 +227,7 @@ class Showdown {
 			act: "uploadreplay",
 			log: data.log,
 			id: data.id,
+			headers: { "User-Agent": "PorygonTheBot" },
 		});
 
 		let response = await axios.post(url, newData);
@@ -1890,9 +1892,10 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer) battle.p2Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer)
+												battle.p2Pokemon[killer].killed(
+													deathJson
+												);
 											victim =
 												battle.p1a.realName ||
 												battle.p1a.name;
@@ -1912,9 +1915,10 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer) battle.p2Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer)
+												battle.p2Pokemon[killer].killed(
+													deathJson
+												);
 											victim =
 												battle.p1b.realName ||
 												battle.p1b.name;
@@ -1934,9 +1938,10 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer) battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer)
+												battle.p1Pokemon[killer].killed(
+													deathJson
+												);
 											victim =
 												battle.p2a.realName ||
 												battle.p2a.name;
@@ -1956,9 +1961,10 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer) battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer)
+												battle.p1Pokemon[killer].killed(
+													deathJson
+												);
 											victim =
 												battle.p2b.realName ||
 												battle.p2b.name;
@@ -2726,7 +2732,7 @@ class Showdown {
 								].realName = newName;
 							}
 							if (pokemonName === "") {
-                                delete battle.p1Pokemon[pokemonName]
+								delete battle.p1Pokemon[pokemonName];
 							}
 						}
 						//Team 2
@@ -2746,7 +2752,7 @@ class Showdown {
 								].realName = newName;
 							}
 							if (pokemonName === "") {
-                                delete battle.p2Pokemon[pokemonName]
+								delete battle.p2Pokemon[pokemonName];
 							}
 						}
 
@@ -2870,16 +2876,18 @@ class Showdown {
 							battle.loser.endsWith("p2")
 						) {
 							info.result = `${battle.p1} won ${
-                                Object.keys(killJsonp1).length -
-                                Object.keys(deathJsonp1).filter(
-                                    (pokemonKey) => deathJsonp1[pokemonKey] === 1
-                                ).length
-                            }-${
-                                Object.keys(killJsonp2).length -
-                                Object.keys(deathJsonp2).filter(
-                                    (pokemonKey) => deathJsonp2[pokemonKey] === 1
-                                ).length
-                            }`;
+								Object.keys(killJsonp1).length -
+								Object.keys(deathJsonp1).filter(
+									(pokemonKey) =>
+										deathJsonp1[pokemonKey] === 1
+								).length
+							}-${
+								Object.keys(killJsonp2).length -
+								Object.keys(deathJsonp2).filter(
+									(pokemonKey) =>
+										deathJsonp2[pokemonKey] === 1
+								).length
+							}`;
 							await this.endscript(
 								battle.winner,
 								killJsonp1,
@@ -2894,16 +2902,18 @@ class Showdown {
 							battle.loser.endsWith("p1")
 						) {
 							info.result = `${battle.p2} won ${
-                                Object.keys(killJsonp2).length -
-                                Object.keys(deathJsonp2).filter(
-                                    (pokemonKey) => deathJsonp2[pokemonKey] === 1
-                                ).length
-                            }-${
-                                Object.keys(killJsonp1).length -
-                                Object.keys(deathJsonp1).filter(
-                                    (pokemonKey) => deathJsonp1[pokemonKey] === 1
-                                ).length
-                            }`;
+								Object.keys(killJsonp2).length -
+								Object.keys(deathJsonp2).filter(
+									(pokemonKey) =>
+										deathJsonp2[pokemonKey] === 1
+								).length
+							}-${
+								Object.keys(killJsonp1).length -
+								Object.keys(deathJsonp1).filter(
+									(pokemonKey) =>
+										deathJsonp1[pokemonKey] === 1
+								).length
+							}`;
 
 							await this.endscript(
 								battle.winner,
