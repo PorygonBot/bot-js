@@ -441,7 +441,7 @@ const confusionMoves = [
 	"Secret Power",
 	"Shadow Panic",
 	"Signal Beam",
-	"Strange Stream",
+	"Strange Steam",
 	"Supersonic",
 	"Swagger",
 	"Sweet Kiss",

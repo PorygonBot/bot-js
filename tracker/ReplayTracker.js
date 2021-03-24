@@ -962,9 +962,7 @@ class ReplayTracker {
 							} else {
 								if (this.rules.suicide !== "None") {
 									killer = battle.p2a.name;
-									console.log("i'm in her eboyos " + killer);
 								}
-								console.log("we out here");
 
 								let deathJson = battle.p1a.died(
 									prevMove,
@@ -1639,7 +1637,7 @@ class ReplayTracker {
 							else {
 								move = move.includes("move: ")
 									? move.split(": ")[1]
-									: move;
+                                    : move;
 								if (victimSide === "p1a") {
 									killer = battle.p1a.otherAffliction[move];
 									victim =
