@@ -31,6 +31,8 @@ module.exports = {
 			);
         }
         
-        return message.channel.send(helpEmbed);
+        return message.channel.send(helpEmbed).catch((e) => {
+            message.channel.send(":x: You need to enable embeds in this channel to use this command.")
+        });
 	},
 };
