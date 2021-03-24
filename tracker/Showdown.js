@@ -881,7 +881,7 @@ class Showdown {
 							//Ability status
 							let inflictorSide = line.includes("item")
 								? victimSide
-								: parts[4].split("[of]")[1].split(": ")[0];
+								: parts[4].split("[of] ")[1].split(": ")[0];
 							if (victimSide === "p1a") {
 								if (inflictorSide === "p2a")
 									inflictor = battle.p2a.name;

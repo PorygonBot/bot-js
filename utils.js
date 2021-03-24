@@ -508,7 +508,7 @@ const burnMoves = [
 	"Will-O-Wisp",
 ];
 
-const statusAbility = ["Poison Point", "Poison Touch", "Flame Body"];
+const statusAbility = ["Poison Point", "Poison Touch", "Flame Body", "Effect Spore"];
 
 const hazardMoves = [
 	"Stealth Rock",
