@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 const utils = require("../utils.js");
+const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
 
 class DraftLeagueStats {
@@ -14,6 +15,7 @@ class DraftLeagueStats {
 	async update(matchJson) {
 		let psPlayer1 = Object.keys(matchJson.players)[0];
 		let psPlayer2 = Object.keys(matchJson.players)[1];
+		let info = matchJson.info;
 
 		try {
 			//Getting league data
@@ -99,9 +101,18 @@ class DraftLeagueStats {
 			await axios.post(leagueData.replay_webhook, {
 				content: `A match in the ${leagueData.league_name} between the ${discordPlayerData.team_name} and the ${matchData.opponent_team_name} has just been submitted by Porygon Automatic Import.\nReplay: <${matchJson.info.replay}>\nResult: ||${result}||`,
 			});
-			await this.channel.send(
-				`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
-			);
+			if (info.redirect) {
+				matchJson.streamChannel = info.redirect.substring(
+					2,
+					info.redirect.length - 1
+				);
+				let channeler = new DiscordChannelStats(this.message);
+				await channeler.update(matchJson);
+			} else {
+				await this.channel.send(
+					`Battle between \`${psPlayer1}\` and \`${psPlayer2}\` is complete and info has been updated!`
+				);
+			}
 		} catch (e) {
 			await this.channel.send(
 				":x: There was an error updating this match. Please paste these stats instead: "

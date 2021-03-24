@@ -14,7 +14,7 @@ module.exports = {
 	description:
 		"Sets the stats updating mode. Run without any parameters to get more info.",
 	usage:
-		"[mode name with hyphen] [parameter] [optional: --redirect] [optional: #redirect-channel]",
+		"[mode name with hyphen] [parameter]",
 	async execute(message, args, client) {
 		const channel = message.channel;
 		const author = message.author;

@@ -1,10 +1,12 @@
 const { google } = require("googleapis");
 
 const utils = require("../utils.js");
+const DiscordChannelStats = require("../updaters/DiscordChannelStats");
 
 class SheetsAppendStats {
 	constructor(message) {
 		//Requires that message is a Discord Message object
+		this.message = message;
 		this.channel = message.channel;
 
 		//Sheets authentication
@@ -23,15 +25,35 @@ class SheetsAppendStats {
 		});
 	}
 
-	async update(matchJson) {        
-        let res = await this.sheets.spreadsheets.values.append(utils.genAppend(matchJson)).catch((e) => {
-			this.channel.send(":x: I do not have permission to edit the file you provided. If you want me to automatically update your sheet, please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`.")
-			console.error(e);
-		});
+	async update(matchJson) {
+		let info = matchJson.info;
+		let res = await this.sheets.spreadsheets.values
+			.append(utils.genAppend(matchJson))
+			.catch((e) => {
+				this.channel.send(
+					":x: I do not have permission to edit the file you provided. If you want me to automatically update your sheet, please give full editing permissions to `master@porygonthebot.iam.gserviceaccount.com`."
+				);
+				console.error(e);
+			});
 
-		this.channel.send(
-			`Battle between \`${Object.keys(matchJson.players)[0]}\` and \`${Object.keys(matchJson.players)[1]}\` is complete and info has been updated!\n**Replay:** ${matchJson.info.replay}\n**History:** ${matchJson.info.history}`
-		);
+		if (info.redirect) {
+			matchJson.streamChannel = info.redirect.substring(
+				2,
+				info.redirect.length - 1
+			);
+			let channeler = new DiscordChannelStats(this.message);
+			await channeler.update(matchJson);
+		} else {
+			this.channel.send(
+				`Battle between \`${
+					Object.keys(matchJson.players)[0]
+				}\` and \`${
+					Object.keys(matchJson.players)[1]
+				}\` is complete and info has been updated!\n**Replay:** ${
+					matchJson.info.replay
+				}\n**History:** ${matchJson.info.history}`
+			);
+		}
 	}
 }
 

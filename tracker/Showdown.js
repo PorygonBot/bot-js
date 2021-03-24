@@ -2814,9 +2814,7 @@ class Showdown {
 							history: `https://server.porygonbot.xyz/kills/${
 								battle.replay.split("/")[3]
 							}`,
-							spoiler: this.rules.spoiler,
-							format: this.rules.format,
-							tb: this.rules.tb,
+                            ...this.rules
 						};
 
 						//Creating the objects for kills and deaths

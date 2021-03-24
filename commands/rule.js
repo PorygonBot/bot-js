@@ -10,8 +10,8 @@ const base = new Airtable({
 module.exports = {
 	name: "rule",
 	description:
-        "Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
-    usage: "[rule name with hyphen] [parameter]",
+		"Creates a custom kill rule depending on the parameters. Run command without parameters for more info.",
+	usage: "[rule name with hyphen] [parameter]",
 	async execute(message, args, client) {
 		const channel = message.channel;
 
@@ -85,6 +85,10 @@ module.exports = {
 			.addField(
 				"-combine",
 				"sets whether you want passive and direct kills combined or separated.\nOptions: true, false"
+			)
+			.addField(
+				"-redirect",
+				"sets the redirect channel if you use a non-Discord updating mode."
 			);
 
 		//Gets the rule args and params from the command
@@ -147,14 +151,17 @@ module.exports = {
 					break;
 				case "-combine":
 					category = "Combine P/D?";
-					break;
+                    break;
+                case "-redirect":
+                    category = "Redirect";
+                    break;
 				default:
 					return channel.send(ruleEmbed);
 			}
 
 			//Fine-tuning the value of result to match the options in the Airtable
 			result =
-				rule !== "-ping"
+				!(rule === "-ping" || rule === "-redirect")
 					? `${result.charAt(0).toUpperCase()}${result
 							.replace(result.charAt(0), "")
 							.toLowerCase()}`

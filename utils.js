@@ -353,7 +353,10 @@ const getRules = async (rulesId) => {
 				rules.tb = tb;
 
 				let combinePD = await record.get("Combine P/D?");
-				rules.combinePD = combinePD;
+                rules.combinePD = combinePD;
+                
+                let redirect = await record.get("Redirect");
+                rules.redirect = redirect;
 
 				resolve(rules);
 			});
@@ -373,7 +376,8 @@ const getRules = async (rulesId) => {
 		timeOfPing: "First",
 		stopTalking: false,
 		tb: true,
-		combinePD: false,
+        combinePD: false,
+        redirect: "",
 	};
 };
 
