@@ -516,8 +516,10 @@ const hazardMoves = [
 	"G-Max Volcalith",
 	"G-Max Vineslash",
 	"G-Max Wildfire",
-	"G-Max Cannonaide",
+	"G-Max Cannonade",
 	"G-Max Vine Lash",
+    "G-Max Centiferno",
+    "G-Max Sandblast",
 ];
 
 const misnomers = [
