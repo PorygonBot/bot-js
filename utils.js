@@ -557,7 +557,8 @@ const misnomers = [
 	"Genesect-Burn",
 	"Genesect-Chill",
 	"Genesect-Douse",
-	"Genesect-Shock",
+    "Genesect-Shock",
+    "Mimikyu-Busted"
 ];
 
 //Other bot stuff
