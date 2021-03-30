@@ -1643,7 +1643,7 @@ class ReplayTracker {
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 
-									if (killer === victim) {
+									if (victim.includes(killer) || killer.includes(victim)) {
 										killer = battle.p2a.realName;
 										let deathJson = battle.p1a.died(
 											prevMove,
@@ -1668,7 +1668,7 @@ class ReplayTracker {
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 
-									if (killer === victim) {
+									if (victim.includes(killer) || killer.includes(victim)) {
 										killer = battle.p2a.realName;
 										let deathJson = battle.p1b.died(
 											prevMove,
@@ -1693,7 +1693,7 @@ class ReplayTracker {
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 
-									if (killer === victim) {
+									if (victim.includes(killer) || killer.includes(victim)) {
 										killer = battle.p1a.realName;
 										let deathJson = battle.p2a.died(
 											prevMove,
@@ -1718,7 +1718,7 @@ class ReplayTracker {
 									victim =
 										battle.p2b.realName || battle.p2b.name;
 
-									if (killer === victim) {
+									if (victim.includes(killer) || killer.includes(victim)) {
 										killer = battle.p1a.realName;
 										let deathJson = battle.p2b.died(
 											prevMove,
