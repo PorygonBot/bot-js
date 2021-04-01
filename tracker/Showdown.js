@@ -150,7 +150,7 @@ class Showdown {
 
 				Battle.decrementBattles();
 				this.client.user.setActivity(
-					`${Battle.numBattles} PS Battles in ${this.client.guilds.cache.size} servers.`,
+					`${/*Battle.numBattles*/ 69} PS Battles in ${/*client.guilds.cache.size*/ 420} servers.`,
 					{
 						type: "WATCHING",
 					}

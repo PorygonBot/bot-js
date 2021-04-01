@@ -10,7 +10,7 @@ module.exports = (client) => {
 	console.log(`${client.user.username} is online!`);
 	client.user
 		.setActivity(
-			`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
+			`${/*Battle.numBattles*/ 69} PS Battles in ${/*client.guilds.cache.size*/ 420} servers.`,
 			{
 				type: "WATCHING",
 			}
