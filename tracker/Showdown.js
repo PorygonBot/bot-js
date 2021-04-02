@@ -150,7 +150,9 @@ class Showdown {
 
 				Battle.decrementBattles();
 				this.client.user.setActivity(
-					`${/*Battle.numBattles*/ 69} PS Battles in ${/*client.guilds.cache.size*/ 420} servers.`,
+					`${/*Battle.numBattles*/ 69} PS Battles in ${
+						/*client.guilds.cache.size*/ 420
+					} servers.`,
 					{
 						type: "WATCHING",
 					}
@@ -879,7 +881,7 @@ class Showdown {
 							line.includes("item")
 						) {
 							//Ability status
-							let inflictorSide = line.includes("item")
+							let inflictorSide = line.includes("item: ")
 								? victimSide
 								: parts[4].split("[of] ")[1].split(": ")[0];
 							if (victimSide === "p1a") {
@@ -1232,11 +1234,7 @@ class Showdown {
 								} else {
 									if (this.rules.suicide !== "None") {
 										killer = battle.p2a.name;
-										console.log(
-											"i'm in her eboyos " + killer
-										);
 									}
-									console.log("we out here");
 
 									let deathJson = battle.p1a.died(
 										prevMove,
@@ -1378,16 +1376,18 @@ class Showdown {
 					//Mostly used for Illusion cuz frick Zoroark
 					else if (line.startsWith(`|-end|`)) {
 						let historyLine =
-							battle.history[battle.history.length - 1];
-						//If no one has died yet
-						historyLine = historyLine || "";
+							battle.history[battle.history.length - 1] || "";
 						if (
 							line.endsWith("Illusion") &&
 							historyLine.includes(battle.turns.toString())
 						) {
 							let historyLineParts = historyLine.split(" ");
-							let victim = historyLineParts[0];
-							let killer = historyLineParts[4];
+							let victim = historyLine.split(
+								" was killed by "
+							)[0];
+							let killer = historyLine
+								.split(" was killed by ")[1]
+								.split(" due to ")[0];
 							let isPassive =
 								historyLineParts[
 									historyLineParts.length - 2
@@ -1892,10 +1892,9 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer)
-												battle.p2Pokemon[killer].killed(
-													deathJson
-												);
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
 											victim =
 												battle.p1a.realName ||
 												battle.p1a.name;
@@ -1915,10 +1914,9 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer)
-												battle.p2Pokemon[killer].killed(
-													deathJson
-												);
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
 											victim =
 												battle.p1b.realName ||
 												battle.p1b.name;
@@ -1938,10 +1936,9 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer)
-												battle.p1Pokemon[killer].killed(
-													deathJson
-												);
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
 											victim =
 												battle.p2a.realName ||
 												battle.p2a.name;
@@ -1961,10 +1958,9 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											if (killer)
-												battle.p1Pokemon[killer].killed(
-													deathJson
-												);
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
 											victim =
 												battle.p2b.realName ||
 												battle.p2b.name;
@@ -1989,7 +1985,10 @@ class Showdown {
 											battle.p1a.realName ||
 											battle.p1a.name;
 
-										if (killer === victim) {
+										if (
+											victim.includes(killer) ||
+											killer.includes(victim)
+										) {
 											killer = battle.p2a.realName;
 											let deathJson = battle.p1a.died(
 												prevMove,
@@ -2016,7 +2015,10 @@ class Showdown {
 											battle.p1b.realName ||
 											battle.p1b.name;
 
-										if (killer === victim) {
+										if (
+											victim.includes(killer) ||
+											killer.includes(victim)
+										) {
 											killer = battle.p2a.realName;
 											let deathJson = battle.p1b.died(
 												prevMove,
@@ -2043,7 +2045,10 @@ class Showdown {
 											battle.p2a.realName ||
 											battle.p2a.name;
 
-										if (killer === victim) {
+										if (
+											victim.includes(killer) ||
+											killer.includes(victim)
+										) {
 											killer = battle.p1a.realName;
 											let deathJson = battle.p2a.died(
 												prevMove,
@@ -2070,7 +2075,10 @@ class Showdown {
 											battle.p2b.realName ||
 											battle.p2b.name;
 
-										if (killer === victim) {
+										if (
+											victim.includes(killer) ||
+											killer.includes(victim)
+										) {
 											killer = battle.p1a.realName;
 											let deathJson = battle.p2b.died(
 												prevMove,
@@ -2814,7 +2822,7 @@ class Showdown {
 							history: `https://server.porygonbot.xyz/kills/${
 								battle.replay.split("/")[3]
 							}`,
-                            ...this.rules
+							...this.rules,
 						};
 
 						//Creating the objects for kills and deaths

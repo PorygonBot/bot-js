@@ -1086,14 +1086,17 @@ class ReplayTracker {
 
 				//Mostly used for Illusion cuz frick Zoroark
 				else if (line.startsWith(`|-end|`)) {
-					let historyLine = battle.history[battle.history.length - 1] || "";
+					let historyLine =
+						battle.history[battle.history.length - 1] || "";
 					if (
 						line.endsWith("Illusion") &&
 						historyLine.includes(battle.turns.toString())
 					) {
 						let historyLineParts = historyLine.split(" ");
 						let victim = historyLine.split(" was killed by ")[0];
-						let killer = historyLine.split(" was killed by ")[1].split(" due to ")[0];
+						let killer = historyLine
+							.split(" was killed by ")[1]
+							.split(" due to ")[0];
 						let isPassive =
 							historyLineParts[historyLineParts.length - 2] ===
 							"(passive)";
@@ -1635,13 +1638,16 @@ class ReplayTracker {
 							else {
 								move = move.includes("move: ")
 									? move.split(": ")[1]
-                                    : move;
+									: move;
 								if (victimSide === "p1a") {
 									killer = battle.p1a.otherAffliction[move];
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 
-									if (victim.includes(killer) || killer.includes(victim)) {
+									if (
+										victim.includes(killer) ||
+										killer.includes(victim)
+									) {
 										killer = battle.p2a.realName;
 										let deathJson = battle.p1a.died(
 											prevMove,
@@ -1666,7 +1672,10 @@ class ReplayTracker {
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 
-									if (victim.includes(killer) || killer.includes(victim)) {
+									if (
+										victim.includes(killer) ||
+										killer.includes(victim)
+									) {
 										killer = battle.p2a.realName;
 										let deathJson = battle.p1b.died(
 											prevMove,
@@ -1691,7 +1700,10 @@ class ReplayTracker {
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 
-									if (victim.includes(killer) || killer.includes(victim)) {
+									if (
+										victim.includes(killer) ||
+										killer.includes(victim)
+									) {
 										killer = battle.p1a.realName;
 										let deathJson = battle.p2a.died(
 											prevMove,
@@ -1716,7 +1728,10 @@ class ReplayTracker {
 									victim =
 										battle.p2b.realName || battle.p2b.name;
 
-									if (victim.includes(killer) || killer.includes(victim)) {
+									if (
+										victim.includes(killer) ||
+										killer.includes(victim)
+									) {
 										killer = battle.p1a.realName;
 										let deathJson = battle.p2b.died(
 											prevMove,
