@@ -1086,16 +1086,14 @@ class ReplayTracker {
 
 				//Mostly used for Illusion cuz frick Zoroark
 				else if (line.startsWith(`|-end|`)) {
-					let historyLine = battle.history[battle.history.length - 1];
-					//If no one has died yet
-					historyLine = historyLine || "";
+					let historyLine = battle.history[battle.history.length - 1] || "";
 					if (
 						line.endsWith("Illusion") &&
 						historyLine.includes(battle.turns.toString())
 					) {
 						let historyLineParts = historyLine.split(" ");
-						let victim = historyLineParts[0];
-						let killer = historyLineParts[4];
+						let victim = historyLine.split(" was killed by ")[0];
+						let killer = historyLine.split(" was killed by ")[1].split(" due to ")[0];
 						let isPassive =
 							historyLineParts[historyLineParts.length - 2] ===
 							"(passive)";
