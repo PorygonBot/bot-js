@@ -59,7 +59,7 @@ module.exports = async (client, message) => {
 
 			Battle.incrementBattles();
 			client.user.setActivity(
-				`${/*Battle.numBattles*/ 69} PS Battles in ${/*client.guilds.cache.size*/ 420} servers.`,
+				`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
 				{
 					type: "WATCHING",
 				}

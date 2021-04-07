@@ -8,7 +8,7 @@ const Battle = require("../../tracker/Battle");
  * @param {Guild} guild 
  */
 module.exports = (client, guild) => {
-	client.user.setActivity(`${/*Battle.numBattles*/ 69} PS Battles in ${/*client.guilds.cache.size*/ 420} servers.`, {
+	client.user.setActivity(`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`, {
 		type: "WATCHING",
 	});
 }

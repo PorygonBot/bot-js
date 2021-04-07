@@ -115,7 +115,13 @@ class DraftLeagueStats {
 			}
 		} catch (e) {
 			await this.channel.send(
-				":x: There was an error updating this match. Please paste these stats instead: "
+				`:x: Error with match number \`${
+					this.battleLink
+				}\`. I will be unable to analyze this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+					e.message
+				}\nLine number: ${
+					e.stack.split(":")[2]
+				}\`\`\`\nPlease paste these stats instead: `
 			);
 			console.error(e);
 			//Send the stats

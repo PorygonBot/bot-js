@@ -1565,9 +1565,11 @@ class ReplayTracker {
 											killer,
 											this.rules.abilityitem === "Passive"
 										);
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+                                            battle.p2Pokemon[killer].killed(
+                                                deathJson
+                                            );
+                                        }
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
@@ -1583,9 +1585,11 @@ class ReplayTracker {
 											killer,
 											this.rules.abilityitem === "Passive"
 										);
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+                                            battle.p2Pokemon[killer].killed(
+                                                deathJson
+                                            );
+                                        }
 										victim =
 											battle.p1b.realName ||
 											battle.p1b.name;
@@ -1601,9 +1605,11 @@ class ReplayTracker {
 											killer,
 											this.rules.abilityitem === "Passive"
 										);
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+                                            battle.p1Pokemon[killer].killed(
+                                                deathJson
+                                            );
+                                        }
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
@@ -1619,9 +1625,11 @@ class ReplayTracker {
 											killer,
 											this.rules.abilityitem === "Passive"
 										);
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (killer) {
+                                            battle.p1Pokemon[killer].killed(
+                                                deathJson
+                                            );
+                                        }
 										victim =
 											battle.p2b.realName ||
 											battle.p2b.name;
