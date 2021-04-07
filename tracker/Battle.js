@@ -39,13 +39,16 @@ class Battle {
     }
 
     static numBattles = 0;
+    static battles = [];
 
-    static incrementBattles() {
+    static incrementBattles(battleLink) {
         this.numBattles++;
+        this.battles.push(battleLink);
     }
 
-    static decrementBattles() {
+    static decrementBattles(battleLink) {
         this.numBattles--;
+        this.battles.splice(this.battles.indexOf(battleLink));
     }
 
     addHazard(side, hazard, hazardInflictor) {

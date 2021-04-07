@@ -27,7 +27,7 @@ const VIEW_NAME = "Grid view";
 
 class Showdown {
 	constructor(battle, server, message, rules, client) {
-		this.battleLink = battle.split("/")[3];
+		this.battleLink = battle;
 
 		this.serverType = server.toLowerCase();
 
@@ -148,9 +148,9 @@ class Showdown {
 						break;
 				}
 
-				Battle.decrementBattles();
+				Battle.decrementBattles(this.battleLink);
 				this.client.user.setActivity(
-					`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
+					`${Battle.numBattles} PS Battles in ${this.client.guilds.cache.size} servers.`,
 					{
 						type: "WATCHING",
 					}
@@ -255,7 +255,7 @@ class Showdown {
 					//Checks first and foremost if the battle even exists
 					if (line.startsWith(`|noinit|`)) {
 						this.websocket.send(`${this.battleLink}|/leave`);
-						Battle.decrementBattles();
+						Battle.decrementBattles(this.battleLink);
 						this.websocket.close();
 						console.log(`Left ${this.battleLink}.`);
 						if (line.includes("nonexistent|")) {
@@ -302,6 +302,19 @@ class Showdown {
 							players[1]
 						);
 					}
+
+                    //Checks for Showdown-based commands
+                    else if (line.startsWith("|c|☆")) {
+                        if (parts[2] === "porygon, use leave") {
+                            this.websocket.send(
+                                `${this.battleLink}|Ok. Bye!`
+                            );
+                            console.log(`Left ${this.battleLink}.`);
+                            await this.message.channel.send(`Left ${this.battleLink}.`);
+                            Battle.decrementBattles(this.battleLink);
+                            return this.websocket.close();
+                        }
+                    }
 
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
@@ -2967,7 +2980,7 @@ class Showdown {
 
 				console.log(this.battleLink);
 				console.error(e);
-				Battle.decrementBattles();
+				Battle.decrementBattles(this.battleLink);
 				return this.websocket.close();
 			}
 		});

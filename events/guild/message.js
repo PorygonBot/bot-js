@@ -22,7 +22,14 @@ module.exports = async (client, message) => {
 	) {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
-		let battlelink = urls.next().value;
+        let battlelink = await urls.next().value;
+        let battleID = battlelink && battlelink.split("/")[3];
+
+		if (Battle.battles.includes(battleID)) {
+			return channel.send(
+				`:x: I'm already tracking this battle. If you think this is incorrect, send a replay of this match in the #bugs-and-help channel in the Porygon server.`
+			);
+		}
 		if (
 			battlelink &&
 			!battlelink.includes("google") &&
@@ -46,7 +53,7 @@ module.exports = async (client, message) => {
 					"This link is not a valid Pokemon Showdown battle url."
 				);
 				return;
-			}
+            }
 
 			//Getting the rules
 			let rulesId = await utils.findRulesId(channel.id);
@@ -57,7 +64,7 @@ module.exports = async (client, message) => {
 					.send("Joining the battle...")
 					.catch((e) => console.error(e));
 
-			Battle.incrementBattles();
+			Battle.incrementBattles(battleID);
 			client.user.setActivity(
 				`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
 				{
@@ -66,7 +73,7 @@ module.exports = async (client, message) => {
 			);
 			//Instantiating the Showdown client
 			const psclient = new Showdown(
-				battlelink,
+				battleID,
 				psServer,
 				message,
 				rules,
