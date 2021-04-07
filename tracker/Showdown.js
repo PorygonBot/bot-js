@@ -150,9 +150,7 @@ class Showdown {
 
 				Battle.decrementBattles();
 				this.client.user.setActivity(
-					`${Battle.numBattles} PS Battles in ${
-						client.guilds.cache.size
-					} servers.`,
+					`${Battle.numBattles} PS Battles in ${client.guilds.cache.size} servers.`,
 					{
 						type: "WATCHING",
 					}
@@ -1376,7 +1374,9 @@ class Showdown {
 					//Mostly used for Illusion cuz frick Zoroark
 					else if (line.startsWith(`|-end|`)) {
 						let historyLine =
-							battle.history[battle.history.length - 1] || "";
+							battle.history.filter((line) =>
+								line.includes(" was killed by ")
+							)[battle.history.length - 1] || "";
 						if (
 							line.endsWith("Illusion") &&
 							historyLine.includes(battle.turns.toString())
@@ -1892,9 +1892,11 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p2Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer) {
+												battle.p2Pokemon[killer].killed(
+													deathJson
+												);
+											}
 											victim =
 												battle.p1a.realName ||
 												battle.p1a.name;
@@ -1914,9 +1916,11 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p2Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer) {
+												battle.p2Pokemon[killer].killed(
+													deathJson
+												);
+											}
 											victim =
 												battle.p1b.realName ||
 												battle.p1b.name;
@@ -1936,9 +1940,11 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer) {
+												battle.p1Pokemon[killer].killed(
+													deathJson
+												);
+											}
 											victim =
 												battle.p2a.realName ||
 												battle.p2a.name;
@@ -1958,9 +1964,11 @@ class Showdown {
 												this.rules.abilityitem ===
 													"Passive"
 											);
-											battle.p1Pokemon[killer].killed(
-												deathJson
-											);
+											if (killer) {
+												battle.p1Pokemon[killer].killed(
+													deathJson
+												);
+											}
 											victim =
 												battle.p2b.realName ||
 												battle.p2b.name;
