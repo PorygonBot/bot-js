@@ -558,7 +558,16 @@ const misnomers = [
 	"Genesect-Chill",
 	"Genesect-Douse",
     "Genesect-Shock",
-    "Mimikyu-Busted"
+    "Mimikyu-Busted",
+    "Alcremie-Vanilla-Cream",
+    "Alcremie-Caramel-Swirl",
+    "Alcremie-Ruby-Cream",
+    "Alcremie-Ruby-Swirl",
+    "Alcremie-Matcha-Cream",
+    "Alcremie-Lemon-Cream",
+    "Alcremie-Salted-Cream",
+    "Alcremie-Mint-Cream",
+    "Alcremie-Rainbow-Swirl"
 ];
 
 //Other bot stuff
