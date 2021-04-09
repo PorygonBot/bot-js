@@ -343,7 +343,7 @@ const getRules = async (rulesId) => {
 				let quirks = await record.get("Quirky Messages?");
 				rules.quirks = quirks;
 
-				let timeOfPing = await record.get("Time of Ping?");
+				let timeOfPing = await record.get("Time of Ping");
 				rules.timeOfPing = timeOfPing || "First";
 
 				let stopTalking = await record.get("Stop Talking?");
