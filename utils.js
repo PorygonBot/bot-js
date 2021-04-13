@@ -567,7 +567,8 @@ const misnomers = [
     "Alcremie-Lemon-Cream",
     "Alcremie-Salted-Cream",
     "Alcremie-Mint-Cream",
-    "Alcremie-Rainbow-Swirl"
+    "Alcremie-Rainbow-Swirl",
+    "Indeedee-F"
 ];
 
 //Other bot stuff
