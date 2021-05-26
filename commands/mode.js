@@ -166,13 +166,10 @@ module.exports = {
 				base("Leagues").create([
 					{
 						fields: {
-							Name: leagueName,
 							"Guild ID": channel.guild.id,
 							"Channel ID": channel.id,
-							"Stream Channel ID": streamChannel.substring(
-								2,
-								streamChannel.length - 1
-							),
+							"Stream Channel ID": streamChannel,
+							"DL ID": dlID,
 							"Stats System": mode,
 							"Sheet ID": sheetsID,
 						},
