@@ -353,10 +353,10 @@ const getRules = async (rulesId) => {
 				rules.tb = tb;
 
 				let combinePD = await record.get("Combine P/D?");
-                rules.combinePD = combinePD;
-                
-                let redirect = await record.get("Redirect");
-                rules.redirect = redirect;
+				rules.combinePD = combinePD;
+
+				let redirect = await record.get("Redirect");
+				rules.redirect = redirect;
 
 				resolve(rules);
 			});
@@ -376,8 +376,8 @@ const getRules = async (rulesId) => {
 		timeOfPing: "First",
 		stopTalking: false,
 		tb: true,
-        combinePD: false,
-        redirect: "",
+		combinePD: false,
+		redirect: "",
 	};
 };
 
@@ -508,7 +508,63 @@ const burnMoves = [
 	"Will-O-Wisp",
 ];
 
-const statusAbility = ["Poison Point", "Poison Touch", "Flame Body", "Effect Spore"];
+const paraMoves = [
+	"Body Slam",
+	"Bolt Strike",
+	"Bounce",
+	"Buzzy Buzz",
+	"Discharge",
+	"Dragon Breath",
+	"Fling",
+	"Force Palm",
+	"Freeze Shock",
+	"G-Max Befuddle",
+	"G-Max Stun Shock",
+	"G-Max Volt Crash",
+	"Glare",
+	"Lick",
+	"Nuzzle",
+	"Psycho Shift",
+	"Secret Power",
+	"Shadow Bolt",
+	"Spark",
+	"Splishy Splash",
+	"Stoked Sparksurfer",
+	"Stun Spore",
+	"Thunder",
+	"Thunder Fang",
+	"Thunder Punch",
+	"Thunder Shock",
+	"Thunder Wave",
+	"Thunderbolt",
+	"Tri Attack",
+	"Volt Tackle",
+	"Zap Cannon",
+];
+
+const sleepMoves = [
+	"Dark Void",
+	"G-Max Befuddle",
+	"G-Max Snooze",
+	"Grass Whistle",
+	"Hypnosis",
+	"Lovely Kiss",
+	"Psycho Shift",
+	"Relic Song",
+	"Rest",
+	"Secret Power",
+	"Sing",
+	"Sleep Powder",
+	"Spore",
+	"Yawn",
+];
+
+const statusAbility = [
+	"Poison Point",
+	"Poison Touch",
+	"Flame Body",
+	"Effect Spore",
+];
 
 const hazardMoves = [
 	"Stealth Rock",
@@ -518,8 +574,9 @@ const hazardMoves = [
 	"G-Max Wildfire",
 	"G-Max Cannonade",
 	"G-Max Vine Lash",
-    "G-Max Centiferno",
-    "G-Max Sandblast",
+	"G-Max Centiferno",
+	"G-Max Sandblast",
+	"Sticky Web",
 ];
 
 const misnomers = [
@@ -557,18 +614,18 @@ const misnomers = [
 	"Genesect-Burn",
 	"Genesect-Chill",
 	"Genesect-Douse",
-    "Genesect-Shock",
-    "Mimikyu-Busted",
-    "Alcremie-Vanilla-Cream",
-    "Alcremie-Caramel-Swirl",
-    "Alcremie-Ruby-Cream",
-    "Alcremie-Ruby-Swirl",
-    "Alcremie-Matcha-Cream",
-    "Alcremie-Lemon-Cream",
-    "Alcremie-Salted-Cream",
-    "Alcremie-Mint-Cream",
-    "Alcremie-Rainbow-Swirl",
-    "Indeedee-F"
+	"Genesect-Shock",
+	"Mimikyu-Busted",
+	"Alcremie-Vanilla-Cream",
+	"Alcremie-Caramel-Swirl",
+	"Alcremie-Ruby-Cream",
+	"Alcremie-Ruby-Swirl",
+	"Alcremie-Matcha-Cream",
+	"Alcremie-Lemon-Cream",
+	"Alcremie-Salted-Cream",
+	"Alcremie-Mint-Cream",
+	"Alcremie-Rainbow-Swirl",
+	"Indeedee-F",
 ];
 
 //Other bot stuff
@@ -641,6 +698,8 @@ const util = {
 	confusionMoves,
 	toxicMoves,
 	burnMoves,
+	paraMoves,
+	sleepMoves,
 	statusAbility,
 	hazardMoves,
 	misnomers,
