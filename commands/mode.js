@@ -13,8 +13,7 @@ module.exports = {
 	name: "mode",
 	description:
 		"Sets the stats updating mode. Run without any parameters to get more info.",
-	usage:
-		"[mode name with hyphen] [parameter]",
+	usage: "[mode name with hyphen] [parameter]",
 	async execute(message, args, client) {
 		const channel = message.channel;
 		const author = message.author;
@@ -26,15 +25,21 @@ module.exports = {
 		}
 
 		let mode;
-		let discordMode = args[0];
+		let discordMode = args[0].toLowerCase();
 		let streamChannel = "";
 		let sheetsID = "";
 		let dlID = "";
 		switch (discordMode) {
+			case "-channel":
 			case "-c":
 				mode = "Channel";
 				streamChannel = args[1].substring(2, args[1].length - 1);
-				if (!(streamChannel && message.guild.channels.cache.get(streamChannel))) {
+				if (
+					!(
+						streamChannel &&
+						message.guild.channels.cache.get(streamChannel)
+					)
+				) {
 					return channel.send(
 						":x: You didn't link a valid channel. Please run the command again and link the channel you'd like the stats to be put in."
 					);
@@ -57,6 +62,10 @@ module.exports = {
 				}
 				sheetsID = sheetsLink.split("/")[5];
 				break;
+			case "-nl":
+			case "-draft-league.nl":
+			case "-draftleaguenl":
+			case "-draftleague":
 			case "-dl":
 				mode = "DL";
 				dlID = querystring.parse(args[1].split("?")[1]).league;
@@ -73,13 +82,43 @@ module.exports = {
 					);
 				}
 				break;
+			case "-defualt":
 			case "-default":
 				mode = "";
 				break;
 			default:
-				return channel.send(
-					"Need help? Here we go!\n```This command is used to either set up a new league or change the updating method of an existing league. To use the command, type this:\nporygon, use mode [either -c, -dm, or -default] [optional extension] \n\n-c: match-results channel mode. This is where the client will send your stats to a separate match-results channel. Make sure to link to the channel you want to be the match-results channel to the end of the message. \n-dm: author DM mode. This mode will DM the author of the original message that sent the live link with the stats.\n-default: default mode. This will just send the stats in the same channel that the link was sent. \n\nMake sure you send this command in the channel you want to make the live-links channel; its name also has to have either live-links or live-battles in it.```"
-				); //TODO add sheets and draft league part, and make this an embed.
+				const modeEmbed = new Discord.MessageEmbed()
+					.setColor("#fc03d7")
+					.setTitle("Porygon Mode Command Info")
+					.setDescription(
+						"Need help on how to use the mode command? This is what you need to know!\n The command goes `porygon, use mode [extension] [extra parameter]`. Each extension is listed below and each parameter required by that extension is listed under it."
+					)
+					.setThumbnail(
+						"https://images.discordapp.net/avatars/692091256477581423/634148e2b64c4cd5e555d9677188e1e2.png"
+					)
+					.addField(
+						"-default",
+						"Sends the stats in the same channel that the live link was sent in.\nExtra parameters: N/A\nExample: `porygon, use mode -default`"
+					)
+					.addField(
+						"-c",
+						"Sends the stats to another channel that is provided by the mods.\nExtra parameters: a link to the channel\nExample: `porygon, use mode -c #match-results`"
+					)
+					.addField(
+						"-dm",
+						"DM's the stats to the user who sent the live link.\nExtra parameters: N/A\nExample: `porygon, use mode -dm`"
+					)
+					.addField(
+						"-sheets",
+						"Updates a Google Sheet with the stats automatically. Click [here](https://www.notion.so/harshithpersonal/Sheets-Updating-is-Back-13898436a3c648789d9b7aaa788752ed) for info."
+					)
+					.addField(
+						"-dl",
+						"Updates draft-league.nl page with the stats automatically. Click [here](https://discord.com/channels/685139768840945674/734963749966053376/819300373143486475) for more info."
+				);
+				return message.channel.send(modeEmbed).catch((e) => {
+					message.channel.send(":x: You need to enable embeds in this channel to use this command.")
+				});
 		}
 
 		let leagueInfo = await utils.findLeagueId(channel.id);
