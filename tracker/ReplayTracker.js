@@ -53,7 +53,7 @@ class ReplayTracker {
 			kills: killJson2,
 			deaths: deathJson2,
 		};
-
+		
 		//Send the stats
 		let defaulter = new DiscordDefaultStats(this.message);
 		await defaulter.update(recordJson);

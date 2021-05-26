@@ -34,9 +34,9 @@ module.exports = {
 			case "-c":
 				mode = "Channel";
 				streamChannel = args[1].substring(2, args[1].length - 1);
-				if (!streamChannel) {
+				if (!(streamChannel && message.guild.channels.cache.get(streamChannel))) {
 					return channel.send(
-						":x: You didn't link a channel. Please run the command again and link the channel you'd like the stats to be put in."
+						":x: You didn't link a valid channel. Please run the command again and link the channel you'd like the stats to be put in."
 					);
 				}
 				break;
