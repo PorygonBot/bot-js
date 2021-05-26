@@ -1,7 +1,9 @@
 const { Client, Message } = require("discord.js");
 const getUrls = require("get-urls");
+const axios = require("axios");
 
 const Showdown = require("../../tracker/Showdown");
+const ReplayTracker = require("../../tracker/ReplayTracker");
 const Battle = require("../../tracker/Battle");
 const utils = require("../../utils");
 
@@ -15,8 +17,28 @@ module.exports = async (client, message) => {
 	const msgStr = message.content;
 	const prefix = "porygon, use ";
 
-	if (channel.type === "dm") return;
-	else if (
+	//If it's a DM, analyze the replay
+	if (channel.type === "dm") {
+		if (msgStr.includes("replay.pokemonshowdown.com") && message.author.id !== client.user.id) {
+			let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
+			let arg = await urls.next().value;
+
+			let link = arg + ".log";
+			console.log(link)
+			let response = await axios.get(link, {
+				headers: { "User-Agent": "PorygonTheBot" },
+			}).catch(e => console.error(e));
+			let data = response.data;
+
+			//Getting the rules
+			let rulesId = await utils.findRulesId(channel.id);
+			let rules = await utils.getRules(rulesId);
+
+			let replayer = new ReplayTracker(arg, message, rules);
+			await replayer.track(data);
+			console.log(`${link} has been analyzed!`);
+		}
+	} else if (
 		channel.name.includes("live-links") ||
 		channel.name.includes("live-battles")
 	) {
