@@ -2804,9 +2804,7 @@ class Showdown {
 						console.log(
 							`${this.battleLink}: ${battle.winner} won!`
 						);
-						console.log("hey");
 						this.websocket.send(`${this.battleLink}|/savereplay`); //Requesting the replay from Showdown
-						console.log("yo");
 					}
 
 					//After the match is done and replay request is sent, it uploads the replay and gets the link

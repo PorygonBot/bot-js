@@ -2439,6 +2439,8 @@ class ReplayTracker {
 						}
 					}
 
+					battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
+					
 					await axios
 						.post(
 							`https://server.porygonbot.xyz/kills/${this.battleLink}`,

@@ -22,8 +22,8 @@ module.exports = async (client, message) => {
 	) {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
-        let battlelink = await urls.next().value;
-        let battleID = battlelink && battlelink.split("/")[3];
+		let battlelink = await urls.next().value;
+		let battleID = battlelink && battlelink.split("/")[3];
 
 		if (Battle.battles.includes(battleID)) {
 			return channel.send(
@@ -32,9 +32,12 @@ module.exports = async (client, message) => {
 		}
 		if (
 			battlelink &&
-			!battlelink.includes("google") &&
-			!battlelink.includes("replay") &&
-			!battlelink.includes("draft-league.nl")
+			!(
+				battlelink.includes("google") ||
+				battlelink.includes("replay") ||
+				battlelink.includes("draft-league.nl") ||
+				battlelink.includes("porygonbot.xyz")
+			)
 		) {
 			let psServer = "";
 			//Checking what server the battlelink is from
@@ -48,16 +51,14 @@ module.exports = async (client, message) => {
 				psServer = "Dawn";
 			} else if (battlelink.includes("drafthub.psim.us")) {
 				psServer = "Drafthub";
-			}
-			else if (battlelink.includes("clover.weedl.es")) {
+			} else if (battlelink.includes("clover.weedl.es")) {
 				psServer = "Clover";
-			}
-			else {
+			} else {
 				channel.send(
 					"This link is not a valid Pokemon Showdown battle url."
 				);
 				return;
-            }
+			}
 
 			//Getting the rules
 			let rulesId = await utils.findRulesId(channel.id);
