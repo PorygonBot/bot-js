@@ -48,7 +48,11 @@ module.exports = async (client, message) => {
 				psServer = "Dawn";
 			} else if (battlelink.includes("drafthub.psim.us")) {
 				psServer = "Drafthub";
-			} else {
+			}
+			else if (battlelink.includes("clover.weedl.es")) {
+				psServer = "Clover";
+			}
+			else {
 				channel.send(
 					"This link is not a valid Pokemon Showdown battle url."
 				);

@@ -34,7 +34,7 @@ class Showdown {
 		let ip;
 		switch (server) {
 			case "Showdown":
-				ip = "sim.smogon.com:8000";
+				ip = "sim3.psim.us:8000";
 				break;
 			case "Sports":
 				ip = "34.222.148.43:8000";
@@ -47,6 +47,9 @@ class Showdown {
 				break;
 			case "Drafthub":
 				ip = "128.199.170.203:8000";
+				break;
+			case "Clover":
+				ip = "clover.weedl.es:8000";
 				break;
 		}
 		this.server = `ws://${ip}/showdown/websocket`;
@@ -230,7 +233,9 @@ class Showdown {
 			headers: { "User-Agent": "PorygonTheBot" },
 		});
 
-		let response = await axios.post(url, newData);
+		let response = await axios
+			.post(url, newData)
+			.catch((e) => console.error(e));
 
 		let replay = `https://replay.pokemonshowdown.com/${data.id}`;
 
@@ -247,6 +252,7 @@ class Showdown {
 				let realdata = data.split("\n");
 
 				for (const line of realdata) {
+					//console.log(line);
 					dataArr.push(line);
 
 					//Separates the line into parts, separated by `|`
@@ -303,18 +309,18 @@ class Showdown {
 						);
 					}
 
-                    //Checks for Showdown-based commands
-                    else if (line.startsWith("|c|☆")) {
-                        if (parts[2] === "porygon, use leave") {
-                            this.websocket.send(
-                                `${this.battleLink}|Ok. Bye!`
-                            );
-                            console.log(`Left ${this.battleLink}.`);
-                            await this.message.channel.send(`Left ${this.battleLink}.`);
-                            Battle.decrementBattles(this.battleLink);
-                            return this.websocket.close();
-                        }
-                    }
+					//Checks for Showdown-based commands
+					else if (line.startsWith("|c|☆")) {
+						if (parts[2] === "porygon, use leave") {
+							this.websocket.send(`${this.battleLink}|Ok. Bye!`);
+							console.log(`Left ${this.battleLink}.`);
+							await this.message.channel.send(
+								`Left ${this.battleLink}.`
+							);
+							Battle.decrementBattles(this.battleLink);
+							return this.websocket.close();
+						}
+					}
 
 					//Increments the total number of turns at the beginning of every new turn
 					else if (line.startsWith(`|turn|`)) {
@@ -366,8 +372,10 @@ class Showdown {
 									battle.p1a.currentPassiveKills;
 								battle.p1a.currentDirectKills = 0;
 								battle.p1a.currentPassiveKills = 0;
-								battle.p1a.directKills += tempCurrentDirectKills;
-								battle.p1a.passiveKills += tempCurrentPassiveKills;
+								battle.p1a.directKills +=
+									tempCurrentDirectKills;
+								battle.p1a.passiveKills +=
+									tempCurrentPassiveKills;
 								oldPokemon = battle.p1a;
 
 								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
@@ -390,8 +398,10 @@ class Showdown {
 									battle.p1b.currentPassiveKills;
 								battle.p1b.currentDirectKills = 0;
 								battle.p1b.currentPassiveKills = 0;
-								battle.p1b.directKills += tempCurrentDirectKills;
-								battle.p1b.passiveKills += tempCurrentPassiveKills;
+								battle.p1b.directKills +=
+									tempCurrentDirectKills;
+								battle.p1b.passiveKills +=
+									tempCurrentPassiveKills;
 								oldPokemon = battle.p1b;
 
 								battle.p1Pokemon[oldPokemon.name] = oldPokemon;
@@ -414,8 +424,10 @@ class Showdown {
 									battle.p2a.currentPassiveKills;
 								battle.p2a.currentDirectKills = 0;
 								battle.p2a.currentPassiveKills = 0;
-								battle.p2a.directKills += tempCurrentDirectKills;
-								battle.p2a.passiveKills += tempCurrentPassiveKills;
+								battle.p2a.directKills +=
+									tempCurrentDirectKills;
+								battle.p2a.passiveKills +=
+									tempCurrentPassiveKills;
 								oldPokemon = battle.p2a;
 								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
 							}
@@ -437,8 +449,10 @@ class Showdown {
 									battle.p2b.currentPassiveKills;
 								battle.p2b.currentDirectKills = 0;
 								battle.p2b.currentPassiveKills = 0;
-								battle.p2b.directKills += tempCurrentDirectKills;
-								battle.p2b.passiveKills += tempCurrentPassiveKills;
+								battle.p2b.directKills +=
+									tempCurrentDirectKills;
+								battle.p2b.passiveKills +=
+									tempCurrentPassiveKills;
 								oldPokemon = battle.p2b;
 
 								battle.p2Pokemon[oldPokemon.name] = oldPokemon;
@@ -495,8 +509,10 @@ class Showdown {
 							battle.p1a.currentPassiveKills = 0;
 							let oldPokemon = battle.p1a;
 							battle.p1a = battle.p1Pokemon[replacer];
-							battle.p1a.currentDirectKills += tempCurrentDirectKills;
-							battle.p1a.currentPassiveKills += tempCurrentPassiveKills;
+							battle.p1a.currentDirectKills +=
+								tempCurrentDirectKills;
+							battle.p1a.currentPassiveKills +=
+								tempCurrentPassiveKills;
 
 							console.log(
 								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1a.name}`
@@ -510,8 +526,10 @@ class Showdown {
 							battle.p1b.currentPassiveKills = 0;
 							let oldPokemon = battle.p1b;
 							battle.p1b = battle.p1Pokemon[replacer];
-							battle.p1b.currentDirectKills += tempCurrentDirectKills;
-							battle.p1b.currentPassiveKills += tempCurrentPassiveKills;
+							battle.p1b.currentDirectKills +=
+								tempCurrentDirectKills;
+							battle.p1b.currentPassiveKills +=
+								tempCurrentPassiveKills;
 
 							console.log(
 								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1b.name}`
@@ -525,8 +543,10 @@ class Showdown {
 							battle.p2a.currentPassiveKills = 0;
 							let oldPokemon = battle.p2a;
 							battle.p2a = battle.p2Pokemon[replacer];
-							battle.p2a.currentDirectKills += tempCurrentDirectKills;
-							battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
+							battle.p2a.currentDirectKills +=
+								tempCurrentDirectKills;
+							battle.p2a.currentPassiveKills +=
+								tempCurrentPassiveKills;
 
 							console.log(
 								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2a.name}`
@@ -540,8 +560,10 @@ class Showdown {
 							battle.p2b.currentPassiveKills = 0;
 							let oldPokemon = battle.p2b;
 							battle.p2b = battle.p1Pokemon[replacer];
-							battle.p2b.currentDirectKills += tempCurrentDirectKills;
-							battle.p2b.currentPassiveKills += tempCurrentPassiveKills;
+							battle.p2b.currentDirectKills +=
+								tempCurrentDirectKills;
+							battle.p2b.currentPassiveKills +=
+								tempCurrentPassiveKills;
 
 							console.log(
 								`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2b.name}`
@@ -1173,33 +1195,29 @@ class Showdown {
 								if (side === "p1a") {
 									afflictor = battle[afflictorSide].name;
 
-									battle.p1a.otherAffliction[
-										move
-									] = afflictor;
+									battle.p1a.otherAffliction[move] =
+										afflictor;
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 								} else if (side === "p1b") {
 									afflictor = battle[afflictorSide].name;
 
-									battle.p1b.otherAffliction[
-										move
-									] = afflictor;
+									battle.p1b.otherAffliction[move] =
+										afflictor;
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 								} else if (side === "p2a") {
 									afflictor = battle[afflictorSide].name;
 
-									battle.p2a.otherAffliction[
-										move
-									] = afflictor;
+									battle.p2a.otherAffliction[move] =
+										afflictor;
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 								} else if (side === "p2b") {
 									afflictor = battle[afflictorSide].name;
 
-									battle.p2b.otherAffliction[
-										move
-									] = afflictor;
+									battle.p2b.otherAffliction[move] =
+										afflictor;
 									victim =
 										battle.p2b.realName || battle.p2b.name;
 								}
@@ -1395,9 +1413,8 @@ class Showdown {
 							historyLine.includes(battle.turns.toString())
 						) {
 							let historyLineParts = historyLine.split(" ");
-							let victim = historyLine.split(
-								" was killed by "
-							)[0];
+							let victim =
+								historyLine.split(" was killed by ")[0];
 							let killer = historyLine
 								.split(" was killed by ")[1]
 								.split(" due to ")[0];
@@ -2204,9 +2221,8 @@ class Showdown {
 									let prevMoveParts = prevMoveLine
 										.split("|")
 										.slice(1);
-									let prevMoveUserSide = prevMoveParts[1].split(
-										": "
-									)[0];
+									let prevMoveUserSide =
+										prevMoveParts[1].split(": ")[0];
 									if (
 										(victimSide === "p1a" ||
 											(prevMoveParts[4] &&
@@ -2746,9 +2762,10 @@ class Showdown {
 						//Giving mons their proper names
 						//Team 1
 						for (let pokemonName of Object.keys(battle.p1Pokemon)) {
-							const newName = battle.p1Pokemon[
-								pokemonName
-							].realName.split("-")[0];
+							const newName =
+								battle.p1Pokemon[pokemonName].realName.split(
+									"-"
+								)[0];
 							if (
 								utils.misnomers.includes(newName) ||
 								utils.misnomers.includes(pokemonName) ||
@@ -2756,9 +2773,8 @@ class Showdown {
 									battle.p1Pokemon[pokemonName].realName
 								)
 							) {
-								battle.p1Pokemon[
-									pokemonName
-								].realName = newName;
+								battle.p1Pokemon[pokemonName].realName =
+									newName;
 							}
 							if (pokemonName === "") {
 								delete battle.p1Pokemon[pokemonName];
@@ -2766,9 +2782,10 @@ class Showdown {
 						}
 						//Team 2
 						for (let pokemonName of Object.keys(battle.p2Pokemon)) {
-							const newName = battle.p2Pokemon[
-								pokemonName
-							].realName.split("-")[0];
+							const newName =
+								battle.p2Pokemon[pokemonName].realName.split(
+									"-"
+								)[0];
 							if (
 								utils.misnomers.includes(newName) ||
 								utils.misnomers.includes(pokemonName) ||
@@ -2776,9 +2793,8 @@ class Showdown {
 									battle.p2Pokemon[pokemonName].realName
 								)
 							) {
-								battle.p2Pokemon[
-									pokemonName
-								].realName = newName;
+								battle.p2Pokemon[pokemonName].realName =
+									newName;
 							}
 							if (pokemonName === "") {
 								delete battle.p2Pokemon[pokemonName];
@@ -2788,7 +2804,9 @@ class Showdown {
 						console.log(
 							`${this.battleLink}: ${battle.winner} won!`
 						);
-						this.websocket.send(`${this.battleLink}|/uploadreplay`); //Requesting the replay from Showdown
+						console.log("hey");
+						this.websocket.send(`${this.battleLink}|/savereplay`); //Requesting the replay from Showdown
+						console.log("yo");
 					}
 
 					//After the match is done and replay request is sent, it uploads the replay and gets the link
@@ -2801,6 +2819,8 @@ class Showdown {
 								? ""
 								: this.serverType + "-"
 						)}`;
+						battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
+
 						await axios
 							.post(
 								`https://server.porygonbot.xyz/kills/${
@@ -2867,9 +2887,8 @@ class Showdown {
 									direct: pokemonObj.directKills,
 									passive: pokemonObj.passiveKills,
 								};
-								deathJsonp1[
-									pokemonObj.realName
-								] = pokemonObj.isDead ? 1 : 0;
+								deathJsonp1[pokemonObj.realName] =
+									pokemonObj.isDead ? 1 : 0;
 							}
 						}
 						//Player 2
@@ -2892,9 +2911,174 @@ class Showdown {
 									direct: pokemonObj.directKills,
 									passive: pokemonObj.passiveKills,
 								};
-								deathJsonp2[
-									pokemonObj.realName
-								] = pokemonObj.isDead ? 1 : 0;
+								deathJsonp2[pokemonObj.realName] =
+									pokemonObj.isDead ? 1 : 0;
+							}
+						}
+
+						if (
+							battle.winner.endsWith("p1") &&
+							battle.loser.endsWith("p2")
+						) {
+							info.result = `${battle.p1} won ${
+								Object.keys(killJsonp1).length -
+								Object.keys(deathJsonp1).filter(
+									(pokemonKey) =>
+										deathJsonp1[pokemonKey] === 1
+								).length
+							}-${
+								Object.keys(killJsonp2).length -
+								Object.keys(deathJsonp2).filter(
+									(pokemonKey) =>
+										deathJsonp2[pokemonKey] === 1
+								).length
+							}`;
+							await this.endscript(
+								battle.winner,
+								killJsonp1,
+								deathJsonp1,
+								battle.loser,
+								killJsonp2,
+								deathJsonp2,
+								info
+							);
+						} else if (
+							battle.winner.endsWith("p2") &&
+							battle.loser.endsWith("p1")
+						) {
+							info.result = `${battle.p2} won ${
+								Object.keys(killJsonp2).length -
+								Object.keys(deathJsonp2).filter(
+									(pokemonKey) =>
+										deathJsonp2[pokemonKey] === 1
+								).length
+							}-${
+								Object.keys(killJsonp1).length -
+								Object.keys(deathJsonp1).filter(
+									(pokemonKey) =>
+										deathJsonp1[pokemonKey] === 1
+								).length
+							}`;
+
+							await this.endscript(
+								battle.winner,
+								killJsonp2,
+								deathJsonp2,
+								battle.loser,
+								killJsonp1,
+								deathJsonp1,
+								info
+							);
+						} else {
+							return { code: "-1" };
+						}
+
+						this.websocket.send(`|/leave ${this.battleLink}`);
+						this.websocket.close();
+
+						let returndata = {
+							info: info,
+							code: "0",
+						};
+
+						return returndata;
+					} else if (
+						line.startsWith("|popup|This server's request IP")
+					) {
+						battle.replay = "undefined";
+						battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
+						await axios
+							.post(
+								`https://server.porygonbot.xyz/kills/${
+									this.battleLink
+								}`,
+								battle.history.join("<br>"),
+								{
+									headers: {
+										"Content-Length": 0,
+										"Content-Type": "text/plain",
+									},
+									responseType: "text",
+								}
+							)
+							.catch(async (e) => {
+								await this.message.channel.send(
+									`:x: Error with match number \`${
+										this.battleLink
+									}\`. I will be unable to update this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
+										e.message
+									}\nLine number: ${
+										e.stack.split(":")[2]
+									}\`\`\``
+								);
+								this.websocket.send(
+									`${this.battleLink}|:x: Error with this match. I will be unable to update this match until you send this match's replay to the Porygon server's bugs-and-help channel. I have also left this battle so I will not send the stats for this match until the error is fixed and you analyze its replay again.`
+								);
+								this.websocket.send(
+									`/leave ${this.battleLink}`
+								);
+
+								console.error(this.battleLink + ": " + e);
+							});
+
+						let info = {
+							replay: battle.replay,
+							turns: battle.turns,
+							winner: battle.winner,
+							loser: battle.loser,
+							history: `https://server.porygonbot.xyz/kills/${
+								this.battleLink
+							}`,
+							...this.rules,
+						};
+
+						//Creating the objects for kills and deaths
+						//Player 1
+						let killJsonp1 = {};
+						let deathJsonp1 = {};
+						for (let pokemonObj of Object.values(
+							battle.p1Pokemon
+						)) {
+							if (
+								!(
+									Object.keys(killJsonp1).includes(
+										pokemonObj.realName
+									) ||
+									Object.keys(deathJsonp1).includes(
+										pokemonObj.realName
+									)
+								)
+							) {
+								killJsonp1[pokemonObj.realName] = {
+									direct: pokemonObj.directKills,
+									passive: pokemonObj.passiveKills,
+								};
+								deathJsonp1[pokemonObj.realName] =
+									pokemonObj.isDead ? 1 : 0;
+							}
+						}
+						//Player 2
+						let killJsonp2 = {};
+						let deathJsonp2 = {};
+						for (let pokemonObj of Object.values(
+							battle.p2Pokemon
+						)) {
+							if (
+								!(
+									Object.keys(killJsonp2).includes(
+										pokemonObj.realName
+									) ||
+									Object.keys(deathJsonp2).includes(
+										pokemonObj.realName
+									)
+								)
+							) {
+								killJsonp2[pokemonObj.realName] = {
+									direct: pokemonObj.directKills,
+									passive: pokemonObj.passiveKills,
+								};
+								deathJsonp2[pokemonObj.realName] =
+									pokemonObj.isDead ? 1 : 0;
 							}
 						}
 

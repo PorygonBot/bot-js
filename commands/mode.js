@@ -115,9 +115,11 @@ module.exports = {
 					.addField(
 						"-dl",
 						"Updates draft-league.nl page with the stats automatically. Click [here](https://discord.com/channels/685139768840945674/734963749966053376/819300373143486475) for more info."
-				);
+					);
 				return message.channel.send(modeEmbed).catch((e) => {
-					message.channel.send(":x: You need to enable embeds in this channel to use this command.")
+					message.channel.send(
+						":x: You need to enable embeds in this channel to use this command."
+					);
 				});
 		}
 
