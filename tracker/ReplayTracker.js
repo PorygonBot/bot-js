@@ -78,7 +78,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -483,7 +483,7 @@ class ReplayTracker {
 									battle.p1b.name;
 						}
 					}
-					if (move !== "Destiny Bond" && move !== "Synchronize")
+					if (!(move === "Destiny Bond" || move === "Synchronize"))
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -555,7 +555,22 @@ class ReplayTracker {
 					let victim = "";
 
 					//If status was caused by a move
-					if (
+					if (prevMoveLine.includes("Synchronize")) {
+						let inflictorSide = prevParts[1].split(": ")[0];
+
+						inflictor = battle[inflictorSide].realName;
+						victim =
+							battle[victimSide].realName ||
+							battle[victimSide].name;
+						battle[victimSide].statusEffect(
+							parts[2] === "tox" ? "psn" : parts[2],
+							inflictor,
+							"Passive"
+						);
+
+						console.log(inflictor + inflictorSide);
+						console.log(victim + victimSide);
+					} else if (
 						(prevMoveLine.startsWith(`|move|`) &&
 							(utils.toxicMoves.includes(prevMove) ||
 								utils.burnMoves.includes(prevMove))) ||
@@ -713,82 +728,6 @@ class ReplayTracker {
 								inflictor,
 								this.rules.abilityItem
 							);
-						}
-					} else if (prevMoveLine.includes("Synchronize")) {
-						let inflictorSide = prevParts[1].split(": ")[0];
-
-						if (inflictorSide === "p1a") {
-							if (victimSide === "p2a") {
-								battle.p2a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1a.name,
-									"Passive"
-								);
-								inflictor = battle.p1a.name;
-								victim = battle.p2a.realName || battle.p2a.name;
-							} else if (victimSide === "p2b") {
-								battle.p2b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1a.name,
-									"Passive"
-								);
-								inflictor = battle.p1a.name;
-								victim = battle.p2b.realName || battle.p2b.name;
-							}
-						} else if (inflictorSide === "p1b") {
-							if (victimSide === "p2a") {
-								battle.p2a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1b.name,
-									"Passive"
-								);
-								inflictor = battle.p1b.name;
-								victim = battle.p2a.realName || battle.p2a.name;
-							} else if (victimSide === "p2b") {
-								battle.p2b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1b.name,
-									"Passive"
-								);
-								inflictor = battle.p1b.name;
-								victim = battle.p2a.realName || battle.p2b.name;
-							}
-						} else if (inflictorSide === "p2a") {
-							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-								inflictor = battle.p2a.name;
-								victim = battle.p1a.realName || battle.p1a.name;
-							} else if (victimSide === "p1b") {
-								battle.p1b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-								inflictor = battle.p2a.name;
-								victim = battle.p1b.realName || battle.p1b.name;
-							}
-						} else if (inflictorSide === "p2b") {
-							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2b.name,
-									"Passive"
-								);
-								inflictor = battle.p2b.name;
-								victim = battle.p1a.realName || battle.p1a.name;
-							} else if (victimSide === "p1b") {
-								battle.p1b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2b.name,
-									"Passive"
-								);
-								inflictor = battle.p2b.name;
-								victim = battle.p1b.realName || battle.p1b.name;
-							}
 						}
 					} else {
 						//If status wasn't caused by a move, but rather Toxic Spikes
@@ -1532,7 +1471,7 @@ class ReplayTracker {
 									  ""
 									: parts[1].split(": ")[0];
 
-								console.log(owner + victimSide)
+								console.log(owner + victimSide);
 								if (owner === victimSide) {
 									victim =
 										battle[owner].realName ||
