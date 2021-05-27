@@ -78,7 +78,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				//console.log(line);
+				console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -1541,7 +1541,7 @@ class ReplayTracker {
 											victim =
 												battle.p1a.realName ||
 												battle.p1a.name;
-										} else if (killerSide === "p2b") {
+										} else if (victimSide === "p1b") {
 											victim =
 												battle.p1b.realName ||
 												battle.p1b.name;
@@ -1549,14 +1549,14 @@ class ReplayTracker {
 											victim =
 												battle.p2a.realName ||
 												battle.p2a.name;
-										} else if (killerSide === "p2b") {
+										} else if (victimSide === "p2b") {
 											victim =
 												battle.p2b.realName ||
 												battle.p2b.name;
 										}
 									}
 
-									let deathJson = battle.p1a.died(
+									let deathJson = battle[victimSide].died(
 										prevMove,
 										killer,
 										this.rules.suicide === "Passive"
@@ -2196,6 +2196,7 @@ class ReplayTracker {
 							}) (Turn ${battle.turns}).`
 						);
 					} else {
+						console.log(JSON.stringify(battle.p2a))
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
 						let victim;
@@ -2240,7 +2241,6 @@ class ReplayTracker {
 								killer,
 								false
 							);
-
 							battle.p1Pokemon[killer].killed(deathJson);
 						} else if (victimSide === "p2b" && !battle.p2b.isDead) {
 							let killerSide = prevParts[1].split(": ")[0];

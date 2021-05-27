@@ -566,7 +566,7 @@ const statusAbility = [
 	"Poison Point",
 	"Poison Touch",
 	"Flame Body",
-	"Effect Spore",
+	"Effect Spore"
 ];
 
 const hazardMoves = [
