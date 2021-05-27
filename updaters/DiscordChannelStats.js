@@ -26,7 +26,7 @@ class DiscordChannelStats {
 			return this.channel.send(
 				":x: Error! You don't have a match results channel in the database for this server. "
 			);
-        }
+		}
 		let streamChannel = utils.getChannel(
 			this.server,
 			matchJson.streamChannel
@@ -40,13 +40,17 @@ class DiscordChannelStats {
 			else finalMessage = message1;
 		} else {
 			if (info.spoiler)
-				finalMessage = `||**${psPlayer1}**: \n${message1}|| \n\n||**${psPlayer2}**: \n${message2}||`;
+				finalMessage = `||**${psPlayer1}**: \n${message1}|| \n||**${psPlayer2}**: \n${message2}||`;
 			else
-				finalMessage = `\n\n**${psPlayer1}**: \n${message1} \n\n**${psPlayer2}**: \n${message2}`;
+				finalMessage = `**${psPlayer1}**: \n${message1} \n**${psPlayer2}**: \n${message2}`;
 		}
 
-        if (info.tb) {
-            finalMessage = `**Result:** ${info.spoiler ? `|| ${ info.result }||` : info.result}\n\n${finalMessage}\n\n**Replay: **<${info.replay}>\n**History: **${info.history}`;
+		if (info.tb) {
+			finalMessage = `**Result:** ${
+				info.spoiler ? `|| ${info.result}||` : info.result
+			}\n\n${finalMessage}\n**Replay: **<${info.replay}>\n**History: **${
+				info.history
+			}`;
 		}
 
 		streamChannel.send(finalMessage);
