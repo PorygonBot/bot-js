@@ -19,14 +19,19 @@ module.exports = async (client, message) => {
 
 	//If it's a DM, analyze the replay
 	if (channel.type === "dm") {
-		if (msgStr.includes("replay.pokemonshowdown.com") && message.author.id !== client.user.id) {
+		if (
+			msgStr.includes("replay.pokemonshowdown.com") &&
+			message.author.id !== client.user.id
+		) {
 			let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
 			let arg = await urls.next().value;
 
 			let link = arg + ".log";
-			let response = await axios.get(link, {
-				headers: { "User-Agent": "PorygonTheBot" },
-			}).catch(e => console.error(e));
+			let response = await axios
+				.get(link, {
+					headers: { "User-Agent": "PorygonTheBot" },
+				})
+				.catch((e) => console.error(e));
 			let data = response.data;
 
 			//Getting the rules
@@ -44,7 +49,7 @@ module.exports = async (client, message) => {
 		//Extracting battlelink from the message
 		let urls = getUrls(msgStr).values(); //This is because getUrls returns a Set
 		let battlelink = await urls.next().value;
-		let battleID = battlelink && battlelink.split("/")[3];
+		let battleID = battlelink && battlelink.split("/")[3].replace("#", "");
 
 		if (Battle.battles.includes(battleID)) {
 			return channel.send(
@@ -62,19 +67,21 @@ module.exports = async (client, message) => {
 		) {
 			let psServer = "";
 			//Checking what server the battlelink is from
-			if (battlelink.includes("sports.psim.us")) {
+			if (battlelink.includes("sports.psim.us"))
 				psServer = "Sports";
-			} else if (battlelink.includes("automatthic.psim.us")) {
+			else if (battlelink.includes("automatthic.psim.us"))
 				psServer = "Automatthic";
-			} else if (battlelink.includes("play.pokemonshowdown.com")) {
+			else if (battlelink.includes("play.pokemonshowdown.com"))
 				psServer = "Showdown";
-			} else if (battlelink.includes("dawn.psim.us")) {
+			else if (battlelink.includes("dawn.psim.us"))
 				psServer = "Dawn";
-			} else if (battlelink.includes("drafthub.psim.us")) {
+			else if (battlelink.includes("drafthub.psim.us"))
 				psServer = "Drafthub";
-			} else if (battlelink.includes("clover.weedl.es")) {
+			else if (battlelink.includes("clover.weedl.es"))
 				psServer = "Clover";
-			} else {
+			else if (battlelink.includes("radicalredshowdown.us.to"))
+				psServer = "RR";
+			else {
 				channel.send(
 					"This link is not a valid Pokemon Showdown battle url."
 				);

@@ -51,6 +51,9 @@ class Showdown {
 			case "Clover":
 				ip = "clover.weedl.es:8000";
 				break;
+			case "RR":
+				ip = "164.90.254.251:8000";
+				break;
 		}
 		this.server = `ws://${ip}/showdown/websocket`;
 
