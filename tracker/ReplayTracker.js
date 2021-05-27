@@ -1530,31 +1530,17 @@ class ReplayTracker {
 								let owner = parts[4]
 									? parts[4].split(": ")[0].split("] ")[1] ||
 									  ""
-									: "";
+									: parts[1].split(": ")[0];
 
+								console.log(owner + victimSide)
 								if (owner === victimSide) {
 									victim =
 										battle[owner].realName ||
 										battle[owner].name;
-									if (this.rules.suicide !== "None") {
-										if (victimSide === "p1a") {
-											victim =
-												battle.p1a.realName ||
-												battle.p1a.name;
-										} else if (victimSide === "p1b") {
-											victim =
-												battle.p1b.realName ||
-												battle.p1b.name;
-										} else if (victimSide === "p1a") {
-											victim =
-												battle.p2a.realName ||
-												battle.p2a.name;
-										} else if (victimSide === "p2b") {
-											victim =
-												battle.p2b.realName ||
-												battle.p2b.name;
-										}
-									}
+									if (this.rules.suicide !== "None")
+										victim =
+											battle[victimSide].realName ||
+											battle[victimSide].name;
 
 									let deathJson = battle[victimSide].died(
 										prevMove,
@@ -2196,7 +2182,7 @@ class ReplayTracker {
 							}) (Turn ${battle.turns}).`
 						);
 					} else {
-						console.log(JSON.stringify(battle.p2a))
+						console.log(JSON.stringify(battle.p2a));
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
 						let victim;
