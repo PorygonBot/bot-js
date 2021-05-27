@@ -3001,6 +3001,8 @@ class Showdown {
 							battle.history.length === 0
 								? ["Nothing happened"]
 								: battle.history;
+						this.battleLink = this.battleLink.replace("battle", this.serverType);
+						
 						await axios
 							.post(
 								`https://server.porygonbot.xyz/kills/${this.battleLink}`,
