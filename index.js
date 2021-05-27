@@ -40,5 +40,5 @@ client.ws.on("INTERACTION_CREATE", async (interaction) => {
 	console.log(`${link} has been analyzed!`);
 });
 
-// Login the bot in.
+// Log the bot in.
 client.login(process.env.TOKEN);

@@ -8,7 +8,7 @@ const Battle = require("./Battle");
 const utils = require("../utils.js");
 //Importing all updating-related modules
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
-const InteractionStats = require("../updaters/InteractionStats")
+const InteractionStats = require("../updaters/InteractionStats");
 
 class ReplayTracker {
 	constructor(replayLink, message, rules, interaction) {
@@ -55,10 +55,13 @@ class ReplayTracker {
 			kills: killJson2,
 			deaths: deathJson2,
 		};
-		
+
 		//Send the stats
 		if (info.client) {
-			let interacter = new InteractionStats(this.interaction, info.client);
+			let interacter = new InteractionStats(
+				this.interaction,
+				info.client
+			);
 			await interacter.update(recordJson);
 		}
 		let defaulter = new DiscordDefaultStats(this.message);
@@ -270,7 +273,8 @@ class ReplayTracker {
 						let oldPokemon = battle.p1a;
 						battle.p1a = battle.p1Pokemon[replacer];
 						battle.p1a.currentDirectKills += tempCurrentDirectKills;
-						battle.p1a.currentPassiveKills += tempCurrentPassiveKills;
+						battle.p1a.currentPassiveKills +=
+							tempCurrentPassiveKills;
 
 						console.log(
 							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1a.name}`
@@ -285,7 +289,8 @@ class ReplayTracker {
 						let oldPokemon = battle.p1b;
 						battle.p1b = battle.p1Pokemon[replacer];
 						battle.p1b.currentDirectKills += tempCurrentDirectKills;
-						battle.p1b.currentPassiveKills += tempCurrentPassiveKills;
+						battle.p1b.currentPassiveKills +=
+							tempCurrentPassiveKills;
 
 						console.log(
 							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p1b.name}`
@@ -300,7 +305,8 @@ class ReplayTracker {
 						let oldPokemon = battle.p2a;
 						battle.p2a = battle.p2Pokemon[replacer];
 						battle.p2a.currentDirectKills += tempCurrentDirectKills;
-						battle.p2a.currentPassiveKills += tempCurrentPassiveKills;
+						battle.p2a.currentPassiveKills +=
+							tempCurrentPassiveKills;
 
 						console.log(
 							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2a.name}`
@@ -315,7 +321,8 @@ class ReplayTracker {
 						let oldPokemon = battle.p2b;
 						battle.p2b = battle.p1Pokemon[replacer];
 						battle.p2b.currentDirectKills += tempCurrentDirectKills;
-						battle.p2b.currentPassiveKills += tempCurrentPassiveKills;
+						battle.p2b.currentPassiveKills +=
+							tempCurrentPassiveKills;
 
 						console.log(
 							`${this.battleLink}: ${oldPokemon.name} has been replaced by ${battle.p2b.name}`
@@ -866,7 +873,12 @@ class ReplayTracker {
 				else if (line.startsWith(`|-sideend|`)) {
 					let side = parts[1].split(": ")[0];
 					let hazard = parts[2];
+					let move = parts[3].split("move: ")[1];
+					let removerSide = parts[4].split("[of] ")[1].split(": ")[0];
 					battle.endHazard(side, hazard);
+					battle.history.push(
+						`${hazard} has been removed by ${battle[removerSide].realName} with ${move} (Turn ${battle.turns}).`
+					);
 					dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -1093,16 +1105,18 @@ class ReplayTracker {
 				//Mostly used for Illusion cuz frick Zoroark
 				else if (line.startsWith(`|-end|`)) {
 					let historyLine =
-						battle.history.filter((line) => line.includes(" was killed by "))[battle.history.length - 1] || "";
+						battle.history.filter((line) =>
+							line.includes(" was killed by ")
+						)[battle.history.length - 1] || "";
 					if (
 						line.endsWith("Illusion") &&
 						historyLine.includes(battle.turns.toString())
 					) {
-                        let historyLineParts = historyLine.split(" ");
+						let historyLineParts = historyLine.split(" ");
 						let victim = historyLine.split(" was killed by ")[0];
 						let killer = historyLine
 							.split(" was killed by ")[1]
-                            .split(" due to ")[0];
+							.split(" due to ")[0];
 						let isPassive =
 							historyLineParts[historyLineParts.length - 2] ===
 							"(passive)";
@@ -1572,10 +1586,10 @@ class ReplayTracker {
 											this.rules.abilityitem === "Passive"
 										);
 										if (killer) {
-                                            battle.p2Pokemon[killer].killed(
-                                                deathJson
-                                            );
-                                        }
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+										}
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
@@ -1592,10 +1606,10 @@ class ReplayTracker {
 											this.rules.abilityitem === "Passive"
 										);
 										if (killer) {
-                                            battle.p2Pokemon[killer].killed(
-                                                deathJson
-                                            );
-                                        }
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+										}
 										victim =
 											battle.p1b.realName ||
 											battle.p1b.name;
@@ -1612,10 +1626,10 @@ class ReplayTracker {
 											this.rules.abilityitem === "Passive"
 										);
 										if (killer) {
-                                            battle.p1Pokemon[killer].killed(
-                                                deathJson
-                                            );
-                                        }
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+										}
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
@@ -1632,10 +1646,10 @@ class ReplayTracker {
 											this.rules.abilityitem === "Passive"
 										);
 										if (killer) {
-                                            battle.p1Pokemon[killer].killed(
-                                                deathJson
-                                            );
-                                        }
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+										}
 										victim =
 											battle.p2b.realName ||
 											battle.p2b.name;
@@ -1842,9 +1856,8 @@ class ReplayTracker {
 								let prevMoveParts = prevMoveLine
 									.split("|")
 									.slice(1);
-								let prevMoveUserSide = prevMoveParts[1].split(
-									": "
-								)[0];
+								let prevMoveUserSide =
+									prevMoveParts[1].split(": ")[0];
 								if (
 									(victimSide === "p1a" ||
 										(prevMoveParts[4] &&
@@ -2342,9 +2355,10 @@ class ReplayTracker {
 					//Giving mons their proper names
 					//Team 1
 					for (let pokemonName of Object.keys(battle.p1Pokemon)) {
-						const newName = battle.p1Pokemon[
-							pokemonName
-						].realName.split("-")[0];
+						const newName =
+							battle.p1Pokemon[pokemonName].realName.split(
+								"-"
+							)[0];
 						if (
 							utils.misnomers.includes(newName) ||
 							utils.misnomers.includes(pokemonName) ||
@@ -2362,9 +2376,10 @@ class ReplayTracker {
 					}
 					//Team 2
 					for (let pokemonName of Object.keys(battle.p2Pokemon)) {
-						const newName = battle.p2Pokemon[
-							pokemonName
-						].realName.split("-")[0];
+						const newName =
+							battle.p2Pokemon[pokemonName].realName.split(
+								"-"
+							)[0];
 						if (
 							utils.misnomers.includes(newName) ||
 							utils.misnomers.includes(pokemonName) ||
@@ -2446,8 +2461,11 @@ class ReplayTracker {
 						}
 					}
 
-					battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
-					
+					battle.history =
+						battle.history.length === 0
+							? ["Nothing happened"]
+							: battle.history;
+
 					await axios
 						.post(
 							`https://server.porygonbot.xyz/kills/${this.battleLink}`,

@@ -1142,7 +1142,14 @@ class Showdown {
 					else if (line.startsWith(`|-sideend|`)) {
 						let side = parts[1].split(": ")[0];
 						let hazard = parts[2];
+						let move = parts[3].split("move: ")[1];
+						let removerSide = parts[4]
+							.split("[of] ")[1]
+							.split(": ")[0];
 						battle.endHazard(side, hazard);
+						battle.history.push(
+							`${hazard} has been removed by ${battle[removerSide].realName} with ${move} (Turn ${battle.turns}).`
+						);
 						dataArr.splice(dataArr.length - 1, 1);
 					}
 
@@ -2817,7 +2824,10 @@ class Showdown {
 								? ""
 								: this.serverType + "-"
 						)}`;
-						battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
+						battle.history =
+							battle.history.length === 0
+								? ["Nothing happened"]
+								: battle.history;
 
 						await axios
 							.post(
@@ -2984,12 +2994,13 @@ class Showdown {
 						line.startsWith("|popup|This server's request IP")
 					) {
 						battle.replay = "undefined";
-						battle.history = battle.history.length === 0 ? ["Nothing happened"] : battle.history;
+						battle.history =
+							battle.history.length === 0
+								? ["Nothing happened"]
+								: battle.history;
 						await axios
 							.post(
-								`https://server.porygonbot.xyz/kills/${
-									this.battleLink
-								}`,
+								`https://server.porygonbot.xyz/kills/${this.battleLink}`,
 								battle.history.join("<br>"),
 								{
 									headers: {
@@ -3024,9 +3035,7 @@ class Showdown {
 							turns: battle.turns,
 							winner: battle.winner,
 							loser: battle.loser,
-							history: `https://server.porygonbot.xyz/kills/${
-								this.battleLink
-							}`,
+							history: `https://server.porygonbot.xyz/kills/${this.battleLink}`,
 							...this.rules,
 						};
 
