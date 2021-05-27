@@ -358,6 +358,8 @@ const getRules = async (rulesId) => {
 				let redirect = await record.get("Redirect");
 				rules.redirect = redirect;
 
+				rules.isSlash = false;
+
 				resolve(rules);
 			});
 		});
@@ -378,6 +380,7 @@ const getRules = async (rulesId) => {
 		tb: true,
 		combinePD: false,
 		redirect: "",
+		isSlash: false,
 	};
 };
 

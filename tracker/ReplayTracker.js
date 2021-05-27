@@ -8,12 +8,14 @@ const Battle = require("./Battle");
 const utils = require("../utils.js");
 //Importing all updating-related modules
 const DiscordDefaultStats = require("../updaters/DiscordDefaultStats");
+const InteractionStats = require("../updaters/InteractionStats")
 
 class ReplayTracker {
-	constructor(replayLink, message, rules) {
+	constructor(replayLink, message, rules, interaction) {
 		this.link = replayLink;
 		this.battleLink = replayLink.split("/")[3];
 		this.message = message;
+		this.interaction = interaction;
 		//Getting the custom rules for the battle
 		this.rules = rules;
 	}
@@ -55,11 +57,15 @@ class ReplayTracker {
 		};
 		
 		//Send the stats
+		if (info.client) {
+			let interacter = new InteractionStats(this.interaction, info.client);
+			await interacter.update(recordJson);
+		}
 		let defaulter = new DiscordDefaultStats(this.message);
 		await defaulter.update(recordJson);
 	}
 
-	async track(data) {
+	async track(data, client) {
 		let battle;
 		let players = [];
 		let dataArr = [];
@@ -2387,6 +2393,7 @@ class ReplayTracker {
 						format: this.rules.format,
 						tb: this.rules.tb,
 						combinePD: this.rules.combinePD,
+						client: client,
 					};
 
 					//Creating the objects for kills and deaths

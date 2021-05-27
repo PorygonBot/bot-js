@@ -24,7 +24,6 @@ module.exports = async (client, message) => {
 			let arg = await urls.next().value;
 
 			let link = arg + ".log";
-			console.log(link)
 			let response = await axios.get(link, {
 				headers: { "User-Agent": "PorygonTheBot" },
 			}).catch(e => console.error(e));
