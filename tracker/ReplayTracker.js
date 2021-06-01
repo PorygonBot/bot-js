@@ -380,6 +380,7 @@ class ReplayTracker {
 					line.startsWith("|-ability|") ||
 					line.startsWith("|-fieldactivate|") ||
 					line.startsWith("|-fail|") ||
+					line.startsWith("|-combine") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
@@ -655,6 +656,7 @@ class ReplayTracker {
 				else if (line.startsWith("|-sidestart|")) {
 					let prevLine = dataArr[dataArr.length - 2];
 					let prevParts = prevLine.split("|").slice(1);
+					console.log(prevParts);
 					let inflictorSide = prevParts[1].split(": ")[0];
 
 					let inflictor =
