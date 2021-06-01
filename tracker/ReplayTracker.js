@@ -656,7 +656,6 @@ class ReplayTracker {
 				else if (line.startsWith("|-sidestart|")) {
 					let prevLine = dataArr[dataArr.length - 2];
 					let prevParts = prevLine.split("|").slice(1);
-					console.log(prevParts);
 					let inflictorSide = prevParts[1].split(": ")[0];
 
 					let inflictor =
@@ -1463,9 +1462,10 @@ class ReplayTracker {
 								move = move.includes("move: ")
 									? move.split(": ")[1]
 									: move;
-								
+
 								if (victimSide === "p1a") {
-									killer = battle.p1a.otherAffliction[move] || "";
+									killer =
+										battle.p1a.otherAffliction[move] || "";
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 
@@ -1473,15 +1473,17 @@ class ReplayTracker {
 										victim.includes(killer) ||
 										killer.includes(victim)
 									) {
-										killer = battle.p2a.realName || battle.p2a.name;
+										killer =
+											battle.p2a.realName ||
+											battle.p2a.name;
 										let deathJson = battle.p1a.died(
 											prevMove,
 											killer,
 											this.rules.suicide === "Passive"
 										);
-										battle.p2Pokemon[battle.p2a.name].killed(
-											deathJson
-										);
+										battle.p2Pokemon[
+											battle.p2a.name
+										].killed(deathJson);
 									} else {
 										let deathJson = battle.p1a.died(
 											prevMove,
@@ -1493,7 +1495,8 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p1b") {
-									killer = battle.p1b.otherAffliction[move] || "";
+									killer =
+										battle.p1b.otherAffliction[move] || "";
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 
@@ -1501,15 +1504,17 @@ class ReplayTracker {
 										victim.includes(killer) ||
 										killer.includes(victim)
 									) {
-										killer = battle.p2a.realName || battle.p2a.name;
+										killer =
+											battle.p2a.realName ||
+											battle.p2a.name;
 										let deathJson = battle.p1b.died(
 											prevMove,
 											killer,
 											this.rules.suicide === "Passive"
 										);
-										battle.p2Pokemon[battle.p2a.name].killed(
-											deathJson
-										);
+										battle.p2Pokemon[
+											battle.p2a.name
+										].killed(deathJson);
 									} else {
 										let deathJson = battle.p1b.died(
 											prevMove,
@@ -1521,7 +1526,8 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p2a") {
-									killer = battle.p2a.otherAffliction[move] || "";
+									killer =
+										battle.p2a.otherAffliction[move] || "";
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 
@@ -1529,15 +1535,17 @@ class ReplayTracker {
 										victim.includes(killer) ||
 										killer.includes(victim)
 									) {
-										killer = battle.p1a.realName || battle.p1a.name;
+										killer =
+											battle.p1a.realName ||
+											battle.p1a.name;
 										let deathJson = battle.p2a.died(
 											prevMove,
 											killer,
 											this.rules.suicide === "Passive"
 										);
-										battle.p1Pokemon[battle.p1a.name].killed(
-											deathJson
-										);
+										battle.p1Pokemon[
+											battle.p1a.name
+										].killed(deathJson);
 									} else {
 										let deathJson = battle.p2a.died(
 											prevMove,
@@ -1549,7 +1557,8 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p2b") {
-									killer = battle.p2b.otherAffliction[move] || "";
+									killer =
+										battle.p2b.otherAffliction[move] || "";
 									victim =
 										battle.p2b.realName || battle.p2b.name;
 
@@ -1557,15 +1566,17 @@ class ReplayTracker {
 										victim.includes(killer) ||
 										killer.includes(victim)
 									) {
-										killer = battle.p1a.realName || battle.p1a.name;
+										killer =
+											battle.p1a.realName ||
+											battle.p1a.name;
 										let deathJson = battle.p2b.died(
 											prevMove,
 											killer,
 											this.rules.suicide === "Passive"
 										);
-										battle.p1Pokemon[battle.p1a.name].killed(
-											deathJson
-										);
+										battle.p1Pokemon[
+											battle.p1a.name
+										].killed(deathJson);
 									} else {
 										let deathJson = battle.p2b.died(
 											prevMove,
