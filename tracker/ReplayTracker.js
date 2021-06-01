@@ -338,7 +338,6 @@ class ReplayTracker {
 					line.startsWith(`|-resisted|`) ||
 					line.startsWith(`|-unboost|`) ||
 					line.startsWith(`|-boost|`) ||
-					line.startsWith(`|-singleturn|`) ||
 					line.startsWith("|debug|") ||
 					line.startsWith("|-enditem|") ||
 					line.startsWith("|-fieldstart|") ||
@@ -364,6 +363,21 @@ class ReplayTracker {
 						let realName = parts[2].split(",")[0];
 						battle[side].realName = realName;
 					}
+					dataArr.splice(dataArr.length - 1, 1);
+				}
+
+				//Moves that last for a single turn like Powder or Protect
+				else if (line.startsWith(`|-singleturn|`)) {
+					let move = parts[2];
+					let victimSide = parts[1].split(": ")[0];
+					let prevMoveLine = dataArr[dataArr.length - 2];
+					let prevMoveUserSide = prevMoveLine
+						.split("|")
+						.slice(1)[1]
+						.split(": ")[0];
+					battle[victimSide].otherAffliction[move] =
+						battle[prevMoveUserSide].realName ||
+						battle[prevMoveUserSide].name;
 					dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -453,37 +467,16 @@ class ReplayTracker {
 							.split(" ")[1]
 							.split(":")[0];
 
-						if (victimSide === "p1a") {
-							if (inflictorSide === "p2a")
-								battle.p1a.otherAffliction[move] =
-									battle.p2a.name;
-							else
-								battle.p1a.otherAffliction[move] =
-									battle.p2b.name;
-						} else if (victimSide === "p1b") {
-							if (inflictorSide === "p2a")
-								battle.p1b.otherAffliction[move] =
-									battle.p2a.name;
-							else
-								battle.p1b.otherAffliction[move] =
-									battle.p2b.name;
-						} else if (victimSide === "p2a") {
-							if (inflictorSide === "p1a")
-								battle.p2a.otherAffliction[move] =
-									battle.p1a.name;
-							else
-								battle.p2a.otherAffliction[move] =
-									battle.p1b.name;
-						} else if (victimSide === "p2b") {
-							if (inflictorSide === "p1a")
-								battle.p2b.otherAffliction[move] =
-									battle.p1a.name;
-							else
-								battle.p2b.otherAffliction[move] =
-									battle.p1b.name;
-						}
+						battle[victimSide].otherAffliction[move] =
+							battle[inflictorSide].name;
 					}
-					if (!(move === "Destiny Bond" || move === "Synchronize"))
+					if (
+						!(
+							move === "Destiny Bond" ||
+							move === "Synchronize" ||
+							move === "Powder"
+						)
+					)
 						dataArr.splice(dataArr.length - 1, 1);
 				}
 
@@ -1724,6 +1717,22 @@ class ReplayTracker {
 								victim = battle.p2b.realName || battle.p2b.name;
 							}
 							reason = `${prevMove} (passive) (Turn ${battle.turns})`;
+						} else if (prevMoveLine.includes("|-activate|")) {
+							killer =
+								battle[victimSide].otherAffliction[prevMove];
+							let deathJson = battle[victimSide].died(
+								prevMove,
+								killer,
+								false
+							);
+							if (victimSide.startsWith("p1")) {
+								battle.p2Pokemon[killer].killed(deathJson);
+							} else {
+								battle.p1Pokemon[killer].killed(deathJson);
+							}
+
+							victim = battle[victimSide].realName || battle[victimSide].name;
+							reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 						} else {
 							if (
 								!(
