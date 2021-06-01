@@ -993,12 +993,10 @@ class ReplayTracker {
 						//A pokemon has fainted
 						let victimSide = parts[1].split(": ")[0];
 						let prevMoveLine = dataArr[dataArr.length - 2];
+						let prevMoveParts = prevMoveLine.split("|").slice(1);
 						let prevMove;
 						try {
-							prevMove = prevMoveLine
-								.split("|")
-								.slice(1)[2]
-								.split(": ")[1];
+							prevMove = prevMoveParts[2].split(": ")[1];
 						} catch (e) {
 							prevMove = "";
 						}
@@ -1731,12 +1729,14 @@ class ReplayTracker {
 								battle.p1Pokemon[killer].killed(deathJson);
 							}
 
-							victim = battle[victimSide].realName || battle[victimSide].name;
+							victim =
+								battle[victimSide].realName ||
+								battle[victimSide].name;
 							reason = `${prevMove} (direct) (Turn ${battle.turns})`;
 						} else {
 							if (
 								!(
-									(prevMoveLine.startsWith(`|move|`) &&
+									((prevMoveLine.startsWith(`|move|`) &&
 										(prevMoveLine.includes(
 											"Self-Destruct"
 										) ||
@@ -1756,16 +1756,15 @@ class ReplayTracker {
 											prevMoveLine.includes(
 												"Lunar Dance"
 											))) ||
-									prevMoveLine.includes("Curse")
+										prevMoveLine.includes("Curse")) &&
+									prevMoveParts[1].includes(victimSide)
 								)
 							) {
 								//It's just a regular effing kill
 								prevMove = prevMoveLine.split("|").slice(1)[2];
-								let prevMoveParts = prevMoveLine
-									.split("|")
-									.slice(1);
 								let prevMoveUserSide =
 									prevMoveParts[1].split(": ")[0];
+
 								if (
 									(victimSide === "p1a" ||
 										(prevMoveParts[4] &&
@@ -2026,6 +2025,8 @@ class ReplayTracker {
 					) {
 						let prevMove = prevParts[2];
 
+						console.log(battle.p2a.isDead);
+
 						let killer;
 						let victim;
 						if (this.rules.suicide !== "None") {
@@ -2039,70 +2040,44 @@ class ReplayTracker {
 								battle[newSide].realName ||
 								battle[newSide].name;
 						}
-						if (victimSide === "p2a" && !battle.p2a.isDead) {
-							victim = battle.p2a.realName || battle.p2a.name;
 
-							let deathJson = battle.p2a.died(
+						if (!battle[victimSide].isDead) {
+							victim =
+								battle[victimSide].realName ||
+								battle[victimSide].name;
+
+							let deathJson = battle[victimSide].died(
 								prevMove,
 								killer,
 								this.rules.suicide === "Passive"
 							);
 							if (killer && killer !== victim) {
-								battle.p1Pokemon[killer].killed(deathJson);
+								if (victimSide.startsWith("p1")) {
+									battle.p2Pokemon[killer].killed(deathJson);
+								} else {
+									battle.p1Pokemon[killer].killed(deathJson);
+								}
 							}
-						} else if (victimSide === "p2b" && !battle.p2b.isDead) {
-							victim = battle.p2b.realName || battle.p2b.name;
 
-							let deathJson = battle.p2b.died(
-								prevMove,
-								killer,
-								this.rules.suicide === "Passive"
+							console.log(
+								`${this.battleLink}: ${victim} was killed by ${
+									killer || "suicide"
+								} due to ${prevMove} (${
+									this.rules.suicide === "Passive"
+										? "passive"
+										: "direct"
+								}) (Turn ${battle.turns}).`
 							);
-							if (killer && killer !== victim) {
-								battle.p1Pokemon[killer].killed(deathJson);
-							}
-						} else if (victimSide === "p1a" && !battle.p1a.isDead) {
-							victim = battle.p1a.realName || battle.p1a.name;
-
-							let deathJson = battle.p1a.died(
-								prevMove,
-								killer,
-								this.rules.suicide === "Passive"
+							battle.history.push(
+								`${victim} was killed by ${
+									killer || "suicide"
+								} due to ${prevMove} (${
+									this.rules.suicide === "Passive"
+										? "passive"
+										: "direct"
+								}) (Turn ${battle.turns}).`
 							);
-							if (killer && killer !== victim) {
-								battle.p2Pokemon[killer].killed(deathJson);
-							}
-						} else if (victimSide === "p1b" && !battle.p1b.isDead) {
-							victim = battle.p1b.realName || battle.p1b.name;
-
-							let deathJson = battle.p1b.died(
-								prevMove,
-								killer,
-								this.rules.suicide === "Passive"
-							);
-							if (killer && killer !== victim) {
-								battle.p2Pokemon[killer].killed(deathJson);
-							}
 						}
-
-						console.log(
-							`${this.battleLink}: ${victim} was killed by ${
-								killer || "suicide"
-							} due to ${prevMove} (${
-								this.rules.suicide === "Passive"
-									? "passive"
-									: "direct"
-							}) (Turn ${battle.turns}).`
-						);
-						battle.history.push(
-							`${victim} was killed by ${
-								killer || "suicide"
-							} due to ${prevMove} (${
-								this.rules.suicide === "Passive"
-									? "passive"
-									: "direct"
-							}) (Turn ${battle.turns}).`
-						);
 					} else {
 						//Regular kill if it wasn't picked up by the |-damage| statement
 						let killer;
