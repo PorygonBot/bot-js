@@ -582,6 +582,7 @@ const statusAbility = [
 	"Poison Touch",
 	"Flame Body",
 	"Effect Spore",
+	"Static"
 ];
 
 const hazardMoves = [
