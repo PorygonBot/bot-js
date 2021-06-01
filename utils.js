@@ -580,6 +580,7 @@ const hazardMoves = [
 	"G-Max Centiferno",
 	"G-Max Sandblast",
 	"Sticky Web",
+	"Court Change"
 ];
 
 const misnomers = [
