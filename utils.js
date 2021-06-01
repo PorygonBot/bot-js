@@ -545,6 +545,19 @@ const paraMoves = [
 	"Zap Cannon",
 ];
 
+const freezeMoves = [
+	"Blizzard",
+	"Freeze-Dry",
+	"Freezing Glare",
+	"Ice Beam",
+	"Ice Fang",
+	"Ice Punch",
+	"Powder Snow",
+	"Secret Power",
+	"Shadow Chill",
+	"Tri Attack",
+];
+
 const sleepMoves = [
 	"Dark Void",
 	"G-Max Befuddle",
@@ -562,13 +575,13 @@ const sleepMoves = [
 	"Yawn",
 ];
 
-const statusMoves = [...toxicMoves, ...burnMoves, ...paraMoves, ...sleepMoves];
+const statusMoves = [...toxicMoves, ...burnMoves, ...paraMoves, ...sleepMoves, ...freezeMoves];
 
 const statusAbility = [
 	"Poison Point",
 	"Poison Touch",
 	"Flame Body",
-	"Effect Spore"
+	"Effect Spore",
 ];
 
 const hazardMoves = [
@@ -582,7 +595,7 @@ const hazardMoves = [
 	"G-Max Centiferno",
 	"G-Max Sandblast",
 	"Sticky Web",
-	"Court Change"
+	"Court Change",
 ];
 
 const misnomers = [
