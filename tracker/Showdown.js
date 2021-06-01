@@ -732,7 +732,9 @@ class Showdown {
 										battle.p1b.name;
 							}
 						}
-						if (move !== "Destiny Bond" && move !== "Synchronize")
+						if (
+							!(move === "Destiny Bond" || move === "Synchronize")
+						)
 							dataArr.splice(dataArr.length - 1, 1);
 					}
 
@@ -747,35 +749,6 @@ class Showdown {
 							let victimSide = parts[3].split(": ")[0];
 							battle.history.push(
 								`${battle[inflictorSide].name} missed ${move} against ${battle[victimSide].name} (Turn ${battle.turns}).`
-							);
-						}
-
-						if (
-							move === "Stealth Rock" ||
-							move === "Spikes" ||
-							move === "Toxic Spikes"
-						) {
-							//Hazards
-							//The pokemon that inflicted the hazards
-							let inflictorSide = parts[1].split(": ")[0];
-
-							let inflictor;
-							if (inflictorSide === "p1a") {
-								inflictor = battle.p1a.name;
-							} else if (inflictorSide === "p1b") {
-								inflictor = battle.p1b.name;
-							} else if (inflictorSide === "p2a") {
-								inflictor = battle.p2a.name;
-							} else if (inflictorSide === "p2b") {
-								inflictor = battle.p1b.name;
-							}
-							battle.addHazard(
-								inflictorSide.startsWith("p1") ? "p2" : "p1",
-								move,
-								inflictor
-							);
-							battle.history.push(
-								`${inflictor} used ${move} (Turn ${battle.turns}).`
 							);
 						}
 					} else if (line.startsWith(`|-crit|`)) {
@@ -806,7 +779,19 @@ class Showdown {
 						let victim = "";
 
 						//If status was caused by a move
-						if (
+						if (prevMoveLine.includes("Synchronize")) {
+							let inflictorSide = prevParts[1].split(": ")[0];
+
+							inflictor = battle[inflictorSide].realName;
+							victim =
+								battle[victimSide].realName ||
+								battle[victimSide].name;
+							battle[victimSide].statusEffect(
+								parts[2] === "tox" ? "psn" : parts[2],
+								inflictor,
+								"Passive"
+							);
+						} else if (
 							(prevMoveLine.startsWith(`|move|`) &&
 								(utils.toxicMoves.includes(prevMove) ||
 									utils.burnMoves.includes(prevMove))) ||
@@ -973,90 +958,6 @@ class Showdown {
 									this.rules.abilityItem
 								);
 							}
-						} else if (prevMoveLine.includes("Synchronize")) {
-							let inflictorSide = prevParts[1].split(": ")[0];
-
-							if (inflictorSide === "p1a") {
-								if (victimSide === "p2a") {
-									battle.p2a.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p1a.name,
-										"Passive"
-									);
-									inflictor = battle.p1a.name;
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (victimSide === "p2b") {
-									battle.p2b.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p1a.name,
-										"Passive"
-									);
-									inflictor = battle.p1a.name;
-									victim =
-										battle.p2b.realName || battle.p2b.name;
-								}
-							} else if (inflictorSide === "p1b") {
-								if (victimSide === "p2a") {
-									battle.p2a.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p1b.name,
-										"Passive"
-									);
-									inflictor = battle.p1b.name;
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (victimSide === "p2b") {
-									battle.p2b.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p1b.name,
-										"Passive"
-									);
-									inflictor = battle.p1b.name;
-									victim =
-										battle.p2a.realName || battle.p2b.name;
-								}
-							} else if (inflictorSide === "p2a") {
-								if (victimSide === "p1a") {
-									battle.p1a.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p2a.name,
-										"Passive"
-									);
-									inflictor = battle.p2a.name;
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (victimSide === "p1b") {
-									battle.p1b.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p2a.name,
-										"Passive"
-									);
-									inflictor = battle.p2a.name;
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								}
-							} else if (inflictorSide === "p2b") {
-								if (victimSide === "p1a") {
-									battle.p1a.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p2b.name,
-										"Passive"
-									);
-									inflictor = battle.p2b.name;
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (victimSide === "p1b") {
-									battle.p1b.statusEffect(
-										parts[2] === "tox" ? "psn" : parts[2],
-										battle.p2b.name,
-										"Passive"
-									);
-									inflictor = battle.p2b.name;
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								}
-							}
 						} else {
 							//If status wasn't caused by a move, but rather Toxic Spikes
 							if (victimSide === "p1a") {
@@ -1123,32 +1024,30 @@ class Showdown {
 						let prevLine = dataArr[dataArr.length - 2];
 						let prevParts = prevLine.split("|").slice(1);
 						let inflictorSide = prevParts[1].split(": ")[0];
-						let inflictor = "";
 
-						if (inflictorSide === "p1a")
-							inflictor = battle.p1a.name;
-						else if (inflictorSide === "p1b")
-							inflictor = battle.p1b.name;
-						else if (inflictorSide === "p2a")
-							inflictor = battle.p2a.name;
-						else if (inflictorSide === "p2b")
-							inflictor = battle.p2b.name;
+						let inflictor = battle[inflictorSide].name;
 
 						battle.addHazard(
 							parts[1].split(": ")[0],
-							parts[2],
+							parts[2].split(": ")[1] || parts[2],
 							inflictor
 						);
+
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//If a hazard ends on a side
 					else if (line.startsWith(`|-sideend|`)) {
 						let side = parts[1].split(": ")[0];
 						let hazard = parts[2];
-						let move = parts[3].split("move: ")[1];
+						let prevMoveLine = dataArr[dataArr.length - 2];
+						let prevMoveParts = prevMoveLine.split("|").slice(1);
+						let move = parts[3]
+							? parts[3].split("move: ")[1]
+							: prevMoveParts[2];
 						let removerSide = parts[4]
-							.split("[of] ")[1]
-							.split(": ")[0];
+							? parts[4].split("[of] ")[1].split(": ")[0]
+							: prevMoveParts[1].split(": ")[0];
 						battle.endHazard(side, hazard);
 						battle.history.push(
 							`${hazard} has been removed by ${battle[removerSide].realName} with ${move} (Turn ${battle.turns}).`
@@ -1497,9 +1396,22 @@ class Showdown {
 											killer,
 											true
 										);
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2a.name
+													: undefined;
+										}
+										if (killer) {
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
@@ -1510,9 +1422,22 @@ class Showdown {
 											killer,
 											true
 										);
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2b.name
+													: undefined;
+										}
+										if (killer) {
+											battle.p2Pokemon[killer].killed(
+												deathJson
+											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p1b.realName ||
 											battle.p1b.name;
@@ -1523,9 +1448,22 @@ class Showdown {
 											killer,
 											true
 										);
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1a.name
+													: undefined;
+										}
+										if (killer) {
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
@@ -1536,9 +1474,22 @@ class Showdown {
 											killer,
 											true
 										);
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1b.name
+													: undefined;
+										}
+										if (killer) {
+											battle.p1Pokemon[killer].killed(
+												deathJson
+											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p2b.realName ||
 											battle.p2b.name;
@@ -1568,10 +1519,12 @@ class Showdown {
 													? battle.p2a.name
 													: undefined;
 										}
-										if (killer)
+										if (killer) {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p1a.realName ||
 											battle.p1a.name;
@@ -1591,10 +1544,12 @@ class Showdown {
 													? battle.p2b.name
 													: undefined;
 										}
-										if (killer)
+										if (killer) {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p1b.realName ||
 											battle.p1b.name;
@@ -1614,19 +1569,12 @@ class Showdown {
 													? battle.p1a.name
 													: undefined;
 										}
-										console.log(killer);
-										console.log(
-											Object.keys(battle.p2Pokemon)
-										);
-										console.log(
-											Object.keys(
-												battle.p2Pokemon
-											).includes(killer)
-										);
-										if (killer)
+										if (killer) {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p2a.realName ||
 											battle.p2a.name;
@@ -1646,10 +1594,12 @@ class Showdown {
 													? battle.p1b.name
 													: undefined;
 										}
-										if (killer)
+										if (killer) {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
+										}
 										victim =
 											battle.p2b.realName ||
 											battle.p2b.name;
@@ -1661,24 +1611,27 @@ class Showdown {
 								else if (move === "brn" || move === "psn") {
 									if (victimSide === "p1a") {
 										killer = battle.p1a.statusInflictor;
-										if (
-											Object.keys(
-												battle.p1Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p2a.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p1a.died(
 											move,
 											killer,
 											true
 										);
+
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2a.name
+													: undefined;
+										}
 										if (killer) {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
 										}
 										victim =
 											battle.p1a.realName ||
@@ -1690,24 +1643,27 @@ class Showdown {
 										}) (Turn ${battle.turns})`;
 									} else if (victimSide === "p1b") {
 										killer = battle.p1b.statusInflictor;
-										if (
-											Object.keys(
-												battle.p1Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p2b.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p1b.died(
 											move,
 											killer,
 											true
 										);
+
+										if (
+											Object.keys(
+												battle.p1Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p2b.name
+													: undefined;
+										}
 										if (killer) {
 											battle.p2Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
 										}
 										victim =
 											battle.p1b.realName ||
@@ -1719,24 +1675,27 @@ class Showdown {
 										}) (Turn ${battle.turns})`;
 									} else if (victimSide === "p2a") {
 										killer = battle.p2a.statusInflictor;
-										if (
-											Object.keys(
-												battle.p2Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p1a.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p2a.died(
 											move,
 											killer,
 											true
 										);
+
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1a.name
+													: undefined;
+										}
 										if (killer) {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
 										}
 										victim =
 											battle.p2a.realName ||
@@ -1748,24 +1707,27 @@ class Showdown {
 										}) (Turn ${battle.turns})`;
 									} else if (victimSide === "p2b") {
 										killer = battle.p2b.statusInflictor;
-										if (
-											Object.keys(
-												battle.p2Pokemon
-											).includes(killer)
-										) {
-											if (this.rules.selfteam !== "None")
-												killer = battle.p1b.name;
-											else killer = undefined;
-										}
 										let deathJson = battle.p2b.died(
 											move,
 											killer,
 											true
 										);
+
+										if (
+											Object.keys(
+												battle.p2Pokemon
+											).includes(killer)
+										) {
+											killer =
+												this.rules.selfteam !== "None"
+													? battle.p1b.name
+													: undefined;
+										}
 										if (killer) {
 											battle.p1Pokemon[killer].killed(
 												deathJson
 											);
+											killer = "an ally";
 										}
 										victim =
 											battle.p2b.realName ||
@@ -1873,33 +1835,18 @@ class Showdown {
 										? parts[4]
 												.split(": ")[0]
 												.split("] ")[1] || ""
-										: "";
+										: parts[1].split(": ")[0];
 
 									if (owner === victimSide) {
 										victim =
 											battle[owner].realName ||
 											battle[owner].name;
-										if (this.rules.suicide !== "None") {
-											if (victimSide === "p1a") {
-												victim =
-													battle.p1a.realName ||
-													battle.p1a.name;
-											} else if (killerSide === "p2b") {
-												victim =
-													battle.p1b.realName ||
-													battle.p1b.name;
-											} else if (victimSide === "p1a") {
-												victim =
-													battle.p2a.realName ||
-													battle.p2a.name;
-											} else if (killerSide === "p2b") {
-												victim =
-													battle.p2b.realName ||
-													battle.p2b.name;
-											}
-										}
+										if (this.rules.suicide !== "None")
+											victim =
+												battle[victimSide].realName ||
+												battle[victimSide].name;
 
-										let deathJson = battle.p1a.died(
+										let deathJson = battle[victimSide].died(
 											prevMove,
 											killer,
 											this.rules.suicide === "Passive"
@@ -2654,7 +2601,6 @@ class Showdown {
 									killer,
 									false
 								);
-
 								battle.p1Pokemon[killer].killed(deathJson);
 							} else if (
 								victimSide === "p2b" &&
@@ -3001,8 +2947,11 @@ class Showdown {
 							battle.history.length === 0
 								? ["Nothing happened"]
 								: battle.history;
-						this.battleLink = this.battleLink.replace("battle", this.serverType);
-						
+						this.battleLink = this.battleLink.replace(
+							"battle",
+							this.serverType
+						);
+
 						await axios
 							.post(
 								`https://server.porygonbot.xyz/kills/${this.battleLink}`,

@@ -777,7 +777,9 @@ class ReplayTracker {
 					let hazard = parts[2];
 					let prevMoveLine = dataArr[dataArr.length - 2];
 					let prevMoveParts = prevMoveLine.split("|").slice(1);
-					let move = parts[3] ? parts[3].split("move: ")[1] : prevMoveParts[2];
+					let move = parts[3]
+						? parts[3].split("move: ")[1]
+						: prevMoveParts[2];
 					let removerSide = parts[4]
 						? parts[4].split("[of] ")[1].split(": ")[0]
 						: prevMoveParts[1].split(": ")[0];
