@@ -562,6 +562,8 @@ const sleepMoves = [
 	"Yawn",
 ];
 
+const statusMoves = [...toxicMoves, ...burnMoves, ...paraMoves, ...sleepMoves];
+
 const statusAbility = [
 	"Poison Point",
 	"Poison Touch",
@@ -704,6 +706,7 @@ const util = {
 	burnMoves,
 	paraMoves,
 	sleepMoves,
+	statusMoves,
 	statusAbility,
 	hazardMoves,
 	misnomers,

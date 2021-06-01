@@ -540,17 +540,14 @@ class ReplayTracker {
 						);
 					} else if (
 						(prevMoveLine.startsWith(`|move|`) &&
-							(utils.toxicMoves.includes(prevMove) ||
-								utils.burnMoves.includes(prevMove))) ||
+							utils.statusMoves.includes(prevMove)) ||
 						(prevPrevMoveLine.startsWith(`|move|`) &&
-							(utils.toxicMoves.includes(prevPrevMove) ||
-								utils.burnMoves.includes(prevPrevMove)))
+							utils.statusMoves.includes(prevPrevMove))
 					) {
 						//Getting the pokemon side that inflicted the status
 						let inflictorSide =
 							prevMoveLine.startsWith(`|move|`) &&
-							(utils.toxicMoves.includes(prevMove) ||
-								utils.burnMoves.includes(prevMove))
+							utils.statusMoves.includes(prevMove)
 								? prevMoveLine
 										.split("|")
 										.slice(1)[1]
@@ -560,79 +557,15 @@ class ReplayTracker {
 										.slice(1)[1]
 										.split(": ")[0];
 
-						if (inflictorSide === "p1a") {
-							if (victimSide === "p2a") {
-								battle.p2a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1a.name,
-									"Passive"
-								);
-								inflictor = battle.p1a.name;
-								victim = battle.p2a.realName || battle.p2a.name;
-							} else if (victimSide === "p2b") {
-								battle.p2b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1a.name,
-									"Passive"
-								);
-								inflictor = battle.p1a.name;
-								victim = battle.p2b.realName || battle.p2b.name;
-							}
-						} else if (inflictorSide === "p1b") {
-							if (victimSide === "p2a") {
-								battle.p2a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1b.name,
-									"Passive"
-								);
-								inflictor = battle.p1b.name;
-								victim = battle.p2a.realName || battle.p2a.name;
-							} else if (victimSide === "p2b") {
-								battle.p2b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p1b.name,
-									"Passive"
-								);
-								inflictor = battle.p1b.name;
-								victim = battle.p2a.realName || battle.p2b.name;
-							}
-						} else if (inflictorSide === "p2a") {
-							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-								inflictor = battle.p2a.name;
-								victim = battle.p1a.realName || battle.p1a.name;
-							} else if (victimSide === "p1b") {
-								battle.p1b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2a.name,
-									"Passive"
-								);
-								inflictor = battle.p2a.name;
-								victim = battle.p1b.realName || battle.p1b.name;
-							}
-						} else if (inflictorSide === "p2b") {
-							if (victimSide === "p1a") {
-								battle.p1a.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2b.name,
-									"Passive"
-								);
-								inflictor = battle.p2b.name;
-								victim = battle.p1a.realName || battle.p1a.name;
-							} else if (victimSide === "p1b") {
-								battle.p1b.statusEffect(
-									parts[2] === "tox" ? "psn" : parts[2],
-									battle.p2b.name,
-									"Passive"
-								);
-								inflictor = battle.p2b.name;
-								victim = battle.p1b.realName || battle.p1b.name;
-							}
-						}
+						inflictor = battle[inflictorSide].name;
+						battle[victimSide].statusEffect(
+							parts[2] === "tox" ? "psn" : parts[2],
+							inflictor,
+							"Passive"
+						);
+						victim =
+							battle[victimSide].realName ||
+							battle[victimSide].name;
 					} else if (
 						(line.includes("ability") &&
 							utils.statusAbility.includes(
