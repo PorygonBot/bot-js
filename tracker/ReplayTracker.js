@@ -1463,7 +1463,7 @@ class ReplayTracker {
 									: move;
 								
 								if (victimSide === "p1a") {
-									killer = battle.p1a.otherAffliction[move];
+									killer = battle.p1a.otherAffliction[move] || "";
 									victim =
 										battle.p1a.realName || battle.p1a.name;
 
@@ -1491,7 +1491,7 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p1b") {
-									killer = battle.p1b.otherAffliction[move];
+									killer = battle.p1b.otherAffliction[move] || "";
 									victim =
 										battle.p1b.realName || battle.p1b.name;
 
@@ -1519,7 +1519,7 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p2a") {
-									killer = battle.p2a.otherAffliction[move];
+									killer = battle.p2a.otherAffliction[move] || "";
 									victim =
 										battle.p2a.realName || battle.p2a.name;
 
@@ -1547,7 +1547,7 @@ class ReplayTracker {
 										);
 									}
 								} else if (victimSide === "p2b") {
-									killer = battle.p2b.otherAffliction[move];
+									killer = battle.p2b.otherAffliction[move] || "";
 									victim =
 										battle.p2b.realName || battle.p2b.name;
 
