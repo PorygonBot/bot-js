@@ -78,7 +78,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
