@@ -117,9 +117,9 @@ class DraftLeagueStats {
 			await this.channel.send(
 				`:x: Error with match number \`${
 					matchJson.battleId
-				}\`. I will be unable to analyze this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${
-					JSON.stringify(e.response.data)
-				}\nLine number: ${
+				}\`. I will be unable to analyze this match until you screenshot this message and send it to the Porygon server's bugs-and-help channel and ping harbar20 in the same channel.\n\n**Error:**\`\`\`${JSON.stringify(
+					e.response.data
+				)}\nLine number: ${
 					e.stack.split(":")[2]
 				}\`\`\`\nPlease paste these stats instead: `
 			);
