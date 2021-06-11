@@ -103,6 +103,8 @@ class ReplayTracker {
 				else if (line.startsWith(`|turn|`)) {
 					battle.turns++;
 					console.log(battle.turns);
+
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//Checks if the battle is a randoms match
@@ -232,6 +234,10 @@ class ReplayTracker {
 					line.startsWith("|-fieldactivate|") ||
 					line.startsWith("|-fail|") ||
 					line.startsWith("|-combine") ||
+					line.startsWith("|t:|") ||
+					line.startsWith("|c|") ||
+					line.startsWith("|l|") ||
+					line.startsWith("|j|") ||
 					line === "|"
 				) {
 					dataArr.splice(dataArr.length - 1, 1);
@@ -255,6 +261,7 @@ class ReplayTracker {
 					let move = parts[2];
 					let victimSide = parts[1].split(": ")[0];
 					let prevMoveLine = dataArr[dataArr.length - 2];
+					console.log(prevMoveLine);
 					let prevMoveUserSide = prevMoveLine
 						.split("|")
 						.slice(1)[1]
@@ -509,9 +516,7 @@ class ReplayTracker {
 					let prevParts = prevLine.split("|").slice(1);
 					let inflictorSide = prevParts[1].split(": ")[0];
 
-					let inflictor =
-						battle[inflictorSide].realName ||
-						battle[inflictorSide].name;
+					let inflictor = battle[inflictorSide].name;
 
 					battle.addHazard(
 						parts[1].split(": ")[0],
@@ -690,12 +695,18 @@ class ReplayTracker {
 				//If a pokemon's status is cured
 				else if (line.startsWith(`|-curestatus|`)) {
 					let side = parts[1].split(": ")[0];
-					battle[side].statusFix();
+					if (!(side.endsWith("a") || side.endsWith("b"))) {
+						for (let pokemon of Object.keys(battle[`${side}Pokemon`])) {
+							battle[`${side}Pokemon`][pokemon].statusFix();
+						}
+					} else {
+						battle[side].statusFix();
+					}
 				}
 
 				//When a Pokemon is damaged, and possibly faints
 				else if (line.startsWith(`|-damage|`)) {
-					if (parts[2].endsWith("fnt")) {
+					if (parts[2].endsWith("fnt") || parts[2].startsWith("0")) {
 						//A pokemon has fainted
 						let victimSide = parts[1].split(": ")[0];
 						let prevMoveLine = dataArr[dataArr.length - 2];
@@ -720,7 +731,7 @@ class ReplayTracker {
 									battle.hazardsSet[
 										victimSide.substring(0, 2)
 									][move];
-								let deathJson = battle[side].died(
+								let deathJson = battle[victimSide].died(
 									move,
 									killer,
 									true
