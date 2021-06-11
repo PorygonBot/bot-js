@@ -696,7 +696,9 @@ class ReplayTracker {
 				else if (line.startsWith(`|-curestatus|`)) {
 					let side = parts[1].split(": ")[0];
 					if (!(side.endsWith("a") || side.endsWith("b"))) {
-						for (let pokemon of Object.keys(battle[`${side}Pokemon`])) {
+						for (let pokemon of Object.keys(
+							battle[`${side}Pokemon`]
+						)) {
 							battle[`${side}Pokemon`][pokemon].statusFix();
 						}
 					} else {
@@ -958,79 +960,33 @@ class ReplayTracker {
 								utils.recoilMoves.includes(move) ||
 								move.toLowerCase() === "recoil"
 							) {
-								if (victimSide == "p1a") {
-									if (this.rules.recoil !== "None")
-										killer =
-											battle.p2a.realName ||
-											battle.p2a.name;
-									else killer = undefined;
+								if (this.rules.recoil !== "None")
+									killer =
+										battle[
+											victimSide.includes("p1")
+												? victimSide.replace("1", "2")
+												: victimSide.replace("2", "1")
+										].name;
+								else killer = undefined;
 
-									let deathJson = battle.p1a.died(
-										"recoil",
-										killer,
-										this.rules.recoil === "Passive"
-									);
-									if (killer)
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
-									victim =
-										battle.p1a.realName || battle.p1a.name;
-								} else if (victimSide == "p1b") {
-									if (this.rules.recoil !== "None")
-										killer =
-											battle.p2b.realName ||
-											battle.p2b.name;
-									else killer = undefined;
+								let deathJson = battle[victimSide].died(
+									"recoil",
+									killer,
+									this.rules.recoil === "Passive"
+								);
 
-									let deathJson = battle.p1b.died(
-										"recoil",
-										killer,
-										this.rules.recoil === "Passive"
-									);
-									if (killer)
-										battle.p2Pokemon[killer].killed(
-											deathJson
-										);
-									victim =
-										battle.p1b.realName || battle.p1b.name;
-								} else if (victimSide === "p2a") {
-									if (this.rules.recoil !== "None")
-										killer =
-											battle.p1a.realName ||
-											battle.p1a.name;
-									else killer = undefined;
+								if (killer)
+									battle[
+										`${
+											victimSide.startsWith("p1")
+												? "p2"
+												: "p1"
+										}Pokemon`
+									][killer].killed(deathJson);
+								victim =
+									battle[victimSide].realName ||
+									battle[victimSide].name;
 
-									let deathJson = battle.p2a.died(
-										"recoil",
-										killer,
-										this.rules.recoil === "Passive"
-									);
-									if (killer)
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
-									victim =
-										battle.p2a.realName || battle.p2a.name;
-								} else if (victimSide === "p2b") {
-									if (this.rules.recoil !== "None")
-										killer =
-											battle.p1b.realName ||
-											battle.p1b.name;
-									else killer = undefined;
-
-									let deathJson = battle.p2b.died(
-										"recoil",
-										killer,
-										this.rules.recoil === "Passive"
-									);
-									if (killer)
-										battle.p1Pokemon[killer].killed(
-											deathJson
-										);
-									victim =
-										battle.p2b.realName || battle.p2b.name;
-								}
 								reason = `recoil (${
 									this.rules.recoil === "Passive"
 										? "passive"
