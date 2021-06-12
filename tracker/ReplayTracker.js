@@ -1242,7 +1242,6 @@ class ReplayTracker {
 						) {
 							//Future Sight or Doom Desire Kill
 							if (victimSide.startsWith("p1")) {
-								console.log(battle.hazardsSet.p1);
 								killer = battle.hazardsSet.p1[prevMove];
 								let deathJson = battle[victimSide].died(
 									prevMove,
@@ -1363,6 +1362,7 @@ class ReplayTracker {
 											victimSide === "p2a")) &&
 									!battle.p2a.isDead
 								) {
+									console.log(prevMoveUserSide)
 									killer =
 										battle[prevMoveUserSide].realName ||
 										battle[prevMoveUserSide].name;
@@ -1584,6 +1584,8 @@ class ReplayTracker {
 						}
 						battle.forfeiter = forfeiter;
 					}
+
+					dataArr.splice(dataArr.length - 1, 1);
 				}
 
 				//At the end of the match, when the winner is announced
