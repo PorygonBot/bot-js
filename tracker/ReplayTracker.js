@@ -555,6 +555,7 @@ class ReplayTracker {
 				else if (line.startsWith(`|-start|`)) {
 					let prevMove = dataArr[dataArr.length - 2];
 					let affliction = parts[2];
+
 					if (
 						prevMove.startsWith(`|move|`) &&
 						(prevMove.split("|").slice(1)[2] ===
@@ -578,7 +579,8 @@ class ReplayTracker {
 						let side = parts[1].split(": ")[0];
 
 						if (move === "Future Sight" || move === "Doom Desire") {
-							battle.hazardsSet[afflictorSide.substring(0, 2)][
+							console.log("yo")
+							battle.hazardsSet[afflictorSide.substring(0, 2).includes("1") ? afflictorSide.substring(0, 2).replace("1", "2") : afflictorSide.substring(0, 2).replace("2", "1")][
 								move
 							] =
 								battle[afflictorSide].realName ||
@@ -1240,6 +1242,7 @@ class ReplayTracker {
 						) {
 							//Future Sight or Doom Desire Kill
 							if (victimSide.startsWith("p1")) {
+								console.log(battle.hazardsSet.p1);
 								killer = battle.hazardsSet.p1[prevMove];
 								let deathJson = battle[victimSide].died(
 									prevMove,
