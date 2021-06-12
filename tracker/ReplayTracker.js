@@ -579,10 +579,16 @@ class ReplayTracker {
 						let side = parts[1].split(": ")[0];
 
 						if (move === "Future Sight" || move === "Doom Desire") {
-							console.log("yo")
-							battle.hazardsSet[afflictorSide.substring(0, 2).includes("1") ? afflictorSide.substring(0, 2).replace("1", "2") : afflictorSide.substring(0, 2).replace("2", "1")][
-								move
-							] =
+							console.log("yo");
+							battle.hazardsSet[
+								afflictorSide.substring(0, 2).includes("1")
+									? afflictorSide
+											.substring(0, 2)
+											.replace("1", "2")
+									: afflictorSide
+											.substring(0, 2)
+											.replace("2", "1")
+							][move] =
 								battle[afflictorSide].realName ||
 								battle[afflictorSide].name;
 						} else {
@@ -1362,7 +1368,7 @@ class ReplayTracker {
 											victimSide === "p2a")) &&
 									!battle.p2a.isDead
 								) {
-									console.log(prevMoveUserSide)
+									console.log(prevMoveUserSide);
 									killer =
 										battle[prevMoveUserSide].realName ||
 										battle[prevMoveUserSide].name;

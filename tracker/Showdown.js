@@ -52,7 +52,7 @@ class Showdown {
 				ip = "clover.weedl.es:8000";
 				break;
 			case "RR":
-				ip = "164.90.254.251:8000";
+				ip = "sim.radicalred.net:8000";
 				break;
 		}
 		this.server = `ws://${ip}/showdown/websocket`;
@@ -389,12 +389,14 @@ class Showdown {
 								oldPokemon.name
 							] = oldPokemon;
 						}
+
 						battle[side] =
 							battle[`${side.substring(0, 2)}Pokemon`][replacer];
 						battle[side].realName = replacerRealName;
 						battle[`${side.substring(0, 2)}Pokemon`][
 							battle[side].realName
 						] = battle[side];
+
 						console.log(
 							`${this.battleLink}: ${
 								oldPokemon.realName || oldPokemon.name
@@ -407,16 +409,19 @@ class Showdown {
 					//Ally Switch and stuff
 					else if (line.startsWith("|swap|")) {
 						//Swapping the mons
-						let userSide = parts[1].split(": ")[0];
+						let userSide = parts[1].split(": ")[0].substring(0, 2);
+
 						let temp = battle[`${userSide}a`];
 						battle[`${userSide}a`] = battle[`${userSide}b`];
 						battle[`${userSide}b`] = temp;
 
 						console.log(
 							`${this.battleLink}: ${
-								battle[`${userSide}a`]
+								battle[`${userSide}a`].realName ||
+								battle[`${userSide}a`].name
 							} has swapped with ${
-								battle[`${userSide}b`]
+								battle[`${userSide}b`].realName ||
+								battle[`${userSide}b`].name
 							} due to ${parts[3].split(": ")[1]}`
 						);
 					}
@@ -794,6 +799,7 @@ class Showdown {
 					else if (line.startsWith(`|-start|`)) {
 						let prevMove = dataArr[dataArr.length - 2];
 						let affliction = parts[2];
+
 						if (
 							prevMove.startsWith(`|move|`) &&
 							(prevMove.split("|").slice(1)[2] ===
@@ -821,8 +827,15 @@ class Showdown {
 								move === "Future Sight" ||
 								move === "Doom Desire"
 							) {
+								console.log("yo");
 								battle.hazardsSet[
-									afflictorSide.substring(0, 2)
+									afflictorSide.substring(0, 2).includes("1")
+										? afflictorSide
+												.substring(0, 2)
+												.replace("1", "2")
+										: afflictorSide
+												.substring(0, 2)
+												.replace("2", "1")
 								][move] =
 									battle[afflictorSide].realName ||
 									battle[afflictorSide].name;
@@ -1660,6 +1673,7 @@ class Showdown {
 												victimSide === "p2a")) &&
 										!battle.p2a.isDead
 									) {
+										console.log(prevMoveUserSide);
 										killer =
 											battle[prevMoveUserSide].realName ||
 											battle[prevMoveUserSide].name;
@@ -1895,6 +1909,8 @@ class Showdown {
 							}
 							battle.forfeiter = forfeiter;
 						}
+
+						dataArr.splice(dataArr.length - 1, 1);
 					}
 
 					//At the end of the match, when the winner is announced

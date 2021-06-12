@@ -79,7 +79,7 @@ module.exports = async (client, message) => {
 				psServer = "Drafthub";
 			else if (battlelink.includes("clover.weedl.es"))
 				psServer = "Clover";
-			else if (battlelink.includes("radicalredshowdown.us.to"))
+			else if (battlelink.includes("play.radicalred.net"))
 				psServer = "RR";
 			else {
 				channel.send(
