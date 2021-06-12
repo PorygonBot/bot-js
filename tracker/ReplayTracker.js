@@ -78,7 +78,7 @@ class ReplayTracker {
 			let realdata = data.split("\n");
 
 			for (const line of realdata) {
-				console.log(line);
+				//console.log(line);
 				dataArr.push(line);
 
 				//Separates the line into parts, separated by `|`
@@ -156,12 +156,14 @@ class ReplayTracker {
 							oldPokemon.name
 						] = oldPokemon;
 					}
+
 					battle[side] =
 						battle[`${side.substring(0, 2)}Pokemon`][replacer];
 					battle[side].realName = replacerRealName;
 					battle[`${side.substring(0, 2)}Pokemon`][
 						battle[side].realName
 					] = battle[side];
+
 					console.log(
 						`${this.battleLink}: ${
 							oldPokemon.realName || oldPokemon.name
@@ -174,17 +176,20 @@ class ReplayTracker {
 				//Ally Switch and stuff
 				else if (line.startsWith("|swap|")) {
 					//Swapping the mons
-					let userSide = parts[1].split(": ")[0];
+					let userSide = parts[1].split(": ")[0].substring(0, 2);
+
 					let temp = battle[`${userSide}a`];
 					battle[`${userSide}a`] = battle[`${userSide}b`];
 					battle[`${userSide}b`] = temp;
 
 					console.log(
 						`${this.battleLink}: ${
-							battle[`${userSide}a`]
-						} has swapped with ${battle[`${userSide}b`]} due to ${
-							parts[3].split(": ")[1]
-						}`
+							battle[`${userSide}a`].realName ||
+							battle[`${userSide}a`].name
+						} has swapped with ${
+							battle[`${userSide}b`].realName ||
+							battle[`${userSide}b`].name
+						} due to ${parts[3].split(": ")[1]}`
 					);
 				}
 
